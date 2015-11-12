@@ -26,7 +26,7 @@ private:
 
     std::shared_ptr<IoPort> otherPort_;
 
-    std::string direction_;
+    std::string myDirection_;
 
     boost::uuids::uuid uuid_;
 
@@ -38,7 +38,6 @@ private:
 
 public:
     IoPort(std::shared_ptr<Hub> hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed, std::string direction);
-    IoPort(std::shared_ptr<Hub> hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed);
 
     // Number of messages forwarded to the queue
     size_t getNumMessagesForwarded();

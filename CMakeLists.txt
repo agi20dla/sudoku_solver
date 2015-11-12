@@ -8,9 +8,9 @@ project(sudoku_solver)
 set(GMOCK_HOME /home/jason/src/gmock-1.7.0)
 set(BOOST_ROOT /home/jason/src/boost_1_58_0)
 
-include_directories(${GMOCK_HOME}/include ${GMOCK_HOME}/gtest/include ${BOOST_ROOT})
+include_directories(${GMOCK_HOME}/include ${GMOCK_HOME}/gtest/include ${BOOST_ROOT} $ENV{CPPUTEST_HOME}/include)
 
-link_directories(${GMOCK_HOME}/mybuild ${GMOCK_HOME}/mybuild/gtest ${BOOST_ROOT}/libs)
+link_directories(${GMOCK_HOME}/mybuild ${GMOCK_HOME}/mybuild/gtest ${BOOST_ROOT}/libs $ENV{CPPUTEST_HOME}/lib)
 
 find_package(Boost REQUIRED system thread exception)
 
@@ -32,6 +32,7 @@ set(SOURCE_FILES
 
 set(TEST_FILES
         src/main.cpp
+        test/TestTimer.cpp
         test/ConcurrentQueueTest.cpp
         test/IoPortTest.cpp
         test/IOMessageTest.cpp
@@ -40,7 +41,7 @@ set(TEST_FILES
         test/CellTest.cpp
         test/BrainTest.cpp
 
-    )
+        )
 
 add_executable(sudoku_solver ${SOURCE_FILES} ${TEST_FILES})
 
@@ -48,4 +49,6 @@ target_link_libraries(sudoku_solver ${Boost_LIBRARIES})
 target_link_libraries(sudoku_solver gmock)
 target_link_libraries(sudoku_solver gtest)
 target_link_libraries(sudoku_solver pthread)
+target_link_libraries(sudoku_solver CppUTest)
+
 

@@ -11,12 +11,14 @@
 #include "../src/IoPort.h"
 #include "../src/CellHub.h"
 
+using namespace std;
+
 TEST(HubTest, HubPullsMessageFromQueueAndGivesToIoPort)
 {
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    shared_ptr<CellHub> hub = make_shared<CellHub>();
+    shared_ptr<Hub> hub(make_shared<CellHub>());
 
-    shared_ptr<IoPort> ioPort = make_shared<IoPort>(hub, msgsReceived);
+    shared_ptr<IoPort> ioPort = make_shared<IoPort>(hub, msgsReceived, "g");
     hub->addIoPort(ioPort);
 
     IoMessage ioMessage("message");

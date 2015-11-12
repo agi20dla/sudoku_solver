@@ -23,6 +23,24 @@ using namespace boost;
 
 /**
  * initialize a sudoku brain
+ *
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v   v   v   v   v   v   v   v   v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v   v   v   v   v   v   v   v   v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
  */
 void Brain::initialize() {
 
@@ -50,7 +68,7 @@ void Brain::pushGlobal(std::shared_ptr<Cell> cell) {
 }
 
 std::shared_ptr<Cell> Brain::getGlobal(const uint row, const uint col) {
-    return globalMap_[row*8+col];
+    return globalMap_[row * 6 + col];
 }
 
 std::shared_ptr<IoPort> Brain::getMgtPort(const uint row, const uint col) {
@@ -103,25 +121,48 @@ void Brain::connectColumnCells() {
     }
 }
 
-
+/**
+ * Not all of these are used
+ */
 void Brain::createGlobalMap(){
-    for (uint row = 0; row < 8; row++) {
-        for (uint y = 0; y < 8; y++) {
+    for (uint row = 0; row < 6; row++) {
+        for (uint col = 0; col < 6; col++) {
             pushGlobal(make_shared<Cell>());
         }
     }
 }
 
+/**
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v   v   v   v   v   v   v   v   v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v   v   v   v   v   v   v   v   v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ * v G v G v   v G v G v   v G v G v
+ * C h C h C h C h C h C h C h C h C
+ */
 void Brain::connectGlobals() {
+    uint gRow = 0;
     for (uint row = 0; row < 9; row++) {
         if ((row+1) % 3 == 0) {
             continue;
         }
+        uint gCol = 0;
         for (uint col = 0; col < 9; col++) {
             if ((col +1) % 3 == 0) {
                 continue;
             }
-            std::shared_ptr<Cell> global = getGlobal(row, col);
+            std::shared_ptr<Cell> global = getGlobal(gRow, gCol);
             // top left
             global->connect(getCell(row, col));
 
@@ -133,31 +174,53 @@ void Brain::connectGlobals() {
 
             // bottom right
             global->connect(getCell(row+1, col+1));
+            gCol++;
         }
+        gRow++;
     }
 }
 
 
-//void Brain::printConnections() {
-//    // cell map connections
-//    cout << endl;
-//    for (uint row = 0; row < 9; row++) {
-//        for (uint col = 0; col < 9; col++) {
-//            ulong connections = cellMap_[row][col].numConnections();
-//            cout << connections << " ";
-//        }
-//        cout << endl;
-//    }
-//}
+void Brain::printConnections() {
+    // cell map connections
+    cout << endl;
+    for (uint row = 0; row < 9; row++) {
+        for (uint col = 0; col < 9; col++) {
+            ulong connections = getCell(row, col)->numConnections();
+            cout << connections << " ";
+        }
+        cout << endl;
+    }
+}
 
-void Brain::printMessages()
+void Brain::printValues() {
+    cout << endl;
+    for (uint row = 0; row < 9; row++) {
+        for (uint col = 0; col < 9; col++) {
+            cout << "r:" << row << ",c:" << col << " - ";
+            vector<uint> values = getCell(row, col)->getValues();
+            bool skip = true;
+            for (uint v : values) {
+                if (skip) {
+                    skip = false;
+                    continue;
+                }
+                cout << v << " ";
+            }
+            cout << ":" << " ";
+        }
+        cout << endl;
+    }
+}
+
+void Brain::printMessagesRcvd()
 {
     // cell map messages received count
     cout << endl;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
-            ulong connections = getCell(row, col)->numMessagesRcvd();
-            cout << connections << " ";
+            ulong msgsRcvd = getCell(row, col)->numMessagesRcvd();
+            cout << msgsRcvd << " ";
         }
         cout << endl;
     }
@@ -166,18 +229,18 @@ void Brain::printMessages()
 
 void Brain::run()
 {
-    for (uint i = 0; i < 3; i++) {
-        for (uint row = 0; row < 9; row++) {
-            for (uint col = 0; col < 9; col++) {
-                getCell(row, col)->run();
-            }
+    // run the globals
+    for (uint row = 0; row < 6; row++) {
+        for (uint col = 0; col < 6; col++) {
+            getGlobal(row, col)->run();
         }
-        for (uint row = 0; row < 8; row++) {
-            for (uint col = 0; col < 8; col++) {
-                getGlobal(row, col)->run();
-            }
+    }
+
+    // run the cells
+    for (uint row = 0; row < 9; row++) {
+        for (uint col = 0; col < 9; col++) {
+            getCell(row, col)->run();
         }
-        printMessages();
     }
 }
 
@@ -194,7 +257,7 @@ void Brain::removeValue(const uint row, const uint col, const uint value)
     getMgtPort(row, col)->fwdToQueue(ioMessage);
 }
 
-std::shared_ptr<vector<uint>> Brain::getValues(const uint row, const uint col)
+vector<uint> Brain::getValues(const uint row, const uint col)
 {
     return getCell(row, col)->getValues();
 }

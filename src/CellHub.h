@@ -18,11 +18,14 @@
 class CellHub: public Hub {
 
 public:
-    virtual void run();
     CellHub();
     CellHub(const CellHub & other);
 
     CellHub & operator=(const CellHub & other);
+
+    virtual void run();
+
+    void sendMsgToMgt(IoMessage msg);
 };
 
 

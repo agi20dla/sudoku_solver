@@ -6,7 +6,6 @@
 #include "gmock/gmock.h"
 #include "../src/IoPort.h"
 #include "CellHub.h"
-#include "Hub.h"
 
 using namespace std;
 
@@ -20,11 +19,25 @@ void CellHub::run() {
         boost::uuids::uuid rcvPortUuid = ioMessage.getRcvPortUuid();
         for (shared_ptr<IoPort> ioPort : ioPorts_) {
             if (rcvPortUuid != ioPort->getUuid()
-                && ioPort->getDirection() == ioMessage.getDirection()
-                && ioPort->sendToExt(ioMessage))
+                && ioPort->getDirection() == ioMessage.getDirection())
             {
-                ++Hub::messagesSent_;
+                if (ioPort->sendToExt(ioMessage)) {
+                    ++Hub::messagesSent_;
+                }
             }
+        }
+        sendMsgToMgt(ioMessage);
+    }
+}
+
+/**
+ * send out a message to the mgt hub to do stuff with the values
+ */
+void CellHub::sendMsgToMgt(IoMessage msg) {
+    for (shared_ptr<IoPort> ioPort : ioPorts_) {
+        if (ioPort->getDirection() == "m") {
+            ioPort->sendToExt(msg);
+            break;
         }
     }
 }

@@ -44,7 +44,7 @@ public:
     ulong numMessagesRcvd();
     ulong numConnections();
 
-    std::shared_ptr<vector<uint>> getValues();
+    vector<uint> getValues();
 
     Cell& operator=(const Cell& other);
 };

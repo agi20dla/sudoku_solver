@@ -9,23 +9,12 @@
 
 using namespace std;
 
-boost::mutex IoPort::mutex_;
+//boost::mutex IoPort::mutex_;
 
 IoPort::IoPort(shared_ptr<Hub> hub, shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed, string direction)
         : hub_(hub)
         , msgsProcessed_(msgsProcessed)
-        , otherPort_(nullptr)
-        , direction_(direction)
-{
-    boost::uuids::random_generator generator;
-    uuid_ = generator();
-}
-
-IoPort::IoPort(shared_ptr<Hub> hub, shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed)
-        : hub_(hub)
-        , msgsProcessed_(msgsProcessed)
-        , otherPort_(nullptr)
-        , direction_("g")
+        , otherPort_(nullptr), myDirection_(direction)
 {
     boost::uuids::random_generator generator;
     uuid_ = generator();
@@ -60,15 +49,21 @@ void IoPort::connect(shared_ptr<IoPort> otherPort)
     }
 }
 
-
+/**
+ * Send an IO Message to another port, if the message's direction
+ * is the same as my direction.  If it's a management message
+ * (direction == "m"), send it anyway
+ */
 bool IoPort::sendToExt(IoMessage ioMessage)
 {
     bool sent = false;
     ++numMessagesRecieved;
-    if (otherPort_ && ioMessage.getDirection() == direction_) {
+    if (otherPort_ && (ioMessage.getDirection() == myDirection_ || myDirection_ == "m")) {
         otherPort_->fwdToQueue(ioMessage);
         sent = true;
         ++numMessagesSent;
+        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage.getMsgUuid(), 1);
+        msgsProcessed_->insert(newMsgUuid);
     }
     return sent;
 }
@@ -90,5 +85,5 @@ boost::uuids::uuid IoPort::getUuid() {
 }
 
 const string IoPort::getDirection() {
-    return direction_;
+    return myDirection_;
 }

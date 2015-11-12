@@ -7,7 +7,6 @@
 #include "gmock/gmock.h"
 
 #include "../src/CellHub.h"
-#include "../src/IoPort.h"
 
 using namespace testing;
 
@@ -21,16 +20,16 @@ using namespace testing;
  */
 TEST(Integration, MessageTravelsFromPort1QueueToHubToPort2)
 {
-    shared_ptr<CellHub> hub1 = make_shared<CellHub>();
-    shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived1 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    shared_ptr<IoPort> port1 = make_shared<IoPort>(hub1, msgsReceived1);
+    std::shared_ptr<CellHub> hub1 = make_shared<CellHub>();
+    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived1 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
+    std::shared_ptr<IoPort> port1 = make_shared<IoPort>(hub1, msgsReceived1, "g");
 
     hub1->addIoPort(port1);
 
-    shared_ptr<CellHub> hub2 = make_shared<CellHub>();
-    shared_ptr<ConcurrentQueue<IoMessage>> messageQueue2 = make_shared<ConcurrentQueue<IoMessage>>();
-    shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived2 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    shared_ptr<IoPort> port2 = make_shared<IoPort>(hub2, msgsReceived2);
+    std::shared_ptr<CellHub> hub2 = make_shared<CellHub>();
+    std::shared_ptr<ConcurrentQueue<IoMessage>> messageQueue2 = make_shared<ConcurrentQueue<IoMessage>>();
+    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived2 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
+    std::shared_ptr<IoPort> port2 = make_shared<IoPort>(hub2, msgsReceived2, "g");
 
     port1->connect(port2);
 

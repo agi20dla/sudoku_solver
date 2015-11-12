@@ -3,13 +3,12 @@
 //
 
 #include "Cell.h"
-#include "MgtHub.h"
 
 using namespace std;
 
 Cell::Cell()
-        : msgsReceived_(make_shared<boost::unordered_map<boost::uuids::uuid, uint>>())
-          , mgtsReceived_(make_shared<boost::unordered_map<boost::uuids::uuid, uint>>())
+        : msgsReceived_(make_shared<boost::unordered_map<boost::uuids::uuid, uint>>()),
+          mgtsReceived_(make_shared<boost::unordered_map<boost::uuids::uuid, uint>>())
         , msgHub_(make_shared<CellHub>())
         , mgtHub_(make_shared<MgtHub>())
 {
@@ -32,7 +31,7 @@ Cell::Cell(const Cell &cell) {
 /**
  * create a port connected to the message queue
  * add that port to the message hub
- * send that port back to the calling cell can connect to us
+ * send that port back to the calling cell so it can connect to us
  */
 std::shared_ptr<IoPort> Cell::getMsgConnection(const string &direction)
 {
@@ -43,7 +42,7 @@ std::shared_ptr<IoPort> Cell::getMsgConnection(const string &direction)
 
 /**
  * create a management port connected to the messaging queue
- * send that port back so the calling cell can connect to us
+ * send that port back so the caller can connect to us
  */
 std::shared_ptr<IoPort> Cell::getMgtConnection(const std::string& direction)
 {
@@ -54,8 +53,8 @@ std::shared_ptr<IoPort> Cell::getMgtConnection(const std::string& direction)
 
 void Cell::run()
 {
-    msgHub_->run();
     mgtHub_->run();
+    msgHub_->run();
 }
 
 /**
@@ -103,6 +102,6 @@ ulong Cell::numConnections() {
     return msgHub_->numPorts();
 }
 
-std::shared_ptr<vector<uint>> Cell::getValues() {
-    return make_shared<vector<uint>>(possibleValues_);
+vector<uint> Cell::getValues() {
+    return possibleValues_;
 }

@@ -20,7 +20,7 @@ TEST(IoPortTest, IoPortForwardsAMessageToAQueue)
     shared_ptr<CellHub> hub = make_shared<CellHub>();
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
 
-    IoPort ioPort(hub, msgsReceived);
+    IoPort ioPort(hub, msgsReceived, "g");
 
     IoMessage ioMessage("message");
     ioPort.fwdToQueue(ioMessage);
@@ -35,11 +35,11 @@ TEST(IoPortTest, IoPortSendsAMessageToAnotherIoPort)
 {
     shared_ptr<CellHub> cellHub1 = make_shared<CellHub>();
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived1 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    shared_ptr<IoPort> port1 = make_shared<IoPort>(cellHub1, msgsReceived1);
+    shared_ptr<IoPort> port1 = make_shared<IoPort>(cellHub1, msgsReceived1, "g");
 
     shared_ptr<CellHub> cellHub2 = make_shared<CellHub>();
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived2 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    shared_ptr<IoPort> port2 = make_shared<IoPort>(cellHub2, msgsReceived2);
+    shared_ptr<IoPort> port2 = make_shared<IoPort>(cellHub2, msgsReceived2, "g");
 
     port1->connect(port2);
     port2->connect(port1);
@@ -56,15 +56,15 @@ TEST(IoPortTest, IoPortExceptsOnMultipleConnects)
 {
     shared_ptr<CellHub> cellHub1 = make_shared<CellHub>();
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived1 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    shared_ptr<IoPort> port1 = make_shared<IoPort>(cellHub1, msgsReceived1);
+    shared_ptr<IoPort> port1 = make_shared<IoPort>(cellHub1, msgsReceived1, "g");
 
     shared_ptr<CellHub> cellHub2 = make_shared<CellHub>();
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived2 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    shared_ptr<IoPort> port2 = make_shared<IoPort>(cellHub2, msgsReceived2);
+    shared_ptr<IoPort> port2 = make_shared<IoPort>(cellHub2, msgsReceived2, "g");
 
     shared_ptr<CellHub> cellHub3 = make_shared<CellHub>();
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived3 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    shared_ptr<IoPort> port3 = make_shared<IoPort>(cellHub3, msgsReceived3);
+    shared_ptr<IoPort> port3 = make_shared<IoPort>(cellHub3, msgsReceived3, "g");
 
     port1->connect(port2);
     EXPECT_ANY_THROW(port1->connect(port3));
@@ -75,7 +75,7 @@ TEST(IoPortTest, IoPortAddsUuidToForwardedMessage)
     shared_ptr<CellHub> cellHub = make_shared<CellHub>();
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived1 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
 
-    IoPort ioPort(cellHub, msgsReceived1);
+    IoPort ioPort(cellHub, msgsReceived1, "g");
 
     IoMessage ioMessage("message");
     ioPort.fwdToQueue(ioMessage);

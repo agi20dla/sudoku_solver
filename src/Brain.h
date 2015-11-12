@@ -27,11 +27,12 @@ private:
 
     void connectBrainToCells();
 
-    void printMessages();
-//    void printConnections();
-
 public:
 //    Brain();
+
+    void printMessagesRcvd();
+
+    void printConnections();
 
     void initialize();
     void pushCell(std::shared_ptr<Cell> cell);
@@ -50,7 +51,9 @@ public:
     // remove a particular value of a particular cell via a managment message
     void removeValue(const uint row, const uint col, const uint value);
 
-    std::shared_ptr<vector<uint>> getValues(const uint row, const uint col);
+    vector<uint> getValues(const uint row, const uint col);
+
+    void printValues();
 };
 
 
