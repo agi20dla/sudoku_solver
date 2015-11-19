@@ -9,17 +9,18 @@
 #include "IoMessage.h"
 #include "ConcurrentQueue.h"
 #include <boost/unordered_map.hpp>
+#include "common.h"
 
 class IoPort;
 
 class Hub {
 private:
-    std::shared_ptr<ConcurrentQueue<IoMessage>> messageQueue_;
+    std::shared_ptr<ConcurrentQueue<IoMessage> > messageQueue_;
 
 protected:
-    std::vector<std::shared_ptr<IoPort>> ioPorts_;
+    std::vector<io_ptr> ioPorts_;
 
-    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived_;
+    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsReceived_;
 
     ulong messagesSent_;
     ulong messagesRcvd_;
@@ -34,9 +35,7 @@ public:
     bool tryPop(IoMessage& ioMessage);
     void push(IoMessage ioMessage);
 
-    std::vector<std::shared_ptr<IoPort>>& getIoPorts();
-
-    void addIoPort(std::shared_ptr<IoPort> ioPort);
+    void addIoPort(io_ptr ioPort);
 
     ulong numMessagesOnQueue();
 

@@ -10,14 +10,12 @@
 
 class MgtHub: public Hub {
 private:
-    std::vector<string> split(const string &s, char delim);
-    std::vector<string>& split(const string &s, char delim, vector<string> &elems);
     std::vector<uint>* possible_values_;
 
-    void sendMsgToCell(string msg);
+    void sendMsgToCell(string msg, uint value);
 
 public:
-    virtual void run();
+    virtual void run() override;
 
     MgtHub();
     MgtHub(const MgtHub & other);

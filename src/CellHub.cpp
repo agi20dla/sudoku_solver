@@ -17,10 +17,9 @@ void CellHub::run() {
 
     while(Hub::tryPop(ioMessage)) {
         boost::uuids::uuid rcvPortUuid = ioMessage.getRcvPortUuid();
-        for (shared_ptr<IoPort> ioPort : ioPorts_) {
+        for (io_ptr ioPort : ioPorts_) {
             if (rcvPortUuid != ioPort->getUuid()
-                && ioPort->getDirection() == ioMessage.getDirection())
-            {
+                && ioPort->getDirection() == ioMessage.getDirection()) {
                 if (ioPort->sendToExt(ioMessage)) {
                     ++Hub::messagesSent_;
                 }
@@ -34,7 +33,7 @@ void CellHub::run() {
  * send out a message to the mgt hub to do stuff with the values
  */
 void CellHub::sendMsgToMgt(IoMessage msg) {
-    for (shared_ptr<IoPort> ioPort : ioPorts_) {
+    for (io_ptr ioPort : ioPorts_) {
         if (ioPort->getDirection() == "m") {
             ioPort->sendToExt(msg);
             break;

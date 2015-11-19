@@ -7,8 +7,6 @@
 #include "../src/Brain.h"
 
 using namespace ::testing;
-using namespace std;
-
 
 TEST(BrainTest, InitializeGrid) {
     Brain brain;
@@ -18,61 +16,61 @@ TEST(BrainTest, InitializeGrid) {
 TEST(BrainTest, SendHMessage) {
     Brain brain;
     brain.initialize();
-    shared_ptr<Cell> cell00 = brain.getCell(0, 0);
-    shared_ptr<IoPort> port = cell00->getMsgConnection();
-    IoMessage ioMessage("message", "h");
+    cell_ptr cell00 = brain.getCell(0, 0);
+    io_ptr port = cell00->getMsgConnection();
+    IoMessage ioMessage("message", 0, "h");
     port->fwdToQueue(ioMessage);
 
     brain.run();
 
-    shared_ptr<Cell> cell08 = brain.getCell(0, 8);
+    cell_ptr cell08 = brain.getCell(0, 8);
     ASSERT_EQ(cell08->numMessagesRcvd(), 1);
 
-    shared_ptr<Cell> cell10 = brain.getCell(1, 0);
+    cell_ptr cell10 = brain.getCell(1, 0);
     ASSERT_EQ(cell10->numMessagesRcvd(), 0);
 }
 
 TEST(BrainTest, SendVMessage) {
     Brain brain;
     brain.initialize();
-    shared_ptr<Cell> cell00 = brain.getCell(0, 0);
-    shared_ptr<IoPort> port = cell00->getMsgConnection();
-    IoMessage ioMessage("message", "v");
+    cell_ptr cell00 = brain.getCell(0, 0);
+    io_ptr port = cell00->getMsgConnection();
+    IoMessage ioMessage("message", 0, "v");
     port->fwdToQueue(ioMessage);
 
     brain.run();
 
-    shared_ptr<Cell> cell80 = brain.getCell(8, 0);
+    cell_ptr cell80 = brain.getCell(8, 0);
     ASSERT_EQ(cell80->numMessagesRcvd(), 1);
 
-    shared_ptr<Cell> cell01 = brain.getCell(0, 1);
+    cell_ptr cell01 = brain.getCell(0, 1);
     ASSERT_EQ(cell01->numMessagesRcvd(), 0);
 }
 
-TEST(BrainTest, SendGMessage) {
+TEST(BrainTest, GlobalMessageStaysInCell) {
     Brain brain;
     brain.initialize();
-    shared_ptr<Cell> cell33 = brain.getCell(3, 3);
-    shared_ptr<IoPort> port = cell33->getMsgConnection();
-    IoMessage ioMessage("message", "g");
+    cell_ptr cell44 = brain.getCell(4, 4);
+    io_ptr port = cell44->getMsgConnection();
+    IoMessage ioMessage("message", 0, "g");
     port->fwdToQueue(ioMessage);
 
     // Have to run the brain 3 times to ensure the messages get transferred where they need to go
     brain.run();
     brain.run();
     brain.run();
+    brain.printMessagesRcvd();
 
-    shared_ptr<Cell> cell32 = brain.getCell(3, 2);
-    ASSERT_EQ(cell32->numMessagesRcvd(), 0);
+    cell_ptr cell22 = brain.getCell(2, 2);
+    ASSERT_EQ(0, cell22->numMessagesRcvd());
 
-    shared_ptr<Cell> cell23 = brain.getCell(2, 3);
-    ASSERT_EQ(cell23->numMessagesRcvd(), 0);
+    cell_ptr cell66 = brain.getCell(6, 6);
+    ASSERT_EQ(0, cell66->numMessagesRcvd());
 
     for (uint row = 3; row < 6; row++) {
         for (uint col = 3; col < 6; col++) {
-            shared_ptr<Cell> cell = brain.getCell(row, col);
-            ASSERT_EQ(cell->numMessagesRcvd(), 1);
-//            cout << "cell: " << row << ", " << col << " - " << cell.numMessagesRcvd() << " recieved" << endl;
+            cell_ptr cell = brain.getCell(row, col);
+            ASSERT_EQ(1, cell->numMessagesRcvd()) << "row: " << to_string(row) << ", col: " << to_string(col);
         }
     }
 }
@@ -81,38 +79,39 @@ TEST(BrainTest, SendGhvMessage) {
     Brain brain;
     brain.initialize();
 
-    shared_ptr<Cell> cell33 = brain.getCell(3, 3);
-    shared_ptr<IoPort> port = cell33->getMsgConnection();
-    IoMessage ioMessageG("message", "g");
+    cell_ptr cell33 = brain.getCell(3, 3);
+    io_ptr port = cell33->getMsgConnection();
+    IoMessage ioMessageG("message", 0, "g");
     port->fwdToQueue(ioMessageG);
 
-    IoMessage ioMessageH("message", "h");
+    IoMessage ioMessageH("message", 0, "h");
     port->fwdToQueue(ioMessageH);
 
-    IoMessage ioMessageV("message", "v");
+    IoMessage ioMessageV("message", 0, "v");
     port->fwdToQueue(ioMessageV);
 
     // Have to run the brain 3 times to ensure the messages get transferred where they need to go
     brain.run();
     brain.run();
     brain.run();
+    brain.printMessagesRcvd();
 
-    shared_ptr<Cell> cell32 = brain.getCell(3, 2);
+    cell_ptr cell32 = brain.getCell(3, 2);
     ASSERT_EQ(cell32->numMessagesRcvd(), 1);
 
-    shared_ptr<Cell> cell22 = brain.getCell(2, 2);
+    cell_ptr cell22 = brain.getCell(2, 2);
     ASSERT_EQ(cell22->numMessagesRcvd(), 0);
 
-    shared_ptr<Cell> cell23 = brain.getCell(2, 3);
+    cell_ptr cell23 = brain.getCell(2, 3);
     ASSERT_EQ(cell23->numMessagesRcvd(), 1);
 
-    shared_ptr<Cell> cell66 = brain.getCell(6, 6);
+    cell_ptr cell66 = brain.getCell(6, 6);
     ASSERT_EQ(cell66->numMessagesRcvd(), 0);
 
     for (uint row = 3; row < 6; row++) {
         for (uint col = 3; col < 6; col++) {
-            shared_ptr<Cell> cell = brain.getCell(row, col);
-            ASSERT_GE(cell->numMessagesRcvd(), 1);
+            cell_ptr cell = brain.getCell(row, col);
+            ASSERT_GE(cell->numMessagesRcvd(), 1) << "row: " << to_string(row) << ", col: " << to_string(col);
         }
     }
 }
@@ -188,6 +187,106 @@ TEST(BrainTest, SetValue) {
         vector<uint> values = brain.getValues(row, 0);
         ASSERT_EQ(values[5], 0);
     }
+}
+
+
+TEST(BrainTest, SetTwoValuesInOneBlock) {
+    Brain brain;
+    brain.initialize();
+
+    brain.setValue(0, 0, 5);
+    brain.setValue(2, 2, 9);
+    brain.run();
+    brain.printValues();
+    for (int i = 0; i < 5; i++) {
+        brain.run();
+    }
+    brain.printMessagesRcvd();
+
+    // check this block's cells to make sure it's values are set / reset appropriately
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
+            // skip the cell we set, though
+            vector<uint> values = brain.getValues(row, col);
+            if (row == 0 && col == 0) {
+                ASSERT_EQ(1, values[5]);
+            } else if (row == 2 && col == 2) {
+                ASSERT_EQ(1, values[9]);
+            } else {
+                ASSERT_EQ(0, values[5]);
+                ASSERT_EQ(0, values[9]);
+            }
+        }
+    }
+
+    // check the horizontal cells to make sure their values are set/reset appropriately
+    for (int col = 1; col < 9; col++) {
+        vector<uint> valuesFive = brain.getValues(0, col);
+        ASSERT_EQ(0, valuesFive[5]);
+    }
+
+    for (int col = 0; col < 9; col++) {
+        if (col == 2) {
+            continue;
+        }
+        vector<uint> valuesNine = brain.getValues(2, col);
+        ASSERT_EQ(0, valuesNine[9]) << "row: 2, col: " << to_string(col);
+    }
+
+    // check the vertical cells to make sure their values are set/reset appropriately
+    for (int row = 1; row < 9; row++) {
+        vector<uint> valuesFive = brain.getValues(row, 0);
+        ASSERT_EQ(0, valuesFive[5]);
+    }
+    for (int row = 0; row < 9; row++) {
+        if (row == 2) {
+            continue;
+        }
+        vector<uint> valuesNine = brain.getValues(row, 2);
+        ASSERT_EQ(0, valuesNine[9]);
+    }
+}
+
+TEST(BrainTest, SetInitialValuesForPuzzle) {
+    Brain brain;
+    brain.initialize();
+
+    brain.setValue(0, 0, 5);
+    brain.setValue(0, 1, 3);
+    brain.setValue(0, 4, 7);
+    brain.setValue(1, 0, 6);
+    brain.setValue(1, 3, 1);
+    brain.setValue(1, 4, 9);
+    brain.setValue(1, 5, 5);
+    brain.setValue(2, 1, 9);
+    brain.setValue(2, 2, 8);
+    brain.setValue(2, 7, 6);
+    brain.setValue(3, 0, 8);
+    brain.setValue(3, 4, 6);
+    brain.setValue(3, 8, 3);
+    brain.setValue(4, 0, 4);
+    brain.setValue(4, 3, 8);
+    brain.setValue(4, 5, 3);
+    brain.setValue(4, 8, 1);
+    brain.setValue(5, 0, 7);
+    brain.setValue(5, 4, 2);
+    brain.setValue(5, 8, 6);
+    brain.setValue(6, 1, 6);
+    brain.setValue(6, 6, 2);
+    brain.setValue(6, 7, 8);
+    brain.setValue(7, 3, 4);
+    brain.setValue(7, 4, 1);
+    brain.setValue(7, 5, 9);
+    brain.setValue(7, 8, 5);
+    brain.setValue(8, 4, 8);
+    brain.setValue(8, 7, 7);
+    brain.setValue(8, 8, 9);
+
+    for (int i = 0; i < 5; i++) {
+        brain.run();
+    }
+    brain.printValues();
+    brain.printMessagesRcvd();
 }
 
 

@@ -12,7 +12,7 @@
 #include <memory>
 #include "ConcurrentQueue.h"
 #include "IoMessage.h"
-//#include "Hub.h"
+#include "common.h"
 
 class Hub;
 
@@ -24,7 +24,7 @@ private:
     // TODO: might have to worry about concurrency on this one
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed_;
 
-    std::shared_ptr<IoPort> otherPort_;
+    io_ptr otherPort_;
 
     std::string myDirection_;
 
@@ -37,7 +37,8 @@ private:
     static boost::mutex mutex_;
 
 public:
-    IoPort(std::shared_ptr<Hub> hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed, std::string direction);
+    IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
+           std::string direction);
 
     // Number of messages forwarded to the queue
     size_t getNumMessagesForwarded();
@@ -55,7 +56,7 @@ public:
     bool sendToExt(IoMessage ioMessage);
 
     // Connect to another IoPort
-    void connect(std::shared_ptr<IoPort> otherPort);
+    void connect(io_ptr otherPort);
 
     const string getDirection();
 

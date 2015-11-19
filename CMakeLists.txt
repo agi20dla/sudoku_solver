@@ -16,7 +16,7 @@ find_package(Boost REQUIRED system thread exception)
 
 find_file(Resources REQUIRED simple.grid)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 
 set(SOURCE_FILES
         src/IoPort.h src/IoPort.cpp
@@ -28,11 +28,10 @@ set(SOURCE_FILES
         src/CellHub.cpp src/CellHub.h
         src/Cell.cpp src/Cell.h
         src/Brain.cpp src/Brain.h
-    )
+        src/common.h)
 
 set(TEST_FILES
         src/main.cpp
-        test/TestTimer.cpp
         test/ConcurrentQueueTest.cpp
         test/IoPortTest.cpp
         test/IOMessageTest.cpp

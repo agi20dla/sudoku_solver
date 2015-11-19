@@ -6,8 +6,6 @@
 
 using namespace std;
 
-#include "Hub.h"
-
 Hub::Hub()
         : messageQueue_(make_shared<ConcurrentQueue<IoMessage>>())
         , messagesSent_(0)
@@ -25,7 +23,7 @@ Hub::Hub(const Hub &other)
 {}
 
 
-void Hub::addIoPort(shared_ptr<IoPort> ioPort) {
+void Hub::addIoPort(io_ptr ioPort) {
     ioPorts_.push_back(ioPort);
     numPorts_++;
 }
@@ -67,8 +65,4 @@ bool Hub::tryPop(IoMessage& ioMessage) {
 void Hub::push(IoMessage ioMessage) {
     messageQueue_->push(ioMessage);
 
-}
-
-std::vector<std::shared_ptr<IoPort>>& Hub::getIoPorts() {
-    return ioPorts_;
 }

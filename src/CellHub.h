@@ -23,7 +23,7 @@ public:
 
     CellHub & operator=(const CellHub & other);
 
-    virtual void run();
+    virtual void run() override;
 
     void sendMsgToMgt(IoMessage msg);
 };

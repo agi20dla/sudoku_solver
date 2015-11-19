@@ -9,12 +9,12 @@
 
 using namespace std;
 
-//boost::mutex IoPort::mutex_;
+boost::mutex IoPort::mutex_;
 
-IoPort::IoPort(shared_ptr<Hub> hub, shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed, string direction)
+IoPort::IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed,
+               string direction)
         : hub_(hub)
-        , msgsProcessed_(msgsProcessed)
-        , otherPort_(nullptr), myDirection_(direction)
+        , msgsProcessed_(msgsProcessed), myDirection_(direction)
 {
     boost::uuids::random_generator generator;
     uuid_ = generator();
@@ -40,12 +40,12 @@ void IoPort::fwdToQueue(IoMessage ioMessage) {
 }
 
 
-void IoPort::connect(shared_ptr<IoPort> otherPort)
+void IoPort::connect(io_ptr otherPort)
 {
     if (!otherPort_) {
         otherPort_ = otherPort;
     } else {
-        throw port_connection_failed{};
+        throw port_already_connected();
     }
 }
 

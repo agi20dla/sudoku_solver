@@ -7,16 +7,21 @@
 
 IoMessage::IoMessage() { }
 
-IoMessage::IoMessage(string message, string direction)
-        : message_(message)
-        , direction_(direction)
+IoMessage::IoMessage(string command, uint value, string direction)
+        : message_(command), value_(value), direction_(direction) {
+    boost::uuids::uuid uuid = uuidGenerator();
+    uuid_ = uuid;
+}
+
+IoMessage::IoMessage(string message, uint value)
+        : message_(message), value_(value), direction_("g")
 {
     boost::uuids::uuid uuid = uuidGenerator();
     uuid_ = uuid;
 }
 
 IoMessage::IoMessage(string message)
-        : message_(message)
+        : message_(message), value_(0)
         , direction_("g")
 {
     boost::uuids::uuid uuid = uuidGenerator();
@@ -29,6 +34,10 @@ string &IoMessage::getMessage() {
 
 string &IoMessage::getDirection() {
     return direction_;
+}
+
+uint IoMessage::getValue() {
+    return value_;
 }
 
 //void IoMessage::setMsgUuid(boost::uuids::uuid uuid) {
@@ -44,6 +53,7 @@ IoMessage &IoMessage::operator=(const IoMessage &other) {
         return *this;
     }
     this->message_ = other.message_;
+    this->value_ = other.value_;
     this->uuid_ = other.uuid_;
     this->direction_ = other.direction_;
     this->rcvPortUuid_ = other.rcvPortUuid_;

@@ -10,13 +10,14 @@
 #include "IoMessage.h"
 #include "CellHub.h"
 #include "MgtHub.h"
+#include "common.h"
 
 class Cell {
 private:
-    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived_;
-    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> mgtsReceived_;
-    std::shared_ptr<CellHub> msgHub_;
-    std::shared_ptr<MgtHub> mgtHub_;
+    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsReceived_;
+    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > mgtsReceived_;
+    cell_hub_ptr msgHub_;
+    mgt_hub_ptr mgtHub_;
 
     // represents the possible value this cell can hold
     // initialized to all values (1-9) being possible
@@ -31,12 +32,13 @@ public:
 
     void run();
 
-    shared_ptr<IoPort> getMsgConnection(const std::string& direction = "g");
-    shared_ptr<IoPort> getMgtConnection(const std::string& direction = "m");
+    io_ptr getMsgConnection(const std::string &direction = "g");
 
-    void connect(shared_ptr<Cell> cell, const std::string& direction = "g");
+    io_ptr getMgtConnection(const std::string &direction = "m");
 
-    shared_ptr<IoPort> connect(shared_ptr<IoPort> otherPort, const std::string& direction);
+    void connect(cell_ptr cell, const std::string &direction = "g");
+
+    io_ptr connect(io_ptr otherPort, const std::string &direction);
 
     ulong numMessages();
 

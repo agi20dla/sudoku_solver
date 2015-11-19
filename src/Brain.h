@@ -8,14 +8,15 @@
 #include <vector>
 #include "IoPort.h"
 #include "Cell.h"
+#include "common.h"
 
 class Brain {
 private:
     // cellMap is a one dimensional array representing a two dimensional array.
     // its indexed by row * 9 + col.
-    std::vector<std::shared_ptr<Cell>> cellMap_;
-    std::vector<std::shared_ptr<Cell>> globalMap_;
-    std::vector<std::shared_ptr<IoPort>> mgtPortMap_;
+    std::vector<cell_ptr> cellMap_;
+    std::vector<cell_ptr> globalMap_;
+    std::vector<io_ptr> mgtPortMap_;
 
 
     void createCellMap();
@@ -35,13 +36,16 @@ public:
     void printConnections();
 
     void initialize();
-    void pushCell(std::shared_ptr<Cell> cell);
-    std::shared_ptr<Cell> getCell(const uint row, const uint col);
 
-    void pushGlobal(std::shared_ptr<Cell> cell);
-    std::shared_ptr<Cell> getGlobal(const uint row, const uint col);
+    void pushCell(cell_ptr cell);
 
-    std::shared_ptr<IoPort> getMgtPort(const uint row, const uint col);
+    cell_ptr getCell(const uint row, const uint col);
+
+    void pushGlobal(cell_ptr cell);
+
+    cell_ptr getGlobal(const uint row, const uint col);
+
+    io_ptr getMgtPort(const uint row, const uint col);
 
     void run();
 

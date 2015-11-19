@@ -12,9 +12,9 @@ Cell::Cell()
         , msgHub_(make_shared<CellHub>())
         , mgtHub_(make_shared<MgtHub>())
 {
-    std::shared_ptr<IoPort> mgtPort = make_shared<IoPort>(mgtHub_, mgtsReceived_, "m");
+    io_ptr mgtPort = std::make_shared<IoPort>(mgtHub_, mgtsReceived_, "m");
     mgtHub_->addIoPort(mgtPort);
-    std::shared_ptr<IoPort> msgPort = make_shared<IoPort>(msgHub_, msgsReceived_, "m");
+    io_ptr msgPort = std::make_shared<IoPort>(msgHub_, msgsReceived_, "m");
     msgHub_->addIoPort(msgPort);
     mgtPort->connect(msgPort);
     msgPort->connect(mgtPort);
@@ -33,9 +33,9 @@ Cell::Cell(const Cell &cell) {
  * add that port to the message hub
  * send that port back to the calling cell so it can connect to us
  */
-std::shared_ptr<IoPort> Cell::getMsgConnection(const string &direction)
+io_ptr Cell::getMsgConnection(const string &direction)
 {
-    std::shared_ptr<IoPort> port = make_shared<IoPort>(msgHub_, msgsReceived_, direction);
+    io_ptr port = std::make_shared<IoPort>(msgHub_, msgsReceived_, direction);
     msgHub_->addIoPort(port);
     return port;
 }
@@ -44,9 +44,9 @@ std::shared_ptr<IoPort> Cell::getMsgConnection(const string &direction)
  * create a management port connected to the messaging queue
  * send that port back so the caller can connect to us
  */
-std::shared_ptr<IoPort> Cell::getMgtConnection(const std::string& direction)
+io_ptr Cell::getMgtConnection(const std::string &direction)
 {
-    std::shared_ptr<IoPort> port = make_shared<IoPort>(mgtHub_, mgtsReceived_, direction);
+    io_ptr port = std::make_shared<IoPort>(mgtHub_, mgtsReceived_, direction);
     mgtHub_->addIoPort(port);
     return port;
 }
@@ -62,17 +62,19 @@ void Cell::run()
  * The other cell will also create a new port, connect the ports, and
  * return it's port so we can connect to it.
  */
-void Cell::connect(shared_ptr<Cell> otherCell, const string& direction)
+void Cell::connect(cell_ptr otherCell, const string &direction)
 {
-    std::shared_ptr<IoPort> port = getMsgConnection(direction);
-    std::shared_ptr<IoPort> otherPort = otherCell->connect(port, direction);
-    port->connect(otherPort);
+    io_ptr port = getMsgConnection(direction);
+    if (otherCell) {
+        io_ptr otherPort = otherCell->connect(port, direction);
+        port->connect(otherPort);
+    }
 }
 
 
-shared_ptr<IoPort> Cell::connect(shared_ptr<IoPort> otherPort, const string& direction)
+io_ptr Cell::connect(io_ptr otherPort, const string &direction)
 {
-    std::shared_ptr<IoPort> port = getMsgConnection(direction);
+    io_ptr port = getMsgConnection(direction);
     port->connect(otherPort);
     return port;
 }

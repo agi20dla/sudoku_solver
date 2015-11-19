@@ -4,13 +4,9 @@
 
 #include <string>
 #include<vector>
-
-//#include <boost/range/irange.hpp>
-//#include <boost/algorithm/string.hpp>
-
 #include <iostream>
-#include <fstream>
 #include "Brain.h"
+#include "Exceptions.h"
 
 class IoPort;
 
@@ -55,24 +51,29 @@ void Brain::initialize() {
 }
 
 
-void Brain::pushCell(std::shared_ptr<Cell> cell) {
-    cellMap_.push_back(cell);
+void Brain::pushCell(cell_ptr cell) {
+    cell_ptr c = cell;
+    cellMap_.push_back(c);
 }
 
-std::shared_ptr<Cell> Brain::getCell(const uint row, const uint col) {
-    return cellMap_[row*9+col];
+cell_ptr Brain::getCell(const uint row, const uint col) {
+    cell_ptr c = cellMap_.at(row * 9 + col);
+    return c;
 }
 
-void Brain::pushGlobal(std::shared_ptr<Cell> cell) {
-    globalMap_.push_back(cell);
+void Brain::pushGlobal(cell_ptr global) {
+    cell_ptr g = global;
+    globalMap_.push_back(g);
 }
 
-std::shared_ptr<Cell> Brain::getGlobal(const uint row, const uint col) {
-    return globalMap_[row * 6 + col];
+cell_ptr Brain::getGlobal(const uint row, const uint col) {
+    cell_ptr g = globalMap_.at(row * 6 + col);
+    return g;
 }
 
-std::shared_ptr<IoPort> Brain::getMgtPort(const uint row, const uint col) {
-    return mgtPortMap_[row*9+col];
+io_ptr Brain::getMgtPort(const uint row, const uint col) {
+    io_ptr p = mgtPortMap_[row * 9 + col];
+    return p;
 }
 
 
@@ -94,7 +95,10 @@ void Brain::createCellMap()
 void Brain::connectBrainToCells() {
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
-            mgtPortMap_.push_back(getCell(row, col)->getMgtConnection("b"));
+            auto cell = getCell(row, col);
+            if (cell) {
+                mgtPortMap_.push_back(cell->getMgtConnection("b"));
+            }
         }
     }
 }
@@ -104,9 +108,11 @@ void Brain::connectRowCells()
 {
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 8; col++) {
-            std::shared_ptr<Cell> cell1 = getCell(row, col);
-            std::shared_ptr<Cell> cell2 = getCell(row, col+1);
-            cell1->connect(cell2, "h");
+            auto cell1 = getCell(row, col);
+            auto cell2 = getCell(row, col + 1);
+            if (cell1 && cell2) {
+                cell1->connect(cell2, "h");
+            }
         }
     }
 }
@@ -114,9 +120,11 @@ void Brain::connectRowCells()
 void Brain::connectColumnCells() {
     for (uint col = 0; col < 9; col++) {
         for (uint row = 0; row < 8; row++) {
-            std::shared_ptr<Cell> cell1 = getCell(row, col);
-            std::shared_ptr<Cell> cell2 = getCell(row+1, col);
-            cell1->connect(cell2, "v");
+            auto cell1 = getCell(row, col);
+            auto cell2 = getCell(row + 1, col);
+            if (cell1 && cell2) {
+                cell1->connect(cell2, "v");
+            }
         }
     }
 }
@@ -162,7 +170,7 @@ void Brain::connectGlobals() {
             if ((col +1) % 3 == 0) {
                 continue;
             }
-            std::shared_ptr<Cell> global = getGlobal(gRow, gCol);
+            cell_ptr global = getGlobal(gRow, gCol);
             // top left
             global->connect(getCell(row, col));
 
@@ -186,8 +194,10 @@ void Brain::printConnections() {
     cout << endl;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
-            ulong connections = getCell(row, col)->numConnections();
-            cout << connections << " ";
+            if (auto cell = getCell(row, col)) {
+                ulong connections = cell->numConnections();
+                cout << connections << " ";
+            }
         }
         cout << endl;
     }
@@ -198,14 +208,16 @@ void Brain::printValues() {
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
             cout << "r:" << row << ",c:" << col << " - ";
-            vector<uint> values = getCell(row, col)->getValues();
-            bool skip = true;
-            for (uint v : values) {
-                if (skip) {
-                    skip = false;
-                    continue;
+            if (auto cell = getCell(row, col)) {
+                vector<uint> values = cell->getValues();
+                bool skip = true;
+                for (uint v : values) {
+                    if (skip) {
+                        skip = false;
+                        continue;
+                    }
+                    cout << v << " ";
                 }
-                cout << v << " ";
             }
             cout << ":" << " ";
         }
@@ -219,8 +231,10 @@ void Brain::printMessagesRcvd()
     cout << endl;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
-            ulong msgsRcvd = getCell(row, col)->numMessagesRcvd();
-            cout << msgsRcvd << " ";
+            if (auto cell = getCell(row, col)) {
+                ulong msgsRcvd = cell->numMessagesRcvd();
+                cout << msgsRcvd << " ";
+            }
         }
         cout << endl;
     }
@@ -232,14 +246,20 @@ void Brain::run()
     // run the globals
     for (uint row = 0; row < 6; row++) {
         for (uint col = 0; col < 6; col++) {
-            getGlobal(row, col)->run();
+            cell_ptr global = getGlobal(row, col);
+            if (global.get() != nullptr) {
+                getGlobal(row, col)->run();
+            }
         }
     }
 
     // run the cells
+
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
-            getCell(row, col)->run();
+            if (auto cell = getCell(row, col)) {
+                cell->run();
+            }
         }
     }
 }
@@ -247,18 +267,24 @@ void Brain::run()
 
 void Brain::setValue(const uint row, const uint col, const uint value)
 {
-    IoMessage ioMessage("set:" + to_string(value), "b");
-    getMgtPort(row, col)->fwdToQueue(ioMessage);
+    IoMessage ioMessage("set", value, "b");
+    io_ptr mgtPort = getMgtPort(row, col);
+    mgtPort->fwdToQueue(ioMessage);
 }
 
 void Brain::removeValue(const uint row, const uint col, const uint value)
 {
-    IoMessage ioMessage("rm:" + to_string(value), "m");
+    IoMessage ioMessage("rm", value, "m");
     getMgtPort(row, col)->fwdToQueue(ioMessage);
 }
 
 vector<uint> Brain::getValues(const uint row, const uint col)
 {
-    return getCell(row, col)->getValues();
+    vector<uint> values;
+    auto cell = getCell(row, col);
+    if (cell) {
+        values = cell->getValues();
+    }
+    return values;
 }
 

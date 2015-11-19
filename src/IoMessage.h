@@ -20,12 +20,16 @@ private:
     boost::uuids::random_generator uuidGenerator;
 
     std::string message_;
+    uint value_;
     std::string direction_;
 
 public:
     IoMessage();
     IoMessage(std::string message);
-    IoMessage(std::string message, std::string direction);
+
+    IoMessage(std::string message, uint value);
+
+    IoMessage(std::string message, uint value, std::string direction);
 
     string& getMessage();
     string& getDirection();
@@ -37,6 +41,8 @@ public:
     boost::uuids::uuid getRcvPortUuid();
 
     IoMessage& operator=(const IoMessage& other);
+
+    uint getValue();
 };
 
 
