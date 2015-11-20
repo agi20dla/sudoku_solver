@@ -15,7 +15,7 @@ private:
     // cellMap is a one dimensional array representing a two dimensional array.
     // its indexed by row * 9 + col.
     std::vector<cell_ptr> cellMap_;
-    std::vector<cell_ptr> globalMap_;
+    std::vector<basic_cell_ptr> globalMap_;
     std::vector<io_ptr> mgtPortMap_;
 
 
@@ -41,9 +41,13 @@ public:
 
     cell_ptr getCell(const uint row, const uint col);
 
-    void pushGlobal(cell_ptr cell);
+    cell_ptr getCell(const uint index);
 
-    cell_ptr getGlobal(const uint row, const uint col);
+    void pushGlobal(basic_cell_ptr cell);
+
+    basic_cell_ptr getGlobal(const uint row, const uint col);
+
+    basic_cell_ptr getGlobal(const uint index);
 
     io_ptr getMgtPort(const uint row, const uint col);
 
@@ -55,7 +59,7 @@ public:
     // remove a particular value of a particular cell via a managment message
     void removeValue(const uint row, const uint col, const uint value);
 
-    vector<uint> getValues(const uint row, const uint col);
+    vector<uint *> *getValues(const uint row, const uint col);
 
     void printValues();
 

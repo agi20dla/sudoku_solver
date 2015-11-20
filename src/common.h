@@ -18,7 +18,10 @@ class MgtHub;
 
 class IoMessage;
 
+class BasicCell;
+
 typedef std::shared_ptr<Cell> cell_ptr;
+typedef std::shared_ptr<BasicCell> basic_cell_ptr;
 typedef std::shared_ptr<IoPort> io_ptr;
 typedef std::shared_ptr<Hub> hub_ptr;
 typedef std::shared_ptr<CellHub> cell_hub_ptr;

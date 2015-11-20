@@ -10,7 +10,7 @@
 
 class MgtHub: public Hub {
 private:
-    std::vector<uint>* possible_values_;
+    std::vector<uint *> *possible_values_;
 
     void broadcast(const string msg, const uint value);
 
@@ -22,7 +22,7 @@ public:
     MgtHub();
     MgtHub(const MgtHub & other);
 
-    void addPossibleValues(std::vector<uint>* possible_values);
+    void addPossibleValues(std::vector<uint *> *possible_values);
 
     MgtHub & operator=(const MgtHub & other);
 };

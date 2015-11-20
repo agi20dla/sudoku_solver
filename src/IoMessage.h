@@ -42,8 +42,6 @@ public:
     void setRcvPortUuid(boost::uuids::uuid uuid);
     boost::uuids::uuid getRcvPortUuid();
 
-    IoMessage& operator=(const IoMessage& other);
-
     const uint getValue();
 };
 

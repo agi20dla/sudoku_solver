@@ -8,7 +8,7 @@
 #include <boost/exception/all.hpp>
 #include <exception>
 
-typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
+//typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 
 struct port_already_connected : public boost::exception, public std::exception {
     const char *what() const noexcept { return "Port already connected"; }

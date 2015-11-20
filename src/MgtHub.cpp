@@ -16,26 +16,25 @@ void MgtHub::run() {
         string cmd = ioMessage->getMessage();
         uint value = ioMessage->getValue();
         if (cmd == "rm") {
-            // reset the value
-            if (soleValue == value) {
-//                throw attempt_to_remove_sole_value();
-                return;
-            }
-            (*possible_values_)[value] = 0;
+            // remove this value as a possible solution
+            (*(*possible_values_)[value]) = 0;
+
             // if removing a value leaves only one possible value
             // then send a rm message to the cell for that value
             if (soleValue == 0) {
                 uint testValue = 0;
                 int numValues = 0;
-                for (uint idx = 1; idx <= 9; idx++) {
+                uint idx = 0;
+                for (auto possible : (*possible_values_)) {
                     // If we already have one value and we found another one,
                     // then there's nothing to do
-                    if ((*possible_values_)[idx] == 1 && testValue > 0) {
+                    if (*possible == 1 && testValue > 0) {
                         return;
-                    } else if ((*possible_values_)[idx] == 1) {
+                    } else if (*possible == 1) {
                         testValue = idx;
                         numValues++;
                     }
+                    idx++;
                 }
 
                 soleValue = testValue;
@@ -49,13 +48,22 @@ void MgtHub::run() {
             // reset all other values, ensuring that only this value is set,
             // then send g, h and, v messages to reset this value in all other
             // relevant cells
-            for (uint idx = 1; idx <= 9; idx++) {
+            uint idx = 0;
+            for (auto possible : (*possible_values_)) {
                 if (idx == value) {
-                    (*possible_values_)[idx] = 1;
+                    *possible = 1;
                 } else {
-                    (*possible_values_)[idx] = 0;
+                    *possible = 0;
                 }
+                idx++;
             }
+//            for (uint idx = 1; idx <= 9; idx++) {
+//                if (idx == value) {
+//                    (*possible_values_)[idx] = 1;
+//                } else {
+//                    (*possible_values_)[idx] = 0;
+//                }
+//            }
             broadcast("rm", value);
         }
     }
@@ -78,7 +86,7 @@ MgtHub &MgtHub::operator=(const MgtHub & other) {
     return *this;
 }
 
-void MgtHub::addPossibleValues(std::vector<uint>* possible_values) {
+void MgtHub::addPossibleValues(std::vector<uint *> *possible_values) {
     possible_values_ = possible_values;
 }
 

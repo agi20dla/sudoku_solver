@@ -344,13 +344,17 @@ TEST(CellTest, MgtRmMessageIsProcessed)
 {
     std::shared_ptr<Cell> cell = make_shared<Cell>();
     std::shared_ptr<IoPort> mgtIo = cell->getMgtConnection("m");
-    msg_ptr ioMessage = make_shared<IoMessage>("rm", 5, "h");
-    mgtIo->fwdToQueue(ioMessage);
-    cell->run();
-    vector<uint> values = cell->getValues();
-    uint value = values[5];
 
-    ASSERT_EQ(value, 0);
+    msg_ptr ioMessage = make_shared<IoMessage>("rm", 5, "h");
+
+    mgtIo->fwdToQueue(ioMessage);
+
+    cell->run();
+
+    vector<uint *> *values = cell->getValues();
+    uint value = *(*values)[5];
+
+    ASSERT_EQ(0, value);
 }
 
 TEST(CellTest, MgtSetMessageIsProcessed)
@@ -360,13 +364,12 @@ TEST(CellTest, MgtSetMessageIsProcessed)
     msg_ptr ioMessage = make_shared<IoMessage>("set", 5, "g");
     msgIo->fwdToQueue(ioMessage);
     cell->run();
-    vector<uint> values1 = cell->getValues();
 
     // necessary because msg is run before mgt and
     // mgt needs to be run after msg is run
     cell->run();
-    vector<uint> values2 = cell->getValues();
+    vector<uint *> *values2 = cell->getValues();
 
-    ASSERT_EQ(values2[4], 0);
-    ASSERT_EQ(values2[5], 1);
+    ASSERT_EQ(0, *((*values2)[4]));
+    ASSERT_EQ(1, *((*values2)[5]));
 }

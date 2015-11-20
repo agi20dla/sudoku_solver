@@ -28,6 +28,12 @@ Cell::Cell(const Cell &cell) {
     this->mgtHub_ = cell.mgtHub_;
 }
 
+Cell::~Cell() {
+    for (auto value : possibleValues_) {
+        delete value;
+    }
+}
+
 /**
  * create a port connected to the message queue
  * add that port to the message hub
@@ -106,6 +112,6 @@ ulong Cell::numConnections() {
     return msgHub_->numPorts();
 }
 
-vector<uint> Cell::getValues() {
-    return possibleValues_;
+vector<uint *> *Cell::getValues() {
+    return &possibleValues_;
 }

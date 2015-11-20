@@ -6,6 +6,7 @@
 #include<vector>
 #include <iostream>
 #include "Brain.h"
+#include "BasicCell.h"
 #include "Exceptions.h"
 
 class IoPort;
@@ -56,18 +57,28 @@ void Brain::pushCell(cell_ptr cell) {
     cellMap_.push_back(c);
 }
 
+cell_ptr Brain::getCell(const uint index) {
+    cell_ptr c = cellMap_.at(index);
+    return c;
+}
+
 cell_ptr Brain::getCell(const uint row, const uint col) {
     cell_ptr c = cellMap_.at(row * 9 + col);
     return c;
 }
 
-void Brain::pushGlobal(cell_ptr global) {
-    cell_ptr g = global;
+void Brain::pushGlobal(basic_cell_ptr global) {
+    basic_cell_ptr g = global;
     globalMap_.push_back(g);
 }
 
-cell_ptr Brain::getGlobal(const uint row, const uint col) {
-    cell_ptr g = globalMap_.at(row * 6 + col);
+basic_cell_ptr Brain::getGlobal(const uint index) {
+    basic_cell_ptr g = globalMap_.at(index);
+    return g;
+}
+
+basic_cell_ptr Brain::getGlobal(const uint row, const uint col) {
+    basic_cell_ptr g = globalMap_.at(row * 6 + col);
     return g;
 }
 
@@ -93,13 +104,8 @@ void Brain::createCellMap()
  * Create the map of IoPorts that will be used for sending management messages
  */
 void Brain::connectBrainToCells() {
-    for (uint row = 0; row < 9; row++) {
-        for (uint col = 0; col < 9; col++) {
-            auto cell = getCell(row, col);
-            if (cell) {
-                mgtPortMap_.push_back(cell->getMgtConnection("b"));
-            }
-        }
+    for (auto c : cellMap_) {
+        mgtPortMap_.push_back(c->getMgtConnection("b"));
     }
 }
 
@@ -129,14 +135,10 @@ void Brain::connectColumnCells() {
     }
 }
 
-/**
- * Not all of these are used
- */
+
 void Brain::createGlobalMap(){
-    for (uint row = 0; row < 6; row++) {
-        for (uint col = 0; col < 6; col++) {
-            pushGlobal(make_shared<Cell>());
-        }
+    for (uint idx = 0; idx < 36; idx++) {
+        pushGlobal(make_shared<BasicCell>());
     }
 }
 
@@ -170,7 +172,7 @@ void Brain::connectGlobals() {
             if ((col +1) % 3 == 0) {
                 continue;
             }
-            cell_ptr global = getGlobal(gRow, gCol);
+            basic_cell_ptr global = getGlobal(gRow, gCol);
             // top left
             global->connect(getCell(row, col));
 
@@ -192,14 +194,14 @@ void Brain::connectGlobals() {
 void Brain::printConnections() {
     // cell map connections
     cout << endl;
-    for (uint row = 0; row < 9; row++) {
-        for (uint col = 0; col < 9; col++) {
-            if (auto cell = getCell(row, col)) {
-                ulong connections = cell->numConnections();
-                cout << connections << " ";
-            }
+    uint idx = 0;
+    for (auto c : cellMap_) {
+        idx++;
+        if (idx % 9 == 0) {
+            cout << endl;
         }
-        cout << endl;
+        ulong connections = c->numConnections();
+        cout << connections << " ";
     }
 }
 
@@ -209,14 +211,14 @@ void Brain::printValues() {
         for (uint col = 0; col < 9; col++) {
             cout << "r:" << row << ",c:" << col << " - ";
             if (auto cell = getCell(row, col)) {
-                vector<uint> values = cell->getValues();
+                vector<uint *> *values = cell->getValues();
                 bool skip = true;
-                for (uint v : values) {
+                for (uint *v : *values) {
                     if (skip) {
                         skip = false;
                         continue;
                     }
-                    cout << v << " ";
+                    cout << *v << " ";
                 }
             }
             cout << ":" << " ";
@@ -229,14 +231,14 @@ void Brain::printMessagesRcvd()
 {
     // cell map messages received count
     cout << endl;
-    for (uint row = 0; row < 9; row++) {
-        for (uint col = 0; col < 9; col++) {
-            if (auto cell = getCell(row, col)) {
-                ulong msgsRcvd = cell->numMessagesRcvd();
-                cout << msgsRcvd << " ";
-            }
+    uint idx = 0;
+    for (auto c : cellMap_) {
+        ulong msgsRcvd = c->numMessagesRcvd();
+        cout << msgsRcvd << " ";
+        idx++;
+        if (idx % 9 == 0) {
+            cout << endl;
         }
-        cout << endl;
     }
 }
 
@@ -248,45 +250,20 @@ void Brain::printMessagesRcvd()
  */
 void Brain::run(bool debug)
 {
-    // get messages recieved count
-    // cell map messages received count
-    vector<ulong> prev(81);
-
-    vector<ulong> curr;
-    for (uint row = 0; row < 9; row++) {
-        for (uint col = 0; col < 9; col++) {
-            if (auto cell = getCell(row, col)) {
-                ulong msgsRcvd = cell->numMessagesRcvd();
-                curr.push_back(msgsRcvd);
-            }
-        }
-    }
-
     bool firstRun = true;
     ulong numMsgsRemaining = 0;
     ulong numRuns = 0;
-//    while (!std::equal(curr.begin(), curr.begin()+curr.size()-1, prev.begin())) {
     while (firstRun || numMsgsRemaining > 0) {
         firstRun = false;
         numRuns++;
         // run the globals
-        for (uint row = 0; row < 6; row++) {
-            for (uint col = 0; col < 6; col++) {
-                cell_ptr global = getGlobal(row, col);
-                if (global.get() != nullptr) {
-                    getGlobal(row, col)->run();
-                }
-            }
+        for (auto g : globalMap_) {
+            g->run();
         }
 
         // run the cells
-
-        for (uint row = 0; row < 9; row++) {
-            for (uint col = 0; col < 9; col++) {
-                if (auto cell = getCell(row, col)) {
-                    cell->run();
-                }
-            }
+        for (auto c : cellMap_) {
+            c->run();
         }
 
         if (debug) {
@@ -299,12 +276,11 @@ void Brain::run(bool debug)
         }
 
         numMsgsRemaining = 0;
-        for (uint row = 0; row < 9; row++) {
-            for (uint col = 0; col < 9; col++) {
-                if (auto cell = getCell(row, col)) {
-                    numMsgsRemaining += cell->numMessages();
-                }
-            }
+        for (auto c : cellMap_) {
+            numMsgsRemaining += c->numMessages();
+        }
+        for (auto g : globalMap_) {
+            numMsgsRemaining += g->numMessages();
         }
     }
 
@@ -326,9 +302,9 @@ void Brain::removeValue(const uint row, const uint col, const uint value)
     getMgtPort(row, col)->fwdToQueue(ioMessage);
 }
 
-vector<uint> Brain::getValues(const uint row, const uint col)
+vector<uint *> *Brain::getValues(const uint row, const uint col)
 {
-    vector<uint> values;
+    vector<uint *> *values;
     auto cell = getCell(row, col);
     if (cell) {
         values = cell->getValues();
@@ -337,7 +313,7 @@ vector<uint> Brain::getValues(const uint row, const uint col)
 }
 
 void Brain::printSolution() {
-    vector<string> vg;
+    vector<string> solution;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
 
@@ -346,29 +322,32 @@ void Brain::printSolution() {
                 uint value = 0;
                 uint numValues = 0;
                 for (uint idx = 1; idx < 10; idx++) {
-                    if (values.at(idx) == 1) {
+                    if (*((*values).at(idx)) == 1) {
                         numValues++;
                         value = idx;
                     }
                 }
                 if (numValues == 1) {
-                    vg.push_back(to_string(value));
+                    solution.push_back(to_string(value));
                 } else {
-                    vg.push_back("*");
+                    solution.push_back("*");
                 }
             }
         }
     }
 
-    for (uint row = 0; row < 9; row++) {
-        for (uint col = 0; col < 9; col++) {
-            cout << vg.at(row * 9 + col) << " ";
-            if ((col + 1) % 3 == 0) {
-                cout << " ";
-            }
+    uint idx = 0;
+    for (auto out : solution) {
+        cout << out << " ";
+
+        idx++;
+        if (idx % 3 == 0) {
+            cout << " ";
         }
-        cout << endl;
-        if ((row + 1) % 3 == 0) {
+        if (idx % 9 == 0) {
+            cout << endl;
+        }
+        if (idx % 27 == 0) {
             cout << endl;
         }
     }

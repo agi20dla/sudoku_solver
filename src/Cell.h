@@ -21,17 +21,14 @@ private:
 
     // represents the possible value this cell can hold
     // initialized to all values (1-9) being possible
-    std::vector<uint> possibleValues_ {0,1,1,1,1,1,1,1,1,1};
+    std::vector<uint *> possibleValues_{new uint(0), new uint(1), new uint(1), new uint(1), new uint(1), new uint(1),
+                                        new uint(1), new uint(1), new uint(1), new uint(1)};
 
-    // The sole value of this cell, if found
-    uint soleValue = 0;
-
-    // This is the value of the cell.  It will be set to the last value left set
-    // in the possibleValues structure
-    uint value{0};
 public:
     Cell();
     Cell(const Cell&);
+
+    ~Cell();
 
     void run();
 
@@ -49,7 +46,7 @@ public:
     ulong numMessagesRcvd();
     ulong numConnections();
 
-    vector<uint> getValues();
+    vector<uint *> *getValues();
 
     Cell& operator=(const Cell& other);
 };

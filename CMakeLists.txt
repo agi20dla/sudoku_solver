@@ -28,7 +28,7 @@ set(SOURCE_FILES
         src/CellHub.cpp src/CellHub.h
         src/Cell.cpp src/Cell.h
         src/Brain.cpp src/Brain.h
-        src/common.h)
+        src/common.h src/BasicCell.cpp src/BasicCell.h)
 
 set(TEST_FILES
         src/main.cpp

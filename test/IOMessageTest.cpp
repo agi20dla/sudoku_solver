@@ -5,11 +5,9 @@
 
 #include <string>
 
-#include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
 
 #include "gmock/gmock.h"
-#include "../src/IoMessage.h"
 
 
 using namespace ::testing;

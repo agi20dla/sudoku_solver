@@ -7,7 +7,7 @@ using namespace std;
 
 void handler(int sig) {
     void *array[10];
-    size_t size;
+    int size;
 
     // get void*'s for all entries on the stack
     size = backtrace(array, 10);
