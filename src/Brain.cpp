@@ -314,14 +314,15 @@ void Brain::run(bool debug)
 
 void Brain::setValue(const uint row, const uint col, const uint value)
 {
-    IoMessage ioMessage("set", value, "b");
+//    IoMessage ioMessage("set", value, "b");
+    msg_ptr ioMessage = make_shared<IoMessage>("set", value, "b");
     io_ptr mgtPort = getMgtPort(row, col);
     mgtPort->fwdToQueue(ioMessage);
 }
 
 void Brain::removeValue(const uint row, const uint col, const uint value)
 {
-    IoMessage ioMessage("rm", value, "m");
+    msg_ptr ioMessage = make_shared<IoMessage>("rm", value, "m");
     getMgtPort(row, col)->fwdToQueue(ioMessage);
 }
 

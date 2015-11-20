@@ -22,8 +22,7 @@ TEST_F(ConcurrentQueueInstance, PushAndTryPop)
 {
     int pushed = 1;
     concurrentQueue.push(pushed);
-    int popped;
-    concurrentQueue.try_pop(popped);
+    int popped = concurrentQueue.try_pop();
     ASSERT_THAT(popped, 1);
 }
 
@@ -31,8 +30,7 @@ TEST_F(ConcurrentQueueInstance, PushAndWaitAndPop)
 {
     int pushed = 1;
     concurrentQueue.push(pushed);
-    int popped;
-    concurrentQueue.wait_and_pop(popped);
+    int popped = concurrentQueue.wait_and_pop();
     ASSERT_THAT(popped, 1);
 }
 
@@ -40,7 +38,6 @@ TEST_F(ConcurrentQueueInstance, AssignQueueToAnotherQueue)
 {
     concurrentQueue.push(1);
     ConcurrentQueue<int> otherQueue = concurrentQueue;
-    int popped;
-    otherQueue.wait_and_pop(popped);
+    int popped = otherQueue.wait_and_pop();
     ASSERT_THAT(popped, 1);
 }

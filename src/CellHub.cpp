@@ -13,13 +13,13 @@ using namespace std;
  * Iterate through all the messages on the message queue and send to the IO ports
  */
 void CellHub::run() {
-    IoMessage ioMessage;
+    msg_ptr ioMessage;
 
-    while(Hub::tryPop(ioMessage)) {
-        boost::uuids::uuid rcvPortUuid = ioMessage.getRcvPortUuid();
+    while ((ioMessage = Hub::tryPop())) {
+        boost::uuids::uuid rcvPortUuid = ioMessage->getRcvPortUuid();
         for (io_ptr ioPort : ioPorts_) {
             if (rcvPortUuid != ioPort->getUuid()
-                && ioPort->getDirection() == ioMessage.getDirection()) {
+                && ioPort->getDirection() == ioMessage->getDirection()) {
                 if (ioPort->sendToExt(ioMessage)) {
                     ++Hub::messagesSent_;
                 }
@@ -32,7 +32,7 @@ void CellHub::run() {
 /**
  * send out a message to the mgt hub to do stuff with the values
  */
-void CellHub::sendMsgToMgt(IoMessage msg) {
+void CellHub::sendMsgToMgt(msg_ptr msg) {
     for (io_ptr ioPort : ioPorts_) {
         if (ioPort->getDirection() == "m") {
             ioPort->sendToExt(msg);

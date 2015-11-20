@@ -25,7 +25,7 @@ public:
 
     virtual void run() override;
 
-    void sendMsgToMgt(IoMessage msg);
+    void sendMsgToMgt(msg_ptr msg);
 };
 
 

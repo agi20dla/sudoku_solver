@@ -50,10 +50,10 @@ public:
     size_t getNumMessagesRecieved();
 
     // put a message on the queue
-    void fwdToQueue(IoMessage ioMessage);
+    void fwdToQueue(msg_ptr ioMessage);
 
     // send a message to a connected IoPort
-    bool sendToExt(IoMessage ioMessage);
+    bool sendToExt(msg_ptr ioMessage);
 
     // Connect to another IoPort
     void connect(io_ptr otherPort);

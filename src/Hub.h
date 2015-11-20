@@ -15,7 +15,7 @@ class IoPort;
 
 class Hub {
 private:
-    std::shared_ptr<ConcurrentQueue<IoMessage> > messageQueue_;
+    std::shared_ptr<ConcurrentQueue<msg_ptr> > messageQueue_;
 
 protected:
     std::vector<io_ptr> ioPorts_;
@@ -32,8 +32,9 @@ public:
     Hub();
     Hub(const Hub & other);
 
-    bool tryPop(IoMessage& ioMessage);
-    void push(IoMessage ioMessage);
+    msg_ptr tryPop();
+
+    void push(msg_ptr ioMessage);
 
     void addIoPort(io_ptr ioPort);
 

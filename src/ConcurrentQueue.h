@@ -47,7 +47,7 @@ public:
     }
 
 
-    bool try_pop(T& popped_value)
+    T try_pop()
     {
         boost::mutex::scoped_lock lock(the_mutex);
         if(queue_.empty())
@@ -55,13 +55,13 @@ public:
             return false;
         }
 
-        popped_value = queue_.front();
+        T popped_value = queue_.front();
         queue_.pop();
-        return true;
+        return popped_value;
     }
 
 
-    void wait_and_pop(T& popped_value)
+    T wait_and_pop()
     {
         boost::mutex::scoped_lock lock(the_mutex);
         while(queue_.empty())
@@ -69,8 +69,9 @@ public:
             the_condition_variable.wait(lock);
         }
 
-        popped_value= queue_.front();
+        T popped_value = queue_.front();
         queue_.pop();
+        return popped_value;
     }
 
     ulong size()

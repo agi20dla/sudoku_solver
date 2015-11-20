@@ -7,7 +7,7 @@
 using namespace std;
 
 Hub::Hub()
-        : messageQueue_(make_shared<ConcurrentQueue<IoMessage>>())
+        : messageQueue_(make_shared<ConcurrentQueue<msg_ptr>>())
         , messagesSent_(0)
         , messagesRcvd_(0)
         , numPorts_(0)
@@ -58,11 +58,11 @@ Hub &Hub::operator=(const Hub & other) {
 }
 
 
-bool Hub::tryPop(IoMessage& ioMessage) {
-    return messageQueue_->try_pop(ioMessage);
+msg_ptr Hub::tryPop() {
+    return messageQueue_->try_pop();
 }
 
-void Hub::push(IoMessage ioMessage) {
+void Hub::push(msg_ptr ioMessage) {
     messageQueue_->push(ioMessage);
 
 }

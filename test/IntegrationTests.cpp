@@ -33,7 +33,7 @@ TEST(Integration, MessageTravelsFromPort1QueueToHubToPort2)
 
     port1->connect(port2);
 
-    IoMessage ioMessage("message");
+    msg_ptr ioMessage = make_shared<IoMessage>("message");
 
     hub1->push(ioMessage);
 

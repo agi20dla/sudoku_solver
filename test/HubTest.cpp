@@ -21,7 +21,7 @@ TEST(HubTest, HubPullsMessageFromQueueAndGivesToIoPort)
     std::shared_ptr<IoPort> ioPort = make_shared<IoPort>(hub_ptr(hub), msgsReceived, "g");
     hub->addIoPort(ioPort);
 
-    IoMessage ioMessage("message");
+    msg_ptr ioMessage = make_shared<IoMessage>("message");
     hub->push(ioMessage);
 
     hub->run();

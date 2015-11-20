@@ -5,22 +5,25 @@
 #include <boost/uuid/uuid.hpp>
 #include "IoMessage.h"
 
-IoMessage::IoMessage() { }
+IoMessage::IoMessage()
+        : message_(""), value_(0), direction_("") {
+    { }
+}
 
-IoMessage::IoMessage(string command, uint value, string direction)
+IoMessage::IoMessage(const string command, const uint value, const string direction)
         : message_(command), value_(value), direction_(direction) {
     boost::uuids::uuid uuid = uuidGenerator();
     uuid_ = uuid;
 }
 
-IoMessage::IoMessage(string message, uint value)
+IoMessage::IoMessage(const string message, const uint value)
         : message_(message), value_(value), direction_("g")
 {
     boost::uuids::uuid uuid = uuidGenerator();
     uuid_ = uuid;
 }
 
-IoMessage::IoMessage(string message)
+IoMessage::IoMessage(const string message)
         : message_(message), value_(0)
         , direction_("g")
 {
@@ -28,15 +31,15 @@ IoMessage::IoMessage(string message)
     uuid_ = uuid;
 }
 
-string &IoMessage::getMessage() {
+const string IoMessage::getMessage() {
     return message_;
 }
 
-string &IoMessage::getDirection() {
+const string IoMessage::getDirection() {
     return direction_;
 }
 
-uint IoMessage::getValue() {
+const uint IoMessage::getValue() {
     return value_;
 }
 
@@ -44,22 +47,22 @@ uint IoMessage::getValue() {
 //    uuid_ = uuid;
 //}
 
-boost::uuids::uuid IoMessage::getMsgUuid() {
+const boost::uuids::uuid IoMessage::getMsgUuid() {
     return uuid_;
 }
 
-IoMessage &IoMessage::operator=(const IoMessage &other) {
-    if (this == &other) {
-        return *this;
-    }
-    this->message_ = other.message_;
-    this->value_ = other.value_;
-    this->uuid_ = other.uuid_;
-    this->direction_ = other.direction_;
-    this->rcvPortUuid_ = other.rcvPortUuid_;
-
-    return *this;
-}
+//IoMessage &IoMessage::operator=(const IoMessage &other) {
+//    if (this == &other) {
+//        return *this;
+//    }
+//    this->message_ = other.message_;
+//    this->value_ = other.value_;
+//    this->uuid_ = other.uuid_;
+//    this->direction_ = other.direction_;
+//    this->rcvPortUuid_ = other.rcvPortUuid_;
+//
+//    return *this;
+//}
 
 void IoMessage::setRcvPortUuid(boost::uuids::uuid uuid) {
     rcvPortUuid_ = uuid;

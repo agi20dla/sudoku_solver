@@ -4,18 +4,23 @@
 
 #include "MgtHub.h"
 #include "IoPort.h"
+#include "Exceptions.h"
 
 /**
  * Process "m" messages
  */
 void MgtHub::run() {
-    IoMessage ioMessage;
+    msg_ptr ioMessage;
 
-    while(tryPop(ioMessage)) {
-        string cmd = ioMessage.getMessage();
-        uint value = ioMessage.getValue();
+    while ((ioMessage = tryPop())) {
+        string cmd = ioMessage->getMessage();
+        uint value = ioMessage->getValue();
         if (cmd == "rm") {
             // reset the value
+            if (soleValue == value) {
+//                throw attempt_to_remove_sole_value();
+                return;
+            }
             (*possible_values_)[value] = 0;
             // if removing a value leaves only one possible value
             // then send a rm message to the cell for that value
@@ -80,10 +85,10 @@ void MgtHub::addPossibleValues(std::vector<uint>* possible_values) {
 /**
  * send out a message to the cell to do stuff
  */
-void MgtHub::broadcast(string msg, uint value) {
-    IoMessage globalMsg(msg, value, "g");
-    IoMessage hMsg(msg, value, "h");
-    IoMessage vMsg(msg, value, "v");
+void MgtHub::broadcast(const string msg, const uint value) {
+    msg_ptr globalMsg = make_shared<IoMessage>(msg, value, "g");
+    msg_ptr hMsg = make_shared<IoMessage>(msg, value, "h");
+    msg_ptr vMsg = make_shared<IoMessage>(msg, value, "v");
 
     for (io_ptr ioPort : ioPorts_) {
         if (ioPort->getDirection() == "m") {

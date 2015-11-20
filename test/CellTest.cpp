@@ -27,7 +27,7 @@ TEST(CellTest, SendMessageThroughCell)
     auto port1 = cell->getMsgConnection();
     auto port2 = cell->getMsgConnection();
 
-    IoMessage fwdMessage("message");
+    msg_ptr fwdMessage = make_shared<IoMessage>("message");
 
     port1->fwdToQueue(fwdMessage);
 
@@ -36,6 +36,8 @@ TEST(CellTest, SendMessageThroughCell)
     ASSERT_THAT(port2->getNumMessagesRecieved(), Eq(1));
 }
 
+
+// p1 <-msg-> C1 <-msg-> p2 <-> p3 <-msg-> C2
 TEST(CellTest, SendMessageThroughCellToAnotherCell)
 {
     std::shared_ptr<Cell> cell1 = make_shared<Cell>();
@@ -48,7 +50,7 @@ TEST(CellTest, SendMessageThroughCellToAnotherCell)
     port2->connect(port3);
     port3->connect(port2);
 
-    IoMessage message("message");
+    msg_ptr message = make_shared<IoMessage>("message");
 
     // simulate sending a message from another IoPort
     port1->fwdToQueue(message);
@@ -56,17 +58,17 @@ TEST(CellTest, SendMessageThroughCellToAnotherCell)
     cell1->run();
     cell2->run();
 
-    ASSERT_EQ(port1->getNumMessagesRecieved(), 1);
-    ASSERT_EQ(port1->getNumMessagesForwarded(), 1);
-    ASSERT_EQ(port1->getNumMessagesSent(), 0);
+    ASSERT_EQ(1, port1->getNumMessagesRecieved());
+    ASSERT_EQ(1, port1->getNumMessagesForwarded());
+    ASSERT_EQ(0, port1->getNumMessagesSent());
 
-    ASSERT_EQ(port2->getNumMessagesRecieved(), 1);
-    ASSERT_EQ(port2->getNumMessagesForwarded(), 0);
-    ASSERT_EQ(port2->getNumMessagesSent(), 1);
+    ASSERT_EQ(1, port2->getNumMessagesRecieved());
+    ASSERT_EQ(0, port2->getNumMessagesForwarded());
+    ASSERT_EQ(1, port2->getNumMessagesSent());
 
-    ASSERT_EQ(port3->getNumMessagesRecieved(), 1);
-    ASSERT_EQ(port3->getNumMessagesForwarded(), 1);
-    ASSERT_EQ(port3->getNumMessagesSent(), 0);
+    ASSERT_EQ(2, port3->getNumMessagesRecieved());
+    ASSERT_EQ(1, port3->getNumMessagesForwarded());
+    ASSERT_EQ(1, port3->getNumMessagesSent());
 }
 
 
@@ -78,7 +80,7 @@ TEST(CellTest, CellsCanConnectToEachOther)
 
     cell1->connect(cell2);
 
-    IoMessage message("message");
+    msg_ptr message = make_shared<IoMessage>("message");
     port->fwdToQueue(message);
     cell1->run();
 
@@ -91,7 +93,7 @@ TEST(CellTest, GlobalCellDoesNotSendBackMessage)
     std::shared_ptr<Cell> cell = make_shared<Cell>();
     std::shared_ptr<IoPort> port = cell->getMsgConnection("g");
 
-    IoMessage message("message", 0, "g");
+    msg_ptr message = make_shared<IoMessage>("message", 0, "g");
 
     port->fwdToQueue(message);
     ASSERT_EQ(port->getNumMessagesRecieved(), 1);
@@ -102,7 +104,7 @@ TEST(CellTest, GlobalCellDoesNotSendBackMessage)
 
     cell->run();
 
-    ASSERT_EQ(cell->numMessages(), 0);
+    ASSERT_EQ(1, cell->numMessages());
 
     ASSERT_EQ(port->getNumMessagesRecieved(), 1);
     ASSERT_EQ(port->getNumMessagesForwarded(), 1);
@@ -144,7 +146,7 @@ TEST(CellTest, MessageOnlyGoesHorizontally)
     // set up external connection
     std::shared_ptr<IoPort> extPort = tl->getMsgConnection();
 
-    IoMessage message("message", 0, "h");
+    msg_ptr message = make_shared<IoMessage>("message", 0, "h");
     extPort->fwdToQueue(message);
 
     ASSERT_EQ(tl->numMessages(), 1);
@@ -157,7 +159,7 @@ TEST(CellTest, MessageOnlyGoesHorizontally)
 
     ASSERT_EQ(br->numMessagesSent(), 0);
     ASSERT_EQ(bl->numMessagesSent(), 0);
-    ASSERT_EQ(tr->numMessagesSent(), 0);
+    ASSERT_EQ(1, tr->numMessagesSent());
     ASSERT_EQ(tl->numMessagesSent(), 1);
 
     ASSERT_EQ(tl->numMessagesRcvd(), 1); // from the initial message forward
@@ -203,7 +205,7 @@ TEST(CellTest, MessageOnlyGoesVertically)
     // set up external connection
     std::shared_ptr<IoPort> extPort = br->getMsgConnection();
 
-    IoMessage message("message", 0, "v");
+    msg_ptr message = make_shared<IoMessage>("message", 0, "v");
     extPort->fwdToQueue(message);
 
     ASSERT_EQ(br->numMessages(), 1);
@@ -216,7 +218,7 @@ TEST(CellTest, MessageOnlyGoesVertically)
 
     ASSERT_EQ(br->numMessagesSent(), 1);
     ASSERT_EQ(bl->numMessagesSent(), 0);
-    ASSERT_EQ(tr->numMessagesSent(), 0);
+    ASSERT_EQ(1, tr->numMessagesSent());
     ASSERT_EQ(tl->numMessagesSent(), 0);
 
     ASSERT_EQ(tl->numMessagesRcvd(), 0);
@@ -262,20 +264,20 @@ TEST(CellTest, MessageGoesGlobal)
     // set up external connection
     std::shared_ptr<IoPort> extPort = br->getMsgConnection();
 
-    IoMessage message("message", 0, "g");
+    msg_ptr message = make_shared<IoMessage>("message", 0, "g");
     extPort->fwdToQueue(message);
 
     ASSERT_EQ(br->numMessages(), 1);
 
     br->run();
     ASSERT_EQ(br->numMessagesRcvd(), 1); // from the initial message insertion
-    ASSERT_EQ(br->numMessages(), 0);
+    ASSERT_EQ(1, br->numMessages());
     ASSERT_EQ(br->numMessagesSent(), 1);
     ASSERT_EQ(global->numMessages(), 1);
 
     global->run();
     ASSERT_EQ(br->numMessagesRcvd(), 1); // from the initial message insertion
-    ASSERT_EQ(br->numMessages(), 0);
+    ASSERT_EQ(1, br->numMessages());
 
     ASSERT_EQ(bl->numMessagesRcvd(), 1);
     ASSERT_EQ(bl->numMessages(), 1);
@@ -287,11 +289,11 @@ TEST(CellTest, MessageGoesGlobal)
     ASSERT_EQ(tr->numMessages(), 1);
 
     ASSERT_EQ(global->numMessagesRcvd(), 1);
-    ASSERT_EQ(global->numMessages(), 0);
+    ASSERT_EQ(1, global->numMessages());
 
     tr->run();
     ASSERT_EQ(br->numMessagesRcvd(), 1); // from the initial message insertion
-    ASSERT_EQ(br->numMessages(), 0);
+    ASSERT_EQ(1, br->numMessages());
 
     ASSERT_EQ(bl->numMessagesRcvd(), 1);
     ASSERT_EQ(bl->numMessages(), 1);
@@ -300,49 +302,49 @@ TEST(CellTest, MessageGoesGlobal)
     ASSERT_EQ(tl->numMessages(), 1);
 
     ASSERT_EQ(tr->numMessagesRcvd(), 1);
-    ASSERT_EQ(tr->numMessages(), 0);
+    ASSERT_EQ(1, tr->numMessages());
 
     ASSERT_EQ(global->numMessagesRcvd(), 1);
-    ASSERT_EQ(global->numMessages(), 0);
+    ASSERT_EQ(1, global->numMessages());
 
     bl->run();
     ASSERT_EQ(br->numMessagesRcvd(), 1); // from the initial message insertion
-    ASSERT_EQ(br->numMessages(), 0);
+    ASSERT_EQ(1, br->numMessages());
 
     ASSERT_EQ(bl->numMessagesRcvd(), 1);
-    ASSERT_EQ(bl->numMessages(), 0);
+    ASSERT_EQ(1, bl->numMessages());
 
     ASSERT_EQ(tl->numMessagesRcvd(), 1);
     ASSERT_EQ(tl->numMessages(), 1);
 
     ASSERT_EQ(tr->numMessagesRcvd(), 1);
-    ASSERT_EQ(tr->numMessages(), 0);
+    ASSERT_EQ(1, tr->numMessages());
 
     ASSERT_EQ(global->numMessagesRcvd(), 1);
-    ASSERT_EQ(global->numMessages(), 0);
+    ASSERT_EQ(1, global->numMessages());
 
     tl->run();
     ASSERT_EQ(br->numMessagesRcvd(), 1); // from the initial message insertion
-    ASSERT_EQ(br->numMessages(), 0);
+    ASSERT_EQ(1, br->numMessages());
 
     ASSERT_EQ(bl->numMessagesRcvd(), 1);
-    ASSERT_EQ(bl->numMessages(), 0);
+    ASSERT_EQ(1, bl->numMessages());
 
     ASSERT_EQ(tl->numMessagesRcvd(), 1);
-    ASSERT_EQ(tl->numMessages(), 0);
+    ASSERT_EQ(1, tl->numMessages());
 
     ASSERT_EQ(tr->numMessagesRcvd(), 1);
-    ASSERT_EQ(tr->numMessages(), 0);
+    ASSERT_EQ(1, tr->numMessages());
 
     ASSERT_EQ(global->numMessagesRcvd(), 1);
-    ASSERT_EQ(global->numMessages(), 0);
+    ASSERT_EQ(1, global->numMessages());
 }
 
 TEST(CellTest, MgtRmMessageIsProcessed)
 {
     std::shared_ptr<Cell> cell = make_shared<Cell>();
     std::shared_ptr<IoPort> mgtIo = cell->getMgtConnection("m");
-    IoMessage ioMessage("rm", 5, "h");
+    msg_ptr ioMessage = make_shared<IoMessage>("rm", 5, "h");
     mgtIo->fwdToQueue(ioMessage);
     cell->run();
     vector<uint> values = cell->getValues();
@@ -355,7 +357,7 @@ TEST(CellTest, MgtSetMessageIsProcessed)
 {
     std::shared_ptr<Cell> cell = make_shared<Cell>();
     std::shared_ptr<IoPort> msgIo = cell->getMgtConnection("m");
-    IoMessage ioMessage("set", 5, "g");
+    msg_ptr ioMessage = make_shared<IoMessage>("set", 5, "g");
     msgIo->fwdToQueue(ioMessage);
     cell->run();
     vector<uint> values1 = cell->getValues();

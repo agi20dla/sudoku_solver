@@ -18,7 +18,7 @@ TEST(BrainTest, SendHMessage) {
     brain.initialize();
     cell_ptr cell00 = brain.getCell(0, 0);
     io_ptr port = cell00->getMsgConnection();
-    IoMessage ioMessage("message", 0, "h");
+    msg_ptr ioMessage = make_shared<IoMessage>("message", 0, "h");
     port->fwdToQueue(ioMessage);
 
     brain.run();
@@ -35,7 +35,7 @@ TEST(BrainTest, SendVMessage) {
     brain.initialize();
     cell_ptr cell00 = brain.getCell(0, 0);
     io_ptr port = cell00->getMsgConnection();
-    IoMessage ioMessage("message", 0, "v");
+    msg_ptr ioMessage = make_shared<IoMessage>("message", 0, "v");
     port->fwdToQueue(ioMessage);
 
     brain.run();
@@ -52,7 +52,7 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
     brain.initialize();
     cell_ptr cell44 = brain.getCell(4, 4);
     io_ptr port = cell44->getMsgConnection();
-    IoMessage ioMessage("message", 0, "g");
+    msg_ptr ioMessage = make_shared<IoMessage>("message", 0, "g");
     port->fwdToQueue(ioMessage);
 
     brain.run(true);
@@ -77,13 +77,13 @@ TEST(BrainTest, SendGhvMessage) {
 
     cell_ptr cell33 = brain.getCell(3, 3);
     io_ptr port = cell33->getMsgConnection();
-    IoMessage ioMessageG("message", 0, "g");
+    msg_ptr ioMessageG = make_shared<IoMessage>("message", 0, "g");
     port->fwdToQueue(ioMessageG);
 
-    IoMessage ioMessageH("message", 0, "h");
+    msg_ptr ioMessageH = make_shared<IoMessage>("message", 0, "h");
     port->fwdToQueue(ioMessageH);
 
-    IoMessage ioMessageV("message", 0, "v");
+    msg_ptr ioMessageV = make_shared<IoMessage>("message", 0, "v");
     port->fwdToQueue(ioMessageV);
 
     brain.run(true);

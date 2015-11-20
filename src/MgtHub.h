@@ -12,7 +12,7 @@ class MgtHub: public Hub {
 private:
     std::vector<uint>* possible_values_;
 
-    void broadcast(string msg, uint value);
+    void broadcast(const string msg, const uint value);
 
     uint soleValue = 0;
 
