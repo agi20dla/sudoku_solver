@@ -80,7 +80,9 @@ io_ptr Cell::connect(io_ptr otherPort, const string &direction)
 }
 
 ulong Cell::numMessages() {
-    return msgHub_->numMessagesOnQueue();
+    ulong numMsgs = msgHub_->numMessagesOnQueue();
+    ulong numMgts = mgtHub_->numMessagesOnQueue();
+    return numMgts + numMsgs;
 }
 
 ulong Cell::numMessagesSent() {

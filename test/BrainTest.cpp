@@ -55,11 +55,7 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
     IoMessage ioMessage("message", 0, "g");
     port->fwdToQueue(ioMessage);
 
-    // Have to run the brain 3 times to ensure the messages get transferred where they need to go
-    brain.run();
-    brain.run();
-    brain.run();
-    brain.printMessagesRcvd();
+    brain.run(true);
 
     cell_ptr cell22 = brain.getCell(2, 2);
     ASSERT_EQ(0, cell22->numMessagesRcvd());
@@ -90,11 +86,7 @@ TEST(BrainTest, SendGhvMessage) {
     IoMessage ioMessageV("message", 0, "v");
     port->fwdToQueue(ioMessageV);
 
-    // Have to run the brain 3 times to ensure the messages get transferred where they need to go
-    brain.run();
-    brain.run();
-    brain.run();
-    brain.printMessagesRcvd();
+    brain.run(true);
 
     cell_ptr cell32 = brain.getCell(3, 2);
     ASSERT_EQ(cell32->numMessagesRcvd(), 1);
@@ -154,13 +146,7 @@ TEST(BrainTest, SetValue) {
     brain.initialize();
 
     brain.setValue(0, 0, 5);
-    brain.run();
-    brain.printValues();
-    for (int i = 0; i < 5; i++) {
-        brain.run();
-        brain.printValues();
-    }
-    brain.printMessagesRcvd();
+    brain.run(true);
 
     // check this block's cells to make sure it's values are set / reset appropriately
     for (int row = 0; row < 3; row++) {
@@ -196,12 +182,7 @@ TEST(BrainTest, SetTwoValuesInOneBlock) {
 
     brain.setValue(0, 0, 5);
     brain.setValue(2, 2, 9);
-    brain.run();
-    brain.printValues();
-    for (int i = 0; i < 5; i++) {
-        brain.run();
-    }
-    brain.printMessagesRcvd();
+    brain.run(true);
 
     // check this block's cells to make sure it's values are set / reset appropriately
     for (int row = 0; row < 3; row++) {
@@ -252,41 +233,46 @@ TEST(BrainTest, SetInitialValuesForPuzzle) {
     brain.initialize();
 
     brain.setValue(0, 0, 5);
-    brain.setValue(0, 1, 3);
-    brain.setValue(0, 4, 7);
-    brain.setValue(1, 0, 6);
-    brain.setValue(1, 3, 1);
-    brain.setValue(1, 4, 9);
-    brain.setValue(1, 5, 5);
-    brain.setValue(2, 1, 9);
-    brain.setValue(2, 2, 8);
-    brain.setValue(2, 7, 6);
-    brain.setValue(3, 0, 8);
-    brain.setValue(3, 4, 6);
-    brain.setValue(3, 8, 3);
+    brain.setValue(0, 1, 4);
+    brain.setValue(0, 5, 9);
+    brain.setValue(0, 8, 7);
+    brain.setValue(1, 0, 2);
+    brain.setValue(1, 2, 1);
+    brain.setValue(1, 3, 3);
+    brain.setValue(1, 5, 7);
+    brain.setValue(1, 7, 8);
+    brain.setValue(1, 8, 4);
+    brain.setValue(2, 2, 6);
+    brain.setValue(2, 3, 4);
+    brain.setValue(2, 5, 5);
+    brain.setValue(3, 2, 7);
     brain.setValue(4, 0, 4);
-    brain.setValue(4, 3, 8);
-    brain.setValue(4, 5, 3);
+    brain.setValue(4, 1, 5);
+    brain.setValue(4, 4, 9);
+    brain.setValue(4, 7, 3);
     brain.setValue(4, 8, 1);
-    brain.setValue(5, 0, 7);
-    brain.setValue(5, 4, 2);
-    brain.setValue(5, 8, 6);
-    brain.setValue(6, 1, 6);
-    brain.setValue(6, 6, 2);
-    brain.setValue(6, 7, 8);
-    brain.setValue(7, 3, 4);
-    brain.setValue(7, 4, 1);
-    brain.setValue(7, 5, 9);
-    brain.setValue(7, 8, 5);
-    brain.setValue(8, 4, 8);
+    brain.setValue(5, 6, 2);
+    brain.setValue(6, 3, 9);
+    brain.setValue(6, 5, 6);
+    brain.setValue(6, 6, 4);
+    brain.setValue(7, 0, 9);
+    brain.setValue(7, 1, 1);
+    brain.setValue(7, 3, 7);
+    brain.setValue(7, 5, 4);
+    brain.setValue(7, 6, 3);
+    brain.setValue(7, 8, 8);
+    brain.setValue(8, 0, 8);
+    brain.setValue(8, 3, 2);
     brain.setValue(8, 7, 7);
-    brain.setValue(8, 8, 9);
+    brain.setValue(8, 8, 5);
 
-    for (int i = 0; i < 5; i++) {
-        brain.run();
-    }
-    brain.printValues();
-    brain.printMessagesRcvd();
+    brain.run(true);
+//        cout << endl;
+//        brain.printValues();
+//        cout << endl;
+//        brain.printSolution();
+//        brain.printMessagesRcvd();
+//    }
 }
 
 

@@ -16,9 +16,12 @@ class CellHub;
 
 class MgtHub;
 
+class IoMessage;
+
 typedef std::shared_ptr<Cell> cell_ptr;
 typedef std::shared_ptr<IoPort> io_ptr;
 typedef std::shared_ptr<Hub> hub_ptr;
 typedef std::shared_ptr<CellHub> cell_hub_ptr;
 typedef std::shared_ptr<MgtHub> mgt_hub_ptr;
+typedef std::unique_ptr<IoMessage> msg_ptr;
 #endif //SUDOKU_SOLVER_COMMON_H

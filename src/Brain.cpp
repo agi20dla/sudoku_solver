@@ -240,28 +240,75 @@ void Brain::printMessagesRcvd()
     }
 }
 
-
-void Brain::run()
+/**
+ * Run until there's nothing else to do
+ * TODO: The test for nothing else to do needs to be something other than whether
+ * the number of messages is the same from one iteration to the next.  Perhaps try
+ * the number of queued messages in each cell's hub.
+ */
+void Brain::run(bool debug)
 {
-    // run the globals
-    for (uint row = 0; row < 6; row++) {
-        for (uint col = 0; col < 6; col++) {
-            cell_ptr global = getGlobal(row, col);
-            if (global.get() != nullptr) {
-                getGlobal(row, col)->run();
-            }
-        }
-    }
+    // get messages recieved count
+    // cell map messages received count
+    vector<ulong> prev(81);
 
-    // run the cells
-
+    vector<ulong> curr;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
             if (auto cell = getCell(row, col)) {
-                cell->run();
+                ulong msgsRcvd = cell->numMessagesRcvd();
+                curr.push_back(msgsRcvd);
             }
         }
     }
+
+    bool firstRun = true;
+    ulong numMsgsRemaining = 0;
+    ulong numRuns = 0;
+//    while (!std::equal(curr.begin(), curr.begin()+curr.size()-1, prev.begin())) {
+    while (firstRun || numMsgsRemaining > 0) {
+        firstRun = false;
+        numRuns++;
+        // run the globals
+        for (uint row = 0; row < 6; row++) {
+            for (uint col = 0; col < 6; col++) {
+                cell_ptr global = getGlobal(row, col);
+                if (global.get() != nullptr) {
+                    getGlobal(row, col)->run();
+                }
+            }
+        }
+
+        // run the cells
+
+        for (uint row = 0; row < 9; row++) {
+            for (uint col = 0; col < 9; col++) {
+                if (auto cell = getCell(row, col)) {
+                    cell->run();
+                }
+            }
+        }
+
+        if (debug) {
+            cout << endl;
+            cout << "Run number: " << numRuns << endl;
+            printValues();
+            cout << endl;
+            printSolution();
+            printMessagesRcvd();
+        }
+
+        numMsgsRemaining = 0;
+        for (uint row = 0; row < 9; row++) {
+            for (uint col = 0; col < 9; col++) {
+                if (auto cell = getCell(row, col)) {
+                    numMsgsRemaining += cell->numMessages();
+                }
+            }
+        }
+    }
+
+    cout << endl << "Number of runs: " << numRuns << endl;
 }
 
 
@@ -286,5 +333,43 @@ vector<uint> Brain::getValues(const uint row, const uint col)
         values = cell->getValues();
     }
     return values;
+}
+
+void Brain::printSolution() {
+    vector<string> vg;
+    for (uint row = 0; row < 9; row++) {
+        for (uint col = 0; col < 9; col++) {
+
+            if (auto cell = getCell(row, col)) {
+                auto values = cell->getValues();
+                uint value = 0;
+                uint numValues = 0;
+                for (uint idx = 1; idx < 10; idx++) {
+                    if (values.at(idx) == 1) {
+                        numValues++;
+                        value = idx;
+                    }
+                }
+                if (numValues == 1) {
+                    vg.push_back(to_string(value));
+                } else {
+                    vg.push_back("*");
+                }
+            }
+        }
+    }
+
+    for (uint row = 0; row < 9; row++) {
+        for (uint col = 0; col < 9; col++) {
+            cout << vg.at(row * 9 + col) << " ";
+            if ((col + 1) % 3 == 0) {
+                cout << " ";
+            }
+        }
+        cout << endl;
+        if ((row + 1) % 3 == 0) {
+            cout << endl;
+        }
+    }
 }
 

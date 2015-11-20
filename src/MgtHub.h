@@ -12,7 +12,9 @@ class MgtHub: public Hub {
 private:
     std::vector<uint>* possible_values_;
 
-    void sendMsgToCell(string msg, uint value);
+    void broadcast(string msg, uint value);
+
+    uint soleValue = 0;
 
 public:
     virtual void run() override;

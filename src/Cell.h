@@ -23,6 +23,9 @@ private:
     // initialized to all values (1-9) being possible
     std::vector<uint> possibleValues_ {0,1,1,1,1,1,1,1,1,1};
 
+    // The sole value of this cell, if found
+    uint soleValue = 0;
+
     // This is the value of the cell.  It will be set to the last value left set
     // in the possibleValues structure
     uint value{0};
