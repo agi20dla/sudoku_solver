@@ -15,6 +15,7 @@ If you don't know what a Sudoku puzzle is, check out the wikipedia article:
 https://en.wikipedia.org/wiki/Sudoku
 
 This program logically breaks up the puzzle into three parts:
+
 1. The overall puzzle, accessible from the Brain, which can also access each individual Cell and Group cell through
 special management connections called brain (b) ports (explained later).
 
