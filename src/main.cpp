@@ -5,6 +5,12 @@
 using namespace std;
 
 
+/**
+ * Shamelessly stolen from:
+ * http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes
+ *
+ * TODO: To be taken out in final release, but staying here while building the program
+ */
 void handler(int sig) {
     void *array[10];
     int size;
@@ -19,7 +25,10 @@ void handler(int sig) {
 }
 
 int main(int argc, char **argv) {
+
+    // TODO: take out the SIGSEGV handler in final code
     signal(SIGSEGV, handler);
+
     testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();
 }
