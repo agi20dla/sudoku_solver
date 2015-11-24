@@ -41,7 +41,6 @@ void MgtHub::run() {
                 broadcast("rm", soleValue);
             }
 
-
             // if we got here, then we only have one value, so
             // send out a broadcast message to remove that value as a possibility
         } else if (cmd == "set") {
@@ -86,7 +85,7 @@ MgtHub &MgtHub::operator=(const MgtHub & other) {
     return *this;
 }
 
-void MgtHub::addPossibleValues(std::vector<uint *> *possible_values) {
+void MgtHub::addPossibleValues(std::vector<int_ptr> *possible_values) {
     possible_values_ = possible_values;
 }
 
@@ -94,9 +93,9 @@ void MgtHub::addPossibleValues(std::vector<uint *> *possible_values) {
  * send out a message to the cell to do stuff
  */
 void MgtHub::broadcast(const string msg, const uint value) {
-    msg_ptr globalMsg = make_shared<IoMessage>(msg, value, "g");
-    msg_ptr hMsg = make_shared<IoMessage>(msg, value, "h");
-    msg_ptr vMsg = make_shared<IoMessage>(msg, value, "v");
+    msg_ptr globalMsg = make_shared<IoMessage>(string(msg), value, "g");
+    msg_ptr hMsg = make_shared<IoMessage>(string(msg), value, "h");
+    msg_ptr vMsg = make_shared<IoMessage>(string(msg), value, "v");
 
     for (io_ptr ioPort : ioPorts_) {
         if (ioPort->getDirection() == "m") {
