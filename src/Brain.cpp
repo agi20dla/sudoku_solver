@@ -266,7 +266,7 @@ void Brain::printMessagesRcvd()
  * the number of messages is the same from one iteration to the next.  Perhaps try
  * the number of queued messages in each cell's hub.
  */
-vector<uint> Brain::run(bool debug)
+void Brain::run(bool debug)
 {
     bool firstRun = true;
     ulong numMsgsRemaining = 0;

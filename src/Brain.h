@@ -51,7 +51,7 @@ public:
 
     io_ptr getMgtPort(const uint row, const uint col);
 
-    vector<uint> run(bool debug = false);
+    void run(bool debug = false);
 
     // set the value of a particular cell via a management message
     void setValue(const uint row, const uint col, const uint value);
