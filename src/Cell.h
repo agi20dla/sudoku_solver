@@ -21,8 +21,10 @@ private:
 
     // represents the possible value this cell can hold
     // initialized to all values (1-9) being possible
-    std::vector<uint *> possibleValues_{new uint(0), new uint(1), new uint(1), new uint(1), new uint(1), new uint(1),
-                                        new uint(1), new uint(1), new uint(1), new uint(1)};
+    std::vector<int_ptr> possibleValues_{std::make_shared<int>(0), std::make_shared<int>(1), std::make_shared<int>(1),
+                                         std::make_shared<int>(1), std::make_shared<int>(1), std::make_shared<int>(1),
+                                         std::make_shared<int>(1), std::make_shared<int>(1), std::make_shared<int>(1),
+                                         std::make_shared<int>(1)};
 
 public:
     Cell();
@@ -46,7 +48,7 @@ public:
     ulong numMessagesRcvd();
     ulong numConnections();
 
-    vector<uint *> *getValues();
+    vector<int_ptr> *getValues();
 
     Cell& operator=(const Cell& other);
 };
