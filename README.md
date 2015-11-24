@@ -34,3 +34,11 @@ They communicate by passing messages through the IO Ports mentioned earlier.
 As far as each cell knows, it's just getting or sending a message.  It only knows that a message came from a certain
 port and that it needs to go out of a certain port.  The management portion of the cell will take some action based on
 the message content, if needed.
+
+## For Developers, use these conventions
+
+###Branches should be named with the following prefix tokens.  e.g. feat/readfile
+wip       Works in progress; stuff I know won't be finished soon
+feat      Feature I'm adding or expanding
+bug       Bug fix or experiment
+junk      Throwaway branch created to experiment
