@@ -27,7 +27,7 @@ TEST(CellTest, SendMessageThroughCell)
     auto port1 = cell->getMsgConnection();
     auto port2 = cell->getMsgConnection();
 
-    msg_ptr fwdMessage = make_shared<IoMessage>("message");
+    msg_ptr fwdMessage = make_shared<IoMessage>(string("message"));
 
     port1->fwdToQueue(fwdMessage);
 
@@ -50,7 +50,7 @@ TEST(CellTest, SendMessageThroughCellToAnotherCell)
     port2->connect(port3);
     port3->connect(port2);
 
-    msg_ptr message = make_shared<IoMessage>("message");
+    msg_ptr message = make_shared<IoMessage>(string("message"));
 
     // simulate sending a message from another IoPort
     port1->fwdToQueue(message);
@@ -80,7 +80,7 @@ TEST(CellTest, CellsCanConnectToEachOther)
 
     cell1->connect(cell2);
 
-    msg_ptr message = make_shared<IoMessage>("message");
+    msg_ptr message = make_shared<IoMessage>(string("message"));
     port->fwdToQueue(message);
     cell1->run();
 
@@ -93,7 +93,7 @@ TEST(CellTest, GlobalCellDoesNotSendBackMessage)
     std::shared_ptr<Cell> cell = make_shared<Cell>();
     std::shared_ptr<IoPort> port = cell->getMsgConnection("g");
 
-    msg_ptr message = make_shared<IoMessage>("message", 0, "g");
+    msg_ptr message = make_shared<IoMessage>(string("message"), 0, "g");
 
     port->fwdToQueue(message);
     ASSERT_EQ(port->getNumMessagesRecieved(), 1);
@@ -146,7 +146,7 @@ TEST(CellTest, MessageOnlyGoesHorizontally)
     // set up external connection
     std::shared_ptr<IoPort> extPort = tl->getMsgConnection();
 
-    msg_ptr message = make_shared<IoMessage>("message", 0, "h");
+    msg_ptr message = make_shared<IoMessage>(string("message"), 0, "h");
     extPort->fwdToQueue(message);
 
     ASSERT_EQ(tl->numMessages(), 1);
@@ -205,7 +205,7 @@ TEST(CellTest, MessageOnlyGoesVertically)
     // set up external connection
     std::shared_ptr<IoPort> extPort = br->getMsgConnection();
 
-    msg_ptr message = make_shared<IoMessage>("message", 0, "v");
+    msg_ptr message = make_shared<IoMessage>(string("message"), 0, "v");
     extPort->fwdToQueue(message);
 
     ASSERT_EQ(br->numMessages(), 1);
@@ -264,7 +264,7 @@ TEST(CellTest, MessageGoesGlobal)
     // set up external connection
     std::shared_ptr<IoPort> extPort = br->getMsgConnection();
 
-    msg_ptr message = make_shared<IoMessage>("message", 0, "g");
+    msg_ptr message = make_shared<IoMessage>(string("message"), 0, "g");
     extPort->fwdToQueue(message);
 
     ASSERT_EQ(br->numMessages(), 1);
@@ -345,30 +345,30 @@ TEST(CellTest, MgtRmMessageIsProcessed)
     std::shared_ptr<Cell> cell = make_shared<Cell>();
     std::shared_ptr<IoPort> mgtIo = cell->getMgtConnection("m");
 
-    msg_ptr ioMessage = make_shared<IoMessage>("rm", 5, "h");
+    msg_ptr ioMessage = make_shared<IoMessage>(string("rm"), 5, "h");
 
     mgtIo->fwdToQueue(ioMessage);
 
     cell->run();
 
-    vector<uint *> *values = cell->getValues();
-    uint value = *(*values)[5];
+    vector<int_ptr> *values = cell->getValues();
+    int_ptr value = (*values)[5];
 
-    ASSERT_EQ(0, value);
+    ASSERT_EQ(0, *value);
 }
 
 TEST(CellTest, MgtSetMessageIsProcessed)
 {
     std::shared_ptr<Cell> cell = make_shared<Cell>();
     std::shared_ptr<IoPort> msgIo = cell->getMgtConnection("m");
-    msg_ptr ioMessage = make_shared<IoMessage>("set", 5, "g");
+    msg_ptr ioMessage = make_shared<IoMessage>(string("set"), 5, "g");
     msgIo->fwdToQueue(ioMessage);
     cell->run();
 
     // necessary because msg is run before mgt and
     // mgt needs to be run after msg is run
     cell->run();
-    vector<uint *> *values2 = cell->getValues();
+    vector<int_ptr> *values2 = cell->getValues();
 
     ASSERT_EQ(0, *((*values2)[4]));
     ASSERT_EQ(1, *((*values2)[5]));
