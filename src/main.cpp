@@ -1,6 +1,10 @@
 #include <iostream>
 #include "gmock/gmock.h"
+#include "Data.h"
+#include "Brain.h"
 #include <execinfo.h>
+
+//int readFile(char *string);
 
 using namespace std;
 
@@ -25,10 +29,28 @@ void handler(int sig) {
 }
 
 int main(int argc, char **argv) {
-
     // TODO: take out the SIGSEGV handler in final code
     signal(SIGSEGV, handler);
 
-    testing::InitGoogleMock(&argc, argv);
-    return RUN_ALL_TESTS();
+    if (argc == 3 || argc == 1) {
+        cout << "Running internal tests";
+        testing::InitGoogleMock(&argc, argv);
+        return RUN_ALL_TESTS();
+    }
+    else if (argc != 2) {
+        cerr << "Usage: " << endl;
+        cerr << "To solve a specific problem: " << argv[0] << " FILENAME" << endl;
+
+        // TODO: Take out test code from release build?
+        cerr << "or" << endl;
+        cerr << "To run internal tests: " << argv[0] << endl;
+        return 1;
+    }
+
+    string filename(argv[1]);
+    Data data;
+    data.init(filename);
+    Brain brain;
+    brain.reset();
+    return 0;
 }
