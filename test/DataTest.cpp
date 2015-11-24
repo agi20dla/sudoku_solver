@@ -13,7 +13,8 @@ TEST(DataTest, ReadsPuzzleFileIntoStr) {
 
     Data data;
     data.init(filename);
-    ASSERT_EQ("53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79", data.getPuzzleStr());
+
+    ASSERT_EQ("54...9..72.13.7.84..64.5.....7......45..9..31......2.....9.64..91.7.43.88..2...75", data.getPuzzleStr());
 }
 
 TEST(DataTest, ReadsPuzzleFileIntoInt) {
@@ -21,9 +22,10 @@ TEST(DataTest, ReadsPuzzleFileIntoInt) {
 
     Data data;
     data.init(filename);
-    vector<uint> puzzle = {5, 3, 0, 0, 7, 0, 0, 0, 0, 6, 0, 0, 1, 9, 5, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 6, 0, 8, 0, 0, 0,
-                           6, 0, 0, 0, 3, 4, 0, 0, 8, 0, 3, 0, 0, 1, 7, 0, 0, 0, 2, 0, 0, 0, 6, 0, 6, 0, 0, 0, 0, 2, 8,
-                           0, 0, 0, 0, 4, 1, 9, 0, 0, 5, 0, 0, 0, 0, 8, 0, 0, 7, 9};
+
+    vector<uint> puzzle = {5, 4, 0, 0, 0, 9, 0, 0, 7, 2, 0, 1, 3, 0, 7, 0, 8, 4, 0, 0, 6, 4, 0, 5, 0, 0, 0, 0, 0, 7, 0,
+                           0, 0, 0, 0, 0, 4, 5, 0, 0, 9, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 9, 0, 6, 4, 0,
+                           0, 9, 1, 0, 7, 0, 4, 3, 0, 8, 8, 0, 0, 2, 0, 0, 0, 7, 5};
     ASSERT_EQ(puzzle, data.getPuzzleVec());
 }
 
