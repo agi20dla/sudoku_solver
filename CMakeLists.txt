@@ -16,22 +16,31 @@ find_package(Boost REQUIRED system thread exception)
 
 find_file(Resources REQUIRED simple.grid)
 
+configure_file(test/resources/02_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/02_easy.pzl COPYONLY)
+configure_file(test/resources/02_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/02_answer.pzl COPYONLY)
+configure_file(test/resources/30_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/30_easy.pzl COPYONLY)
+configure_file(test/resources/30_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/30_answer.pzl COPYONLY)
+configure_file(test/resources/32_medium.pzl ${CMAKE_CURRENT_BINARY_DIR}/32_medium.pzl COPYONLY)
+configure_file(test/resources/32_medium.pzl ${CMAKE_CURRENT_BINARY_DIR}/32_answer.pzl COPYONLY)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 
 set(SOURCE_FILES
+        src/main.cpp
         src/IoPort.h src/IoPort.cpp
         src/ConcurrentQueue.h
         src/Exceptions.h
         src/IoMessage.h src/IoMessage.cpp
-        src/Hub.cpp src/Hub.h
-        src/MgtHub.cpp src/MgtHub.h
-        src/CellHub.cpp src/CellHub.h
-        src/Cell.cpp src/Cell.h
-        src/Brain.cpp src/Brain.h
-        src/common.h src/BasicCell.cpp src/BasicCell.h)
+        src/Hub.h src/Hub.cpp
+        src/MgtHub.h src/MgtHub.cpp
+        src/CellHub.h src/CellHub.cpp
+        src/Cell.h src/Cell.cpp
+        src/Brain.h src/Brain.cpp
+        src/common.h
+        src/BasicCell.h src/BasicCell.cpp
+        src/Data.h src/Data.cpp)
 
 set(TEST_FILES
-        src/main.cpp
         test/ConcurrentQueueTest.cpp
         test/IoPortTest.cpp
         test/IOMessageTest.cpp
@@ -39,8 +48,8 @@ set(TEST_FILES
         test/IntegrationTests.cpp
         test/CellTest.cpp
         test/BrainTest.cpp
-
-        )
+        test/DataTest.cpp
+        test/SolutionTest.cpp)
 
 add_executable(sudoku_solver ${SOURCE_FILES} ${TEST_FILES})
 
@@ -49,5 +58,3 @@ target_link_libraries(sudoku_solver gmock)
 target_link_libraries(sudoku_solver gtest)
 target_link_libraries(sudoku_solver pthread)
 target_link_libraries(sudoku_solver CppUTest)
-
-

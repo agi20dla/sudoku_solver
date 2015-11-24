@@ -19,7 +19,7 @@ using namespace boost;
 
 
 /**
- * initialize a sudoku brain
+ * reset a sudoku brain
  *
  * C h C h C h C h C h C h C h C h C
  * v G v G v   v G v G v   v G v G v
@@ -39,7 +39,11 @@ using namespace boost;
  * v G v G v   v G v G v   v G v G v
  * C h C h C h C h C h C h C h C h C
  */
-void Brain::initialize() {
+void Brain::reset() {
+
+    cellMap_.clear();
+    globalMap_.clear();
+    mgtPortMap_.clear();
 
     createCellMap();
     connectRowCells();
@@ -193,27 +197,35 @@ void Brain::connectGlobals() {
 
 void Brain::printConnections() {
     // cell map connections
-    cout << endl;
+    cout << endl << "Cell connections" << endl;
     uint idx = 0;
     for (auto c : cellMap_) {
+        ulong connections = c->numConnections();
+        cout << connections << " ";
+
         idx++;
+        if (idx % 3 == 0) {
+            cout << " ";
+        }
         if (idx % 9 == 0) {
             cout << endl;
         }
-        ulong connections = c->numConnections();
-        cout << connections << " ";
+        if (idx % 27 == 0) {
+            cout << endl;
+        }
     }
 }
 
 void Brain::printValues() {
-    cout << endl;
+    cout << endl << "Cell values" << endl;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
             cout << "r:" << row << ",c:" << col << " - ";
             if (auto cell = getCell(row, col)) {
-                vector<uint *> *values = cell->getValues();
+                vector<int_ptr> *values = cell->getValues();
                 bool skip = true;
-                for (uint *v : *values) {
+
+                for (auto v : *values) {
                     if (skip) {
                         skip = false;
                         continue;
@@ -230,13 +242,19 @@ void Brain::printValues() {
 void Brain::printMessagesRcvd()
 {
     // cell map messages received count
-    cout << endl;
+    cout << endl << "Messages Received" << endl;
     uint idx = 0;
     for (auto c : cellMap_) {
         ulong msgsRcvd = c->numMessagesRcvd();
         cout << msgsRcvd << " ";
         idx++;
+        if (idx % 3 == 0) {
+            cout << " ";
+        }
         if (idx % 9 == 0) {
+            cout << endl;
+        }
+        if (idx % 27 == 0) {
             cout << endl;
         }
     }
@@ -248,7 +266,7 @@ void Brain::printMessagesRcvd()
  * the number of messages is the same from one iteration to the next.  Perhaps try
  * the number of queued messages in each cell's hub.
  */
-void Brain::run(bool debug)
+vector<uint> Brain::run(bool debug)
 {
     bool firstRun = true;
     ulong numMsgsRemaining = 0;
@@ -284,27 +302,35 @@ void Brain::run(bool debug)
         }
     }
 
+    for (auto c : cellMap_) {
+        c->getValues();
+    }
+
     cout << endl << "Number of runs: " << numRuns << endl;
 }
 
 
 void Brain::setValue(const uint row, const uint col, const uint value)
 {
-//    IoMessage ioMessage("set", value, "b");
-    msg_ptr ioMessage = make_shared<IoMessage>("set", value, "b");
+    // value may be 0 during initial puzzle setup when reading from
+    // a file
+    if (value == 0) {
+        return;
+    }
+    msg_ptr ioMessage = make_shared<IoMessage>(string("set"), value, "b");
     io_ptr mgtPort = getMgtPort(row, col);
     mgtPort->fwdToQueue(ioMessage);
 }
 
 void Brain::removeValue(const uint row, const uint col, const uint value)
 {
-    msg_ptr ioMessage = make_shared<IoMessage>("rm", value, "m");
+    msg_ptr ioMessage = make_shared<IoMessage>(string("rm"), value, "m");
     getMgtPort(row, col)->fwdToQueue(ioMessage);
 }
 
-vector<uint *> *Brain::getValues(const uint row, const uint col)
+vector<int_ptr> *Brain::getValues(const uint row, const uint col)
 {
-    vector<uint *> *values;
+    vector<int_ptr> *values;
     auto cell = getCell(row, col);
     if (cell) {
         values = cell->getValues();
@@ -313,6 +339,7 @@ vector<uint *> *Brain::getValues(const uint row, const uint col)
 }
 
 void Brain::printSolution() {
+    cout << endl << "Solution" << endl;
     vector<string> solution;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
@@ -353,3 +380,15 @@ void Brain::printSolution() {
     }
 }
 
+void Brain::initialize(const vector<uint> values) {
+    uint row = 0;
+    uint col = 0;
+    for (auto value : values) {
+        setValue(row, col, value);
+        col++;
+        if (col == 9) {
+            col = 0;
+            row++;
+        }
+    }
+}

@@ -29,9 +29,6 @@ Cell::Cell(const Cell &cell) {
 }
 
 Cell::~Cell() {
-    for (auto value : possibleValues_) {
-        delete value;
-    }
 }
 
 /**
@@ -112,6 +109,6 @@ ulong Cell::numConnections() {
     return msgHub_->numPorts();
 }
 
-vector<uint *> *Cell::getValues() {
+vector<int_ptr> *Cell::getValues() {
     return &possibleValues_;
 }

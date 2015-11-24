@@ -35,7 +35,7 @@ public:
 
     void printConnections();
 
-    void initialize();
+    void reset();
 
     void pushCell(cell_ptr cell);
 
@@ -51,7 +51,7 @@ public:
 
     io_ptr getMgtPort(const uint row, const uint col);
 
-    void run(bool debug = false);
+    vector<uint> run(bool debug = false);
 
     // set the value of a particular cell via a management message
     void setValue(const uint row, const uint col, const uint value);
@@ -59,11 +59,13 @@ public:
     // remove a particular value of a particular cell via a managment message
     void removeValue(const uint row, const uint col, const uint value);
 
-    vector<uint *> *getValues(const uint row, const uint col);
+    vector<int_ptr> *getValues(const uint row, const uint col);
 
     void printValues();
 
     void printSolution();
+
+    void initialize(const vector<uint> vector);
 };
 
 

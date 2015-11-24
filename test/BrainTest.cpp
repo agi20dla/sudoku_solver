@@ -10,15 +10,15 @@ using namespace ::testing;
 
 TEST(BrainTest, InitializeGrid) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
 }
 
 TEST(BrainTest, SendHMessage) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
     cell_ptr cell00 = brain.getCell(0, 0);
     io_ptr port = cell00->getMsgConnection();
-    msg_ptr ioMessage = make_shared<IoMessage>("message", 0, "h");
+    msg_ptr ioMessage = make_shared<IoMessage>(string("message"), 0, "h");
     port->fwdToQueue(ioMessage);
 
     brain.run();
@@ -32,10 +32,10 @@ TEST(BrainTest, SendHMessage) {
 
 TEST(BrainTest, SendVMessage) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
     cell_ptr cell00 = brain.getCell(0, 0);
     io_ptr port = cell00->getMsgConnection();
-    msg_ptr ioMessage = make_shared<IoMessage>("message", 0, "v");
+    msg_ptr ioMessage = make_shared<IoMessage>(string("message"), 0, "v");
     port->fwdToQueue(ioMessage);
 
     brain.run();
@@ -49,10 +49,10 @@ TEST(BrainTest, SendVMessage) {
 
 TEST(BrainTest, GlobalMessageStaysInCell) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
     cell_ptr cell44 = brain.getCell(4, 4);
     io_ptr port = cell44->getMsgConnection();
-    msg_ptr ioMessage = make_shared<IoMessage>("message", 0, "g");
+    msg_ptr ioMessage = make_shared<IoMessage>(string("message"), 0, "g");
     port->fwdToQueue(ioMessage);
 
     brain.run(true);
@@ -73,17 +73,17 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
 
 TEST(BrainTest, SendGhvMessage) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
 
     cell_ptr cell33 = brain.getCell(3, 3);
     io_ptr port = cell33->getMsgConnection();
-    msg_ptr ioMessageG = make_shared<IoMessage>("message", 0, "g");
+    msg_ptr ioMessageG = make_shared<IoMessage>(string("message"), 0, "g");
     port->fwdToQueue(ioMessageG);
 
-    msg_ptr ioMessageH = make_shared<IoMessage>("message", 0, "h");
+    msg_ptr ioMessageH = make_shared<IoMessage>(string("message"), 0, "h");
     port->fwdToQueue(ioMessageH);
 
-    msg_ptr ioMessageV = make_shared<IoMessage>("message", 0, "v");
+    msg_ptr ioMessageV = make_shared<IoMessage>(string("message"), 0, "v");
     port->fwdToQueue(ioMessageV);
 
     brain.run(true);
@@ -111,39 +111,48 @@ TEST(BrainTest, SendGhvMessage) {
 
 TEST(BrainTest, RemoveValue) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
     brain.removeValue(0, 0, 5);
     brain.run();
-    vector<uint *> *values = brain.getValues(0, 0);
-    ASSERT_EQ(*(*values)[5], 0);
+    vector<int_ptr> *values = brain.getValues(0, 0);
+    int_ptr value = (*values)[5];
+    ASSERT_EQ(0, *value);
 }
 
 TEST(BrainTest, RemoveSingleValueDoesntAffectOtherValues) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
     brain.removeValue(0, 0, 5);
     brain.run();
-    vector<uint *> *values = brain.getValues(0, 0);
-    ASSERT_EQ(*(*values)[4], 1);
-    ASSERT_EQ(*(*values)[6], 1);
+    vector<int_ptr> *values = brain.getValues(0, 0);
+
+    int_ptr value4 = (*values)[4];
+    ASSERT_EQ(1, *value4);
+
+    int_ptr value6 = (*values)[6];
+    ASSERT_EQ(1, *value6);
 }
 
 TEST(BrainTest, RemoveSingleValueDoesntAffectOtherCells) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
     brain.removeValue(0, 0, 5);
     brain.run();
-    vector<uint *> *values10 = brain.getValues(1, 0);
-    ASSERT_EQ(*(*values10)[5], 1);
-    vector<uint *> *values01 = brain.getValues(0, 1);
-    ASSERT_EQ(*(*values01)[5], 1);
+    vector<int_ptr> *values10 = brain.getValues(1, 0);
+
+    int_ptr value105 = (*values10)[5];
+    ASSERT_EQ(1, *value105);
+
+    vector<int_ptr> *values01 = brain.getValues(0, 1);
+    int_ptr value015 = (*values01)[5];
+    ASSERT_EQ(1, *value015);
 
 }
 
 
 TEST(BrainTest, SetValue) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
 
     brain.setValue(0, 0, 5);
     brain.run(true);
@@ -153,32 +162,36 @@ TEST(BrainTest, SetValue) {
         for (uint col = 0; col < 3; col++) {
             // skip the cell we set, though
             if (row == 0 && col == 0) {
-                vector<uint *> *values = brain.getValues(row, col);
-                ASSERT_EQ(*(*values)[5], 1);
+                vector<int_ptr> *values = brain.getValues(row, col);
+                int_ptr value5 = (*values)[5];
+                ASSERT_EQ(1, *value5);
             } else {
-                vector<uint *> *values = brain.getValues(row, col);
-                ASSERT_EQ(*(*values)[5], 0);
+                vector<int_ptr> *values = brain.getValues(row, col);
+                int_ptr value5 = (*values)[5];
+                ASSERT_EQ(0, *value5);
             }
         }
     }
 
     // check the horizontal cells to make sure their values are set/reset appropriately
     for (uint col = 1; col < 9; col++) {
-        vector<uint *> *values = brain.getValues(0, col);
-        ASSERT_EQ(*(*values)[5], 0);
+        vector<int_ptr> *values = brain.getValues(0, col);
+        int_ptr value5 = (*values)[5];
+        ASSERT_EQ(0, *value5);
     }
 
     // check the vertical cells to make sure their values are set/reset appropriately
     for (uint row = 1; row < 9; row++) {
-        vector<uint *> *values = brain.getValues(row, 0);
-        ASSERT_EQ(*(*values)[5], 0);
+        vector<int_ptr> *values = brain.getValues(row, 0);
+        int_ptr value5 = (*values)[5];
+        ASSERT_EQ(0, *value5);
     }
 }
 
 
 TEST(BrainTest, SetTwoValuesInOneBlock) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
 
     brain.setValue(0, 0, 5);
     brain.setValue(2, 2, 9);
@@ -188,49 +201,59 @@ TEST(BrainTest, SetTwoValuesInOneBlock) {
     for (uint row = 0; row < 3; row++) {
         for (uint col = 0; col < 3; col++) {
             // skip the cell we set, though
-            vector < uint * > *values = brain.getValues(row, col);
+            vector<int_ptr> *values = brain.getValues(row, col);
             if (row == 0 && col == 0) {
-                ASSERT_EQ(1, *(*values)[5]);
+                int_ptr value5 = (*values)[5];
+                ASSERT_EQ(1, *value5);
             } else if (row == 2 && col == 2) {
-                ASSERT_EQ(1, *(*values)[9]);
+                int_ptr value9 = (*values)[9];
+                ASSERT_EQ(1, *value9);
             } else {
-                ASSERT_EQ(0, *(*values)[5]);
-                ASSERT_EQ(0, *(*values)[9]);
+                int_ptr value5 = (*values)[5];
+                ASSERT_EQ(0, *value5);
+
+                int_ptr value9 = (*values)[9];
+                ASSERT_EQ(0, *value9);
             }
         }
     }
 
     // check the horizontal cells to make sure their values are set/reset appropriately
     for (uint col = 1; col < 9; col++) {
-        vector < uint * > *valuesFive = brain.getValues(0, col);
-        ASSERT_EQ(0, (*(*valuesFive)[5]));
+        vector<int_ptr> *values = brain.getValues(0, col);
+        int_ptr value5 = (*values)[5];
+        ASSERT_EQ(0, *value5);
     }
 
     for (uint col = 0; col < 9; col++) {
         if (col == 2) {
             continue;
         }
-        vector < uint * > *valuesNine = brain.getValues(2, col);
-        ASSERT_EQ(0, (*(*valuesNine)[9])) << "row: 2, col: " << to_string(col);
+        vector<int_ptr> *values = brain.getValues(2, col);
+        int_ptr value9 = (*values)[9];
+        ASSERT_EQ(0, *value9) << "row: 2, col: " << to_string(col);
     }
 
     // check the vertical cells to make sure their values are set/reset appropriately
     for (uint row = 1; row < 9; row++) {
-        vector < uint * > *valuesFive = brain.getValues(row, 0);
-        ASSERT_EQ(0, (*(*valuesFive)[5]));
+        vector<int_ptr> *values = brain.getValues(row, 0);
+        int_ptr value5 = (*values)[5];
+        ASSERT_EQ(0, *value5);
     }
     for (uint row = 0; row < 9; row++) {
         if (row == 2) {
             continue;
         }
-        vector < uint * > *valuesNine = brain.getValues(row, 2);
-        ASSERT_EQ(0, (*(*valuesNine)[9]));
+        vector<int_ptr> *values = brain.getValues(row, 2);
+        int_ptr value9 = (*values)[9];
+        ASSERT_EQ(0, *value9);
     }
 }
 
+
 TEST(BrainTest, SetInitialValuesForPuzzle) {
     Brain brain;
-    brain.initialize();
+    brain.reset();
 
     brain.setValue(0, 0, 5);
     brain.setValue(0, 1, 4);
@@ -268,5 +291,3 @@ TEST(BrainTest, SetInitialValuesForPuzzle) {
 
     brain.run(true);
 }
-
-
