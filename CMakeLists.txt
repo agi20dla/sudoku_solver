@@ -17,11 +17,11 @@ find_package(Boost REQUIRED system thread exception)
 find_file(Resources REQUIRED simple.grid)
 
 configure_file(test/resources/02_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/02_easy.pzl COPYONLY)
-configure_file(test/resources/02_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/02_answer.pzl COPYONLY)
+configure_file(test/resources/02_answer.pzl ${CMAKE_CURRENT_BINARY_DIR}/02_answer.pzl COPYONLY)
 configure_file(test/resources/30_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/30_easy.pzl COPYONLY)
-configure_file(test/resources/30_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/30_answer.pzl COPYONLY)
+configure_file(test/resources/30_answer.pzl ${CMAKE_CURRENT_BINARY_DIR}/30_answer.pzl COPYONLY)
 configure_file(test/resources/32_medium.pzl ${CMAKE_CURRENT_BINARY_DIR}/32_medium.pzl COPYONLY)
-configure_file(test/resources/32_medium.pzl ${CMAKE_CURRENT_BINARY_DIR}/32_answer.pzl COPYONLY)
+configure_file(test/resources/32_answer.pzl ${CMAKE_CURRENT_BINARY_DIR}/32_answer.pzl COPYONLY)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 
@@ -31,14 +31,12 @@ set(SOURCE_FILES
         src/ConcurrentQueue.h
         src/Exceptions.h
         src/IoMessage.h src/IoMessage.cpp
-        src/Hub.h src/Hub.cpp
-        src/MgtHub.h src/MgtHub.cpp
         src/CellHub.h src/CellHub.cpp
-        src/Cell.h src/Cell.cpp
+        src/PuzzleCell.h src/PuzzleCell.cpp
         src/Brain.h src/Brain.cpp
         src/common.h
-        src/BasicCell.h src/BasicCell.cpp
-        src/Data.h src/Data.cpp)
+        src/GlobalCell.h src/GlobalCell.cpp
+        src/Data.h src/Data.cpp src/Cell.cpp src/Cell.h)
 
 set(TEST_FILES
         test/ConcurrentQueueTest.cpp

@@ -16,56 +16,56 @@ TEST(BrainTest, InitializeGrid) {
 TEST(BrainTest, SendHMessage) {
     Brain brain;
     brain.reset();
-    cell_ptr cell00 = brain.getCell(0, 0);
+    puzzle_cell_ptr cell00 = brain.getCell(0, 0);
     io_ptr port = cell00->getMsgConnection();
     msg_ptr ioMessage = make_shared<IoMessage>(string("message"), 0, "h");
     port->fwdToQueue(ioMessage);
 
     brain.run();
 
-    cell_ptr cell08 = brain.getCell(0, 8);
+    puzzle_cell_ptr cell08 = brain.getCell(0, 8);
     ASSERT_EQ(cell08->numMessagesRcvd(), 1);
 
-    cell_ptr cell10 = brain.getCell(1, 0);
+    puzzle_cell_ptr cell10 = brain.getCell(1, 0);
     ASSERT_EQ(cell10->numMessagesRcvd(), 0);
 }
 
 TEST(BrainTest, SendVMessage) {
     Brain brain;
     brain.reset();
-    cell_ptr cell00 = brain.getCell(0, 0);
+    puzzle_cell_ptr cell00 = brain.getCell(0, 0);
     io_ptr port = cell00->getMsgConnection();
     msg_ptr ioMessage = make_shared<IoMessage>(string("message"), 0, "v");
     port->fwdToQueue(ioMessage);
 
     brain.run();
 
-    cell_ptr cell80 = brain.getCell(8, 0);
+    puzzle_cell_ptr cell80 = brain.getCell(8, 0);
     ASSERT_EQ(cell80->numMessagesRcvd(), 1);
 
-    cell_ptr cell01 = brain.getCell(0, 1);
+    puzzle_cell_ptr cell01 = brain.getCell(0, 1);
     ASSERT_EQ(cell01->numMessagesRcvd(), 0);
 }
 
 TEST(BrainTest, GlobalMessageStaysInCell) {
     Brain brain;
     brain.reset();
-    cell_ptr cell44 = brain.getCell(4, 4);
+    puzzle_cell_ptr cell44 = brain.getCell(4, 4);
     io_ptr port = cell44->getMsgConnection();
     msg_ptr ioMessage = make_shared<IoMessage>(string("message"), 0, "g");
     port->fwdToQueue(ioMessage);
 
     brain.run(true);
 
-    cell_ptr cell22 = brain.getCell(2, 2);
+    puzzle_cell_ptr cell22 = brain.getCell(2, 2);
     ASSERT_EQ(0, cell22->numMessagesRcvd());
 
-    cell_ptr cell66 = brain.getCell(6, 6);
+    puzzle_cell_ptr cell66 = brain.getCell(6, 6);
     ASSERT_EQ(0, cell66->numMessagesRcvd());
 
     for (uint row = 3; row < 6; row++) {
         for (uint col = 3; col < 6; col++) {
-            cell_ptr cell = brain.getCell(row, col);
+            puzzle_cell_ptr cell = brain.getCell(row, col);
             ASSERT_EQ(1, cell->numMessagesRcvd()) << "row: " << to_string(row) << ", col: " << to_string(col);
         }
     }
@@ -75,7 +75,7 @@ TEST(BrainTest, SendGhvMessage) {
     Brain brain;
     brain.reset();
 
-    cell_ptr cell33 = brain.getCell(3, 3);
+    puzzle_cell_ptr cell33 = brain.getCell(3, 3);
     io_ptr port = cell33->getMsgConnection();
     msg_ptr ioMessageG = make_shared<IoMessage>(string("message"), 0, "g");
     port->fwdToQueue(ioMessageG);
@@ -88,21 +88,21 @@ TEST(BrainTest, SendGhvMessage) {
 
     brain.run(true);
 
-    cell_ptr cell32 = brain.getCell(3, 2);
+    puzzle_cell_ptr cell32 = brain.getCell(3, 2);
     ASSERT_EQ(cell32->numMessagesRcvd(), 1);
 
-    cell_ptr cell22 = brain.getCell(2, 2);
+    puzzle_cell_ptr cell22 = brain.getCell(2, 2);
     ASSERT_EQ(cell22->numMessagesRcvd(), 0);
 
-    cell_ptr cell23 = brain.getCell(2, 3);
+    puzzle_cell_ptr cell23 = brain.getCell(2, 3);
     ASSERT_EQ(cell23->numMessagesRcvd(), 1);
 
-    cell_ptr cell66 = brain.getCell(6, 6);
+    puzzle_cell_ptr cell66 = brain.getCell(6, 6);
     ASSERT_EQ(cell66->numMessagesRcvd(), 0);
 
     for (uint row = 3; row < 6; row++) {
         for (uint col = 3; col < 6; col++) {
-            cell_ptr cell = brain.getCell(row, col);
+            puzzle_cell_ptr cell = brain.getCell(row, col);
             ASSERT_GE(cell->numMessagesRcvd(), 1) << "row: " << to_string(row) << ", col: " << to_string(col);
         }
     }

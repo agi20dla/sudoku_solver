@@ -6,7 +6,7 @@
 #include<vector>
 #include <iostream>
 #include "Brain.h"
-#include "BasicCell.h"
+#include "GlobalCell.h"
 #include "Exceptions.h"
 
 class IoPort;
@@ -56,33 +56,33 @@ void Brain::reset() {
 }
 
 
-void Brain::pushCell(cell_ptr cell) {
-    cell_ptr c = cell;
+void Brain::pushCell(puzzle_cell_ptr cell) {
+    puzzle_cell_ptr c = cell;
     cellMap_.push_back(c);
 }
 
-cell_ptr Brain::getCell(const uint index) {
-    cell_ptr c = cellMap_.at(index);
+puzzle_cell_ptr Brain::getCell(const uint index) {
+    puzzle_cell_ptr c = cellMap_.at(index);
     return c;
 }
 
-cell_ptr Brain::getCell(const uint row, const uint col) {
-    cell_ptr c = cellMap_.at(row * 9 + col);
+puzzle_cell_ptr Brain::getCell(const uint row, const uint col) {
+    puzzle_cell_ptr c = cellMap_.at(row * 9 + col);
     return c;
 }
 
-void Brain::pushGlobal(basic_cell_ptr global) {
-    basic_cell_ptr g = global;
+void Brain::pushGlobal(global_cell_ptr global) {
+    global_cell_ptr g = global;
     globalMap_.push_back(g);
 }
 
-basic_cell_ptr Brain::getGlobal(const uint index) {
-    basic_cell_ptr g = globalMap_.at(index);
+global_cell_ptr Brain::getGlobal(const uint index) {
+    global_cell_ptr g = globalMap_.at(index);
     return g;
 }
 
-basic_cell_ptr Brain::getGlobal(const uint row, const uint col) {
-    basic_cell_ptr g = globalMap_.at(row * 6 + col);
+global_cell_ptr Brain::getGlobal(const uint row, const uint col) {
+    global_cell_ptr g = globalMap_.at(row * 6 + col);
     return g;
 }
 
@@ -99,7 +99,7 @@ io_ptr Brain::getMgtPort(const uint row, const uint col) {
 void Brain::createCellMap()
 {
     for (uint idx = 0; idx < 81; idx++) {
-        pushCell(make_shared<Cell>());
+        pushCell(make_shared<PuzzleCell>());
     }
 }
 
@@ -109,7 +109,7 @@ void Brain::createCellMap()
  */
 void Brain::connectBrainToCells() {
     for (auto c : cellMap_) {
-        mgtPortMap_.push_back(c->getMgtConnection("b"));
+        mgtPortMap_.push_back(c->connect("b"));
     }
 }
 
@@ -142,7 +142,7 @@ void Brain::connectColumnCells() {
 
 void Brain::createGlobalMap(){
     for (uint idx = 0; idx < 36; idx++) {
-        pushGlobal(make_shared<BasicCell>());
+        pushGlobal(make_shared<GlobalCell>());
     }
 }
 
@@ -176,7 +176,7 @@ void Brain::connectGlobals() {
             if ((col +1) % 3 == 0) {
                 continue;
             }
-            basic_cell_ptr global = getGlobal(gRow, gCol);
+            global_cell_ptr global = getGlobal(gRow, gCol);
             // top left
             global->connect(getCell(row, col));
 
@@ -197,7 +197,7 @@ void Brain::connectGlobals() {
 
 void Brain::printConnections() {
     // cell map connections
-    cout << endl << "Cell connections" << endl;
+    cout << endl << "PuzzleCell connections" << endl;
     uint idx = 0;
     for (auto c : cellMap_) {
         ulong connections = c->numConnections();
@@ -217,12 +217,12 @@ void Brain::printConnections() {
 }
 
 void Brain::printValues() {
-    cout << endl << "Cell values" << endl;
+    cout << endl << "PuzzleCell values" << endl;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
             cout << "r:" << row << ",c:" << col << " - ";
             if (auto cell = getCell(row, col)) {
-                vector<int_ptr> *values = cell->getValues();
+                vector<int_ptr> *values = cell->getPossibleValues();
                 bool skip = true;
 
                 for (auto v : *values) {
@@ -295,16 +295,16 @@ void Brain::run(bool debug)
 
         numMsgsRemaining = 0;
         for (auto c : cellMap_) {
-            numMsgsRemaining += c->numMessages();
+            numMsgsRemaining += c->numMessagesOnQueue();
         }
         for (auto g : globalMap_) {
-            numMsgsRemaining += g->numMessages();
+            numMsgsRemaining += g->numMessagesOnQueue();
         }
     }
 
-    for (auto c : cellMap_) {
-        c->getValues();
-    }
+//    for (auto c : cellMap_) {
+//        c->getPossibleValues();
+//    }
 
     cout << endl << "Number of runs: " << numRuns << endl;
 }
@@ -333,7 +333,7 @@ vector<int_ptr> *Brain::getValues(const uint row, const uint col)
     vector<int_ptr> *values;
     auto cell = getCell(row, col);
     if (cell) {
-        values = cell->getValues();
+        values = cell->getPossibleValues();
     }
     return values;
 }
@@ -345,7 +345,7 @@ void Brain::printSolution() {
         for (uint col = 0; col < 9; col++) {
 
             if (auto cell = getCell(row, col)) {
-                auto values = cell->getValues();
+                auto values = cell->getPossibleValues();
                 uint value = 0;
                 uint numValues = 0;
                 for (uint idx = 1; idx < 10; idx++) {

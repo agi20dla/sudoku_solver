@@ -21,9 +21,13 @@ public:
 
     std::string getPuzzleStr();
 
-    std::vector<uint> getPuzzleVec();
+    std::vector<uint> getPuzzleVec() const;
 
-    void loadSolution(std::vector<uint> solution);
+    friend bool operator==(const Data &lhs, const Data &rhs);
+
+    friend bool operator!=(const Data &lhs, const Data &rhs);
+
+//    void loadSolution(std::vector<uint> solution);
 };
 
 

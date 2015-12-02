@@ -35,11 +35,11 @@ TEST(IoPortTest, IoPortSendsAMessageToAnotherIoPort)
 {
     cell_hub_ptr cellHub1 = make_shared<CellHub>();
     std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived1 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    io_ptr port1 = make_shared<IoPort>(hub_ptr(cellHub1), msgsReceived1, "g");
+    io_ptr port1 = make_shared<IoPort>(cell_hub_ptr(cellHub1), msgsReceived1, "g");
 
     cell_hub_ptr cellHub2 = make_shared<CellHub>();
     std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived2 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    io_ptr port2 = make_shared<IoPort>(hub_ptr(cellHub2), msgsReceived2, "g");
+    io_ptr port2 = make_shared<IoPort>(cell_hub_ptr(cellHub2), msgsReceived2, "g");
 
     port1->connect(port2);
     port2->connect(port1);
@@ -55,15 +55,15 @@ TEST(IoPortTest, IoPortExceptsOnMultipleConnects)
 {
     cell_hub_ptr cellHub1 = make_shared<CellHub>();
     std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived1 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    io_ptr port1 = make_shared<IoPort>(hub_ptr(cellHub1), msgsReceived1, "g");
+    io_ptr port1 = make_shared<IoPort>(cell_hub_ptr(cellHub1), msgsReceived1, "g");
 
     cell_hub_ptr cellHub2 = make_shared<CellHub>();
     std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived2 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    io_ptr port2 = make_shared<IoPort>(hub_ptr(cellHub2), msgsReceived2, "g");
+    io_ptr port2 = make_shared<IoPort>(cell_hub_ptr(cellHub2), msgsReceived2, "g");
 
     cell_hub_ptr cellHub3 = make_shared<CellHub>();
     std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived3 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
-    io_ptr port3 = make_shared<IoPort>(hub_ptr(cellHub3), msgsReceived3, "g");
+    io_ptr port3 = make_shared<IoPort>(cell_hub_ptr(cellHub3), msgsReceived3, "g");
 
     port1->connect(port2);
     EXPECT_ANY_THROW(port1->connect(port3));

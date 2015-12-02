@@ -55,14 +55,15 @@ string Data::getPuzzleStr() {
     return puzzle_str;
 }
 
-vector<uint> Data::getPuzzleVec() {
+vector<uint> Data::getPuzzleVec() const {
     return puzzle_vec;
 }
 
+
 bool operator==(const Data &lhs, const Data &rhs) {
-    return lhs == rhs;
+    return lhs.getPuzzleVec() == rhs.getPuzzleVec();
 }
 
-void Data::loadSolution(std::vector<uint> solution) {
-    puzzle_vec = solution;
+bool operator!=(const Data &lhs, const Data &rhs) {
+    return !(lhs == rhs);
 }

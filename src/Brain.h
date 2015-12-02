@@ -7,15 +7,15 @@
 
 #include <vector>
 #include "IoPort.h"
-#include "Cell.h"
+#include "PuzzleCell.h"
 #include "common.h"
 
 class Brain {
 private:
     // cellMap is a one dimensional array representing a two dimensional array.
     // its indexed by row * 9 + col.
-    std::vector<cell_ptr> cellMap_;
-    std::vector<basic_cell_ptr> globalMap_;
+    std::vector<puzzle_cell_ptr> cellMap_;
+    std::vector<global_cell_ptr> globalMap_;
     std::vector<io_ptr> mgtPortMap_;
 
 
@@ -37,17 +37,17 @@ public:
 
     void reset();
 
-    void pushCell(cell_ptr cell);
+    void pushCell(puzzle_cell_ptr cell);
 
-    cell_ptr getCell(const uint row, const uint col);
+    puzzle_cell_ptr getCell(const uint row, const uint col);
 
-    cell_ptr getCell(const uint index);
+    puzzle_cell_ptr getCell(const uint index);
 
-    void pushGlobal(basic_cell_ptr cell);
+    void pushGlobal(global_cell_ptr cell);
 
-    basic_cell_ptr getGlobal(const uint row, const uint col);
+    global_cell_ptr getGlobal(const uint row, const uint col);
 
-    basic_cell_ptr getGlobal(const uint index);
+    global_cell_ptr getGlobal(const uint index);
 
     io_ptr getMgtPort(const uint row, const uint col);
 

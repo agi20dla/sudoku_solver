@@ -14,12 +14,12 @@
 #include "IoMessage.h"
 #include "common.h"
 
-class Hub;
+//class CellHub;
 
 class IoPort
 {
 private:
-    std::shared_ptr<Hub> hub_;
+    cell_hub_ptr cellHub_;
 
     // TODO: might have to worry about concurrency on this one
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed_;
@@ -37,7 +37,7 @@ private:
     static boost::mutex mutex_;
 
 public:
-    IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
+    IoPort(cell_hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
            std::string direction);
 
     // Number of messages forwarded to the queue

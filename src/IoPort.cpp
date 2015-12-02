@@ -5,15 +5,15 @@
 
 #include "Exceptions.h"
 #include "IoPort.h"
-#include "Hub.h"
+#include "CellHub.h"
 
 using namespace std;
 
 boost::mutex IoPort::mutex_;
 
-IoPort::IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed,
+IoPort::IoPort(cell_hub_ptr cellHub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed,
                string direction)
-        : hub_(hub)
+        : cellHub_(cellHub)
         , msgsProcessed_(msgsProcessed), myDirection_(direction)
 {
     boost::uuids::random_generator generator;
@@ -34,7 +34,7 @@ void IoPort::fwdToQueue(msg_ptr ioMessage) {
         ++numMessagesRecieved;
 
         // put it on the hub
-        hub_->push(ioMessage);
+        cellHub_->push(ioMessage);
         ++numMessagesForwarded;
     }
 }
