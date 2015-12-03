@@ -13,51 +13,29 @@
 #include "ConcurrentQueue.h"
 #include "IoMessage.h"
 #include "IoPort.h"
+#include "Hub.h"
 //#include "Cell.h"
 
 class Cell;
 
-class CellHub {
+class CellHub : public Hub {
 private:
-    std::shared_ptr<ConcurrentQueue<msg_ptr> > messageQueue_;
-    std::shared_ptr<std::vector<io_ptr> > ioPorts_;
-    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > messageUUIDs_;
 
-    ulong messagesSent_;
-    ulong messagesRcvd_;
-    ulong numPorts_;
-
-    Cell *cell_;
+    PuzzleCell *cell_;
 
 public:
     CellHub();
     CellHub(const CellHub & other);
 
-    void run();
+    void run() override;
 
-    void setCell(Cell *cell);
+    void setCell(PuzzleCell *cell);
 
     Cell *getCell() const;
 
-    msg_ptr tryPop();
-
-    void push(msg_ptr ioMessage);
-
-    void addIoPort(io_ptr ioPort);
-
-    void processCommand(const string command, const uint value);
+    void processCommand(const string& command, const uint value);
 
     void broadcast(const string command, const uint value);
-
-    ulong numMessagesOnQueue();
-
-    ulong numMessagesSent();
-
-    ulong numMessagesRcvd();
-
-    ulong numPorts();
-
-    CellHub &operator=(const CellHub &other);
 };
 
 

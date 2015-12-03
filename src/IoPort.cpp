@@ -11,18 +11,18 @@ using namespace std;
 
 boost::mutex IoPort::mutex_;
 
-IoPort::IoPort(cell_hub_ptr cellHub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed,
+IoPort::IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed,
                string direction)
-        : cellHub_(cellHub)
+        : hub_(hub)
         , msgsProcessed_(msgsProcessed), myDirection_(direction)
 {
     boost::uuids::random_generator generator;
     uuid_ = generator();
 }
 
-void IoPort::fwdToQueue(msg_ptr ioMessage) {
-    if (msgsProcessed_->find(ioMessage->getMsgUuid()) == msgsProcessed_->end()) {
-        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage->getMsgUuid(), 1);
+void IoPort::fwdToQueue(IoMessage ioMessage) {
+    if (msgsProcessed_->find(ioMessage.getMsgUuid()) == msgsProcessed_->end()) {
+        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage.getMsgUuid(), 1);
 
         // lock the messages processed since we are not using a custom concurrent map.
         boost::mutex::scoped_lock lock(mutex_);
@@ -30,12 +30,12 @@ void IoPort::fwdToQueue(msg_ptr ioMessage) {
         lock.unlock();
 
         // store the uuid of this message in the message
-        ioMessage->setRcvPortUuid(uuid_);
+        ioMessage.setRcvPortUuid(uuid_);
         ++numMessagesRecieved;
 
         // put it on the hub
-        cellHub_->push(ioMessage);
-        ++numMessagesForwarded;
+        hub_->push(ioMessage);
+        ++numMsgsForwardedToHub;
     }
 }
 
@@ -54,22 +54,22 @@ void IoPort::connect(io_ptr otherPort)
  * is the same as my direction.  If it's a management message
  * (direction == "m"), send it anyway
  */
-bool IoPort::sendToExt(msg_ptr ioMessage)
+bool IoPort::sendToExt(IoMessage ioMessage)
 {
     bool sent = false;
     ++numMessagesRecieved;
-    if (otherPort_ && (ioMessage->getDirection() == myDirection_ || myDirection_ == "m")) {
+    if (otherPort_ && (ioMessage.getDirection() == myDirection_)) {
         otherPort_->fwdToQueue(ioMessage);
         sent = true;
         ++numMessagesSent;
-        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage->getMsgUuid(), 1);
+        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage.getMsgUuid(), 1);
         msgsProcessed_->insert(newMsgUuid);
     }
     return sent;
 }
 
-size_t IoPort::getNumMessagesForwarded() {
-    return numMessagesForwarded;
+size_t IoPort::getNumMsgsForwardedToHub() {
+    return numMsgsForwardedToHub;
 }
 
 size_t IoPort::getNumMessagesSent() {

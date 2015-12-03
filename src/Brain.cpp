@@ -178,16 +178,16 @@ void Brain::connectGlobals() {
             }
             global_cell_ptr global = getGlobal(gRow, gCol);
             // top left
-            global->connect(getCell(row, col));
+            global->connect(getCell(row, col), "g");
 
             // top right
-            global->connect(getCell(row, col+1));
+            global->connect(getCell(row, col+1), "g");
 
             // bottom left
-            global->connect(getCell(row+1, col));
+            global->connect(getCell(row+1, col), "g");
 
             // bottom right
-            global->connect(getCell(row+1, col+1));
+            global->connect(getCell(row+1, col+1), "g");
             gCol++;
         }
         gRow++;
@@ -222,7 +222,7 @@ void Brain::printValues() {
         for (uint col = 0; col < 9; col++) {
             cout << "r:" << row << ",c:" << col << " - ";
             if (auto cell = getCell(row, col)) {
-                vector<int_ptr> *values = cell->getPossibleValues();
+                vector<uint> *values = cell->getPossibleValues();
                 bool skip = true;
 
                 for (auto v : *values) {
@@ -230,7 +230,7 @@ void Brain::printValues() {
                         skip = false;
                         continue;
                     }
-                    cout << *v << " ";
+                    cout << v << " ";
                 }
             }
             cout << ":" << " ";
@@ -302,10 +302,6 @@ void Brain::run(bool debug)
         }
     }
 
-//    for (auto c : cellMap_) {
-//        c->getPossibleValues();
-//    }
-
     cout << endl << "Number of runs: " << numRuns << endl;
 }
 
@@ -317,20 +313,20 @@ void Brain::setValue(const uint row, const uint col, const uint value)
     if (value == 0) {
         return;
     }
-    msg_ptr ioMessage = make_shared<IoMessage>(string("set"), value, "b");
+    IoMessage ioMessage(string("set"), value, "b");
     io_ptr mgtPort = getMgtPort(row, col);
     mgtPort->fwdToQueue(ioMessage);
 }
 
 void Brain::removeValue(const uint row, const uint col, const uint value)
 {
-    msg_ptr ioMessage = make_shared<IoMessage>(string("rm"), value, "m");
+    IoMessage ioMessage(string("rm"), value, "b");
     getMgtPort(row, col)->fwdToQueue(ioMessage);
 }
 
-vector<int_ptr> *Brain::getValues(const uint row, const uint col)
+vector<uint> *Brain::getValues(const uint row, const uint col)
 {
-    vector<int_ptr> *values;
+    vector<uint> *values;
     auto cell = getCell(row, col);
     if (cell) {
         values = cell->getPossibleValues();
@@ -340,7 +336,7 @@ vector<int_ptr> *Brain::getValues(const uint row, const uint col)
 
 void Brain::printSolution() {
     cout << endl << "Solution" << endl;
-    vector<string> solution;
+    vector<std::string> solution;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
 
@@ -349,7 +345,7 @@ void Brain::printSolution() {
                 uint value = 0;
                 uint numValues = 0;
                 for (uint idx = 1; idx < 10; idx++) {
-                    if (*((*values).at(idx)) == 1) {
+                    if ((*values).at(idx) == 1) {
                         numValues++;
                         value = idx;
                     }
@@ -391,4 +387,13 @@ void Brain::initialize(const vector<uint> values) {
             row++;
         }
     }
+}
+
+std::vector<uint> Brain::getSolution() {
+    vector<uint> solution;
+    for (puzzle_cell_ptr cell : cellMap_)
+    {
+         solution.push_back(cell->getSoleValue());
+    }
+    return solution;
 }

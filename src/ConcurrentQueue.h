@@ -47,19 +47,19 @@ public:
     }
 
 
-    T try_pop()
+    bool try_pop(T& popped)
     {
         boost::mutex::scoped_lock lock(the_mutex);
-        if(queue_.empty())
+
+        if (queue_.empty())
         {
             return false;
         }
 
-        T popped_value = queue_.front();
+        popped = queue_.front();
         queue_.pop();
-        return popped_value;
+        return true;
     }
-
 
     T wait_and_pop()
     {
@@ -73,6 +73,7 @@ public:
         queue_.pop();
         return popped_value;
     }
+
 
     ulong size()
     {

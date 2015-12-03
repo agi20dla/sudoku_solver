@@ -21,14 +21,14 @@ TEST(HubTest, HubPullsMessageFromQueueAndGivesToIoPort)
     std::shared_ptr<IoPort> ioPort = make_shared<IoPort>(cell_hub_ptr(hub), msgsReceived, "g");
     hub->addIoPort(ioPort);
 
-    msg_ptr ioMessage = make_shared<IoMessage>(string("message"));
+    IoMessage ioMessage(std::string("message"), 0, "g");
     hub->push(ioMessage);
 
     hub->run();
 
     ASSERT_TRUE(hub->numMessagesOnQueue() == 0);
     ASSERT_EQ(ioPort->getNumMessagesRecieved(),1);
-    ASSERT_EQ(ioPort->getNumMessagesForwarded(), 0);
+    ASSERT_EQ(ioPort->getNumMsgsForwardedToHub(), 0);
     ASSERT_EQ(ioPort->getNumMessagesSent(), 0);
 }
 

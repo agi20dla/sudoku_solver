@@ -59,13 +59,15 @@ public:
     // remove a particular value of a particular cell via a managment message
     void removeValue(const uint row, const uint col, const uint value);
 
-    vector<int_ptr> *getValues(const uint row, const uint col);
+    vector<uint> *getValues(const uint row, const uint col);
 
     void printValues();
 
     void printSolution();
 
     void initialize(const vector<uint> vector);
+
+    std::vector<uint> getSolution();
 };
 
 

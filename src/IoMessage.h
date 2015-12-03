@@ -15,20 +15,17 @@ using namespace std;
 class IoMessage {
 
 private:
-    boost::uuids::uuid uuid_;
+    std::string message_;
+    uint value_;
+    std::string direction_;
     boost::uuids::uuid rcvPortUuid_;
-    boost::uuids::random_generator uuidGenerator;
-
-    const std::string message_;
-    const uint value_;
-    const std::string direction_;
+    boost::uuids::uuid uuid_;
+    boost::uuids::random_generator uuidGenerator_;
 
 public:
     IoMessage();
 
-    IoMessage(const std::string message);
-
-    IoMessage(const std::string message, const uint value);
+    IoMessage(const IoMessage& other);
 
     IoMessage(const std::string message, const uint value, const std::string direction);
 
@@ -36,13 +33,14 @@ public:
 
     const string getDirection();
 
-//    void setMsgUuid(boost::uuids::uuid uuid);
     const boost::uuids::uuid getMsgUuid();
 
     void setRcvPortUuid(boost::uuids::uuid uuid);
     boost::uuids::uuid getRcvPortUuid();
 
     const uint getValue();
+
+    IoMessage& operator=(const IoMessage& other);
 };
 
 

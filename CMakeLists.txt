@@ -41,13 +41,12 @@ set(SOURCE_FILES
 set(TEST_FILES
         test/ConcurrentQueueTest.cpp
         test/IoPortTest.cpp
-        test/IOMessageTest.cpp
         test/HubTest.cpp
         test/IntegrationTests.cpp
         test/CellTest.cpp
         test/BrainTest.cpp
         test/DataTest.cpp
-        test/SolutionTest.cpp)
+        test/SolutionTest.cpp src/Hub.cpp src/Hub.h)
 
 add_executable(sudoku_solver ${SOURCE_FILES} ${TEST_FILES})
 

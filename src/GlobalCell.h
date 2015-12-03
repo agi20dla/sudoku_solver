@@ -12,11 +12,20 @@
 #include "common.h"
 
 class GlobalCell : public Cell {
+    hub_ptr hub_;
 
 public:
     GlobalCell();
-
     GlobalCell(const GlobalCell &other);
+
+    void run() override;
+
+    io_ptr getMsgConnection(const std::string &direction = "g") override;
+
+    ulong numMessagesOnQueue() override;
+    ulong numMessagesSent() override ;
+    ulong numMessagesRcvd() override;
+    ulong numConnections() override;
 
     GlobalCell &operator=(const GlobalCell &other);
 

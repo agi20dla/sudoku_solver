@@ -19,6 +19,8 @@ public:
 
     void init(const std::string filename);
 
+    void init(const std::vector<uint> values);
+
     std::string getPuzzleStr();
 
     std::vector<uint> getPuzzleVec() const;
@@ -26,8 +28,6 @@ public:
     friend bool operator==(const Data &lhs, const Data &rhs);
 
     friend bool operator!=(const Data &lhs, const Data &rhs);
-
-//    void loadSolution(std::vector<uint> solution);
 };
 
 

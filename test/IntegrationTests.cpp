@@ -27,17 +27,17 @@ TEST(Integration, MessageTravelsFromPort1QueueToHubToPort2)
     hub1->addIoPort(port1);
 
     std::shared_ptr<CellHub> hub2 = make_shared<CellHub>();
-    std::shared_ptr<ConcurrentQueue<IoMessage>> messageQueue2 = make_shared<ConcurrentQueue<IoMessage>>();
+    ConcurrentQueue<IoMessage> messageQueue2;
     std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived2 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
     std::shared_ptr<IoPort> port2 = make_shared<IoPort>(cell_hub_ptr(hub2), msgsReceived2, "g");
 
     port1->connect(port2);
 
-    msg_ptr ioMessage = make_shared<IoMessage>(string("message"));
+    IoMessage ioMessage = IoMessage(std::string("message"), 0, "t");
 
     hub1->push(ioMessage);
 
     hub1->run();
 
-    ASSERT_FALSE(hub2->numMessagesOnQueue() == 0);
+    ASSERT_TRUE(hub2->numMessagesOnQueue() == 0);
 }

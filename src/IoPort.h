@@ -14,12 +14,10 @@
 #include "IoMessage.h"
 #include "common.h"
 
-//class CellHub;
-
 class IoPort
 {
 private:
-    cell_hub_ptr cellHub_;
+    hub_ptr hub_;
 
     // TODO: might have to worry about concurrency on this one
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed_;
@@ -31,17 +29,17 @@ private:
     boost::uuids::uuid uuid_;
 
     size_t numMessagesRecieved = 0;
-    size_t numMessagesForwarded = 0;
+    size_t numMsgsForwardedToHub = 0;
     size_t numMessagesSent = 0;
 
     static boost::mutex mutex_;
 
 public:
-    IoPort(cell_hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
+    IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
            std::string direction);
 
     // Number of messages forwarded to the queue
-    size_t getNumMessagesForwarded();
+    size_t getNumMsgsForwardedToHub();
 
     // Number of messages sent to this ports connected IoPort
     size_t getNumMessagesSent();
@@ -50,10 +48,10 @@ public:
     size_t getNumMessagesRecieved();
 
     // put a message on the queue
-    void fwdToQueue(msg_ptr ioMessage);
+    void fwdToQueue(IoMessage ioMessage);
 
     // send a message to a connected IoPort
-    bool sendToExt(msg_ptr ioMessage);
+    bool sendToExt(IoMessage ioMessage);
 
     // Connect to another IoPort
     void connect(io_ptr otherPort);

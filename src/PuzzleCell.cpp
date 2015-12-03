@@ -6,47 +6,62 @@
 
 using namespace std;
 
-PuzzleCell::PuzzleCell() :
-        soleValue(0) {
-    cellHub_->setCell(this);
-
-//    io_ptr mgtPort = std::make_shared<IoPort>(mgtHub_, mgtMessages_, "m");
-//    mgtHub_->addIoPort(mgtPort);
-
-    io_ptr msgPort = std::make_shared<IoPort>(cellHub_, messages_, "m");
-    cellHub_->addIoPort(msgPort);
-
-//    mgtPort->connect(msgPort);
-//    msgPort->connect(mgtPort);
-
-//    mgtHub_->addPossibleValues(&possibleValues_);
+PuzzleCell::PuzzleCell()
+        : soleValue_(0)
+        , hub_(make_shared<CellHub>())
+{
+    hub_->setCell(this);
 }
 
-PuzzleCell::PuzzleCell(const PuzzleCell &cell) {
-    this->messages_ = cell.messages_;
-//    this->mgtHub_ = cell.mgtHub_;
-    this->soleValue = cell.soleValue;
+PuzzleCell::PuzzleCell(const PuzzleCell &other)
+        : Cell(other)
+        , soleValue_(other.soleValue_)
+{
 }
 
-//PuzzleCell::~PuzzleCell() {
-//}
-
-void PuzzleCell::run() {
-    Cell::run();
-//    mgtHub_->run();
+void PuzzleCell::run()
+{
+    hub_->run();
 }
 
 
-//PuzzleCell &PuzzleCell::operator=(const PuzzleCell &other) {
-//    if (this == &other) {
-//        return *this;
-//    }
-//    this->cellHub_ = other.cellHub_;
-//    this->mgtHub_ = other.mgtHub_;
-//    return *this;
-//}
 
+/**
+ * create a port connected to the message queue
+ * add that port to the message hub
+ * send that port back to the calling cell so it can connect to us
+ */
+io_ptr PuzzleCell::getMsgConnection(const string &direction) {
+    io_ptr port = std::make_shared<IoPort>(hub_, rcvdMsgUUIDs_, direction);
+    hub_->addIoPort(port);
+    return port;
+}
 
-vector<int_ptr> *PuzzleCell::getPossibleValues() {
+ulong PuzzleCell::numMessagesOnQueue() {
+    ulong numMsgs = hub_->numMessagesOnQueue();
+    return numMsgs;
+}
+
+ulong PuzzleCell::numMessagesSent() {
+    return hub_->numMessagesSent();
+}
+
+ulong PuzzleCell::numMessagesRcvd() {
+    return hub_->numMessagesRcvd();
+}
+
+ulong PuzzleCell::numConnections() {
+    return hub_->numPorts();
+}
+
+vector<uint> *PuzzleCell::getPossibleValues() {
     return &possibleValues_;
+}
+
+uint PuzzleCell::getSoleValue() {
+    return soleValue_;
+}
+
+void PuzzleCell::setSoleValue(const uint soleValue) {
+    soleValue_ = soleValue;
 }

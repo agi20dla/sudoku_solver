@@ -51,6 +51,12 @@ void Data::init(const string filename) {
     }
 }
 
+
+void Data::init(const vector<uint> values)
+{
+    puzzle_vec = values;
+}
+
 string Data::getPuzzleStr() {
     return puzzle_str;
 }

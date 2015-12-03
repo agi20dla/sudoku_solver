@@ -12,33 +12,35 @@
 #include "common.h"
 
 class PuzzleCell : public Cell {
-protected:
-//    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > mgtMessages_;
-
-//    mgt_hub_ptr mgtHub_;
-
+private:
     // represents the possible value this cell can hold
     // initialized to all values (1-9) being possible
-    std::vector<int_ptr> possibleValues_{std::make_shared<int>(0), std::make_shared<int>(1), std::make_shared<int>(1),
-                                         std::make_shared<int>(1), std::make_shared<int>(1), std::make_shared<int>(1),
-                                         std::make_shared<int>(1), std::make_shared<int>(1), std::make_shared<int>(1),
-                                         std::make_shared<int>(1)};
-    uint soleValue;
+    std::vector<uint> possibleValues_{0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    uint soleValue_;
+    cell_hub_ptr hub_;
 
 public:
     PuzzleCell();
 
     PuzzleCell(const PuzzleCell &);
 
-//    ~PuzzleCell();
-
     void run() override;  // in GlobalCell
 
-//    io_ptr getMgtConnection(const std::string &direction = "m");
+    io_ptr getMsgConnection(const std::string &direction) override;
 
-    std::vector<int_ptr> *getPossibleValues();
+    ulong numMessagesOnQueue() override;
 
-//    PuzzleCell & operator=(const PuzzleCell & other);
+    ulong numMessagesSent() override;
+
+    ulong numMessagesRcvd() override;
+
+    ulong numConnections() override;
+
+    std::vector<uint> *getPossibleValues();
+
+    uint getSoleValue();
+
+    void setSoleValue(const uint soleValue);
 };
 
 

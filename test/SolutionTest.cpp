@@ -21,7 +21,10 @@ TEST(BrainTest, SolveEasyPuzzle1) {
     Data solution;
     solution.init("02_answer.pzl");
 
-    ASSERT_TRUE(solution == data);
+    Data puzzleSolution;
+    puzzleSolution.init(brain.getSolution());
+
+    ASSERT_TRUE(solution == puzzleSolution);
 }
 
 

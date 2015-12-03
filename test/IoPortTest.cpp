@@ -17,18 +17,18 @@ using namespace std;
 
 TEST(IoPortTest, IoPortForwardsAMessageToAQueue)
 {
-//    std::shared_ptr<CellHub> hub = make_shared<CellHub>();
     auto hub = make_shared<CellHub>();
     std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
 
     IoPort ioPort(hub, msgsReceived, "g");
 
-    msg_ptr ioMessage = make_shared<IoMessage>("message");
+    IoMessage ioMessage(std::string("message"), 0, "t");
     ioPort.fwdToQueue(ioMessage);
 
-    msg_ptr poppedMessage = hub->tryPop();
+    IoMessage poppedMessage;
+    hub->tryPop(poppedMessage);
 
-    ASSERT_THAT(poppedMessage->getMessage(), Eq("message"));
+    ASSERT_THAT(poppedMessage.getMessage(), Eq("message"));
 }
 
 TEST(IoPortTest, IoPortSendsAMessageToAnotherIoPort)
@@ -44,11 +44,12 @@ TEST(IoPortTest, IoPortSendsAMessageToAnotherIoPort)
     port1->connect(port2);
     port2->connect(port1);
 
-    msg_ptr ioMessage1 = make_shared<IoMessage>("message");
+    IoMessage ioMessage1 = IoMessage(std::string("message"), 0, "g");
     port1->sendToExt(ioMessage1);
 
-    msg_ptr poppedMessage = cellHub2->tryPop();
-    ASSERT_THAT(poppedMessage->getMessage(), Eq("message"));
+    IoMessage poppedMessage;
+    cellHub2->tryPop(poppedMessage);
+    ASSERT_THAT(poppedMessage.getMessage(), Eq("message"));
 }
 
 TEST(IoPortTest, IoPortExceptsOnMultipleConnects)
@@ -76,12 +77,13 @@ TEST(IoPortTest, IoPortAddsUuidToForwardedMessage)
 
     IoPort ioPort(cellHub, msgsReceived1, "g");
 
-    msg_ptr ioMessage = make_shared<IoMessage>("message");
+    IoMessage ioMessage(std::string("message"), 0, "g");
     ioPort.fwdToQueue(ioMessage);
 
-    msg_ptr poppedMessage = cellHub->tryPop();
+    IoMessage poppedMessage;
+    cellHub->tryPop(poppedMessage);
 
-    boost::uuids::uuid rcvPortUuid = poppedMessage->getRcvPortUuid();
+    boost::uuids::uuid rcvPortUuid = poppedMessage.getRcvPortUuid();
     boost::uuids::uuid ioPortUuid = ioPort.getUuid();
 
     ASSERT_EQ(rcvPortUuid, ioPortUuid);
