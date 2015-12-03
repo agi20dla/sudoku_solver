@@ -19,7 +19,7 @@ using namespace boost;
 
 
 /**
- * reset a sudoku brain
+ * Reset a sudoku brain to the following map.
  *
  * C h C h C h C h C h C h C h C h C
  * v G v G v   v G v G v   v G v G v
@@ -41,53 +41,53 @@ using namespace boost;
  */
 void Brain::reset() {
 
-    cellMap_.clear();
-    globalMap_.clear();
-    mgtPortMap_.clear();
+    puzzleCells_.clear();
+    globalCells_.clear();
+    brainPorts_.clear();
 
-    createCellMap();
-    connectRowCells();
-    connectColumnCells();
+    createPuzzleCells();
+    connectPuzzleRows();
+    connectPuzzleCols();
 
-    createGlobalMap();
+    createGlobalCells();
     connectGlobals();
 
-    connectBrainToCells();
+    connectBrainToPuzzleCells();
 }
 
 
 void Brain::pushCell(puzzle_cell_ptr cell) {
     puzzle_cell_ptr c = cell;
-    cellMap_.push_back(c);
+    puzzleCells_.push_back(c);
 }
 
 puzzle_cell_ptr Brain::getCell(const uint index) {
-    puzzle_cell_ptr c = cellMap_.at(index);
+    puzzle_cell_ptr c = puzzleCells_.at(index);
     return c;
 }
 
 puzzle_cell_ptr Brain::getCell(const uint row, const uint col) {
-    puzzle_cell_ptr c = cellMap_.at(row * 9 + col);
+    puzzle_cell_ptr c = puzzleCells_.at(row * 9 + col);
     return c;
 }
 
 void Brain::pushGlobal(global_cell_ptr global) {
     global_cell_ptr g = global;
-    globalMap_.push_back(g);
+    globalCells_.push_back(g);
 }
 
 global_cell_ptr Brain::getGlobal(const uint index) {
-    global_cell_ptr g = globalMap_.at(index);
+    global_cell_ptr g = globalCells_.at(index);
     return g;
 }
 
 global_cell_ptr Brain::getGlobal(const uint row, const uint col) {
-    global_cell_ptr g = globalMap_.at(row * 6 + col);
+    global_cell_ptr g = globalCells_.at(row * 6 + col);
     return g;
 }
 
 io_ptr Brain::getMgtPort(const uint row, const uint col) {
-    io_ptr p = mgtPortMap_[row * 9 + col];
+    io_ptr p = brainPorts_[row * 9 + col];
     return p;
 }
 
@@ -96,7 +96,7 @@ io_ptr Brain::getMgtPort(const uint row, const uint col) {
 /**
  * Just create the cell map by adding new cells to the vector of vectors
  */
-void Brain::createCellMap()
+void Brain::createPuzzleCells()
 {
     for (uint idx = 0; idx < 81; idx++) {
         pushCell(make_shared<PuzzleCell>());
@@ -104,17 +104,14 @@ void Brain::createCellMap()
 }
 
 
-/**
- * Create the map of IoPorts that will be used for sending management messages
- */
-void Brain::connectBrainToCells() {
-    for (auto c : cellMap_) {
-        mgtPortMap_.push_back(c->connect("b"));
+void Brain::connectBrainToPuzzleCells() {
+    for (auto c : puzzleCells_) {
+        brainPorts_.push_back(c->connect("b"));
     }
 }
 
 
-void Brain::connectRowCells()
+void Brain::connectPuzzleRows()
 {
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 8; col++) {
@@ -127,7 +124,7 @@ void Brain::connectRowCells()
     }
 }
 
-void Brain::connectColumnCells() {
+void Brain::connectPuzzleCols() {
     for (uint col = 0; col < 9; col++) {
         for (uint row = 0; row < 8; row++) {
             auto cell1 = getCell(row, col);
@@ -140,30 +137,15 @@ void Brain::connectColumnCells() {
 }
 
 
-void Brain::createGlobalMap(){
+void Brain::createGlobalCells() {
     for (uint idx = 0; idx < 36; idx++) {
         pushGlobal(make_shared<GlobalCell>());
     }
 }
 
 /**
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v   v   v   v   v   v   v   v   v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v   v   v   v   v   v   v   v   v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
+ * Connects all the Global Cells to their intended
+ * Puzzle Cells
  */
 void Brain::connectGlobals() {
     uint gRow = 0;
@@ -199,7 +181,7 @@ void Brain::printConnections() {
     // cell map connections
     cout << endl << "PuzzleCell connections" << endl;
     uint idx = 0;
-    for (auto c : cellMap_) {
+    for (auto c : puzzleCells_) {
         ulong connections = c->numConnections();
         cout << connections << " ";
 
@@ -239,12 +221,12 @@ void Brain::printValues() {
     }
 }
 
-void Brain::printMessagesRcvd()
+void Brain::printNumMsgsRcvd()
 {
     // cell map messages received count
     cout << endl << "Messages Received" << endl;
     uint idx = 0;
-    for (auto c : cellMap_) {
+    for (auto c : puzzleCells_) {
         ulong msgsRcvd = c->numMessagesRcvd();
         cout << msgsRcvd << " ";
         idx++;
@@ -262,9 +244,8 @@ void Brain::printMessagesRcvd()
 
 /**
  * Run until there's nothing else to do
- * TODO: The test for nothing else to do needs to be something other than whether
- * the number of messages is the same from one iteration to the next.  Perhaps try
- * the number of queued messages in each cell's hub.
+ * TODO: Change test for number of messages to just be a bool on whether any cell has messages and
+ * short circuit the check
  */
 void Brain::run(bool debug)
 {
@@ -275,12 +256,12 @@ void Brain::run(bool debug)
         firstRun = false;
         numRuns++;
         // run the globals
-        for (auto g : globalMap_) {
+        for (auto g : globalCells_) {
             g->run();
         }
 
         // run the cells
-        for (auto c : cellMap_) {
+        for (auto c : puzzleCells_) {
             c->run();
         }
 
@@ -289,15 +270,15 @@ void Brain::run(bool debug)
             cout << "Run number: " << numRuns << endl;
             printValues();
             cout << endl;
+            printNumMsgsRcvd();
             printSolution();
-            printMessagesRcvd();
         }
 
         numMsgsRemaining = 0;
-        for (auto c : cellMap_) {
+        for (auto c : puzzleCells_) {
             numMsgsRemaining += c->numMessagesOnQueue();
         }
-        for (auto g : globalMap_) {
+        for (auto g : globalCells_) {
             numMsgsRemaining += g->numMessagesOnQueue();
         }
     }
@@ -391,7 +372,7 @@ void Brain::initialize(const vector<uint> values) {
 
 std::vector<uint> Brain::getSolution() {
     vector<uint> solution;
-    for (puzzle_cell_ptr cell : cellMap_)
+    for (puzzle_cell_ptr cell : puzzleCells_)
     {
          solution.push_back(cell->getSoleValue());
     }

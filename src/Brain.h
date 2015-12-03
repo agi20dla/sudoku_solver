@@ -14,24 +14,26 @@ class Brain {
 private:
     // cellMap is a one dimensional array representing a two dimensional array.
     // its indexed by row * 9 + col.
-    std::vector<puzzle_cell_ptr> cellMap_;
-    std::vector<global_cell_ptr> globalMap_;
-    std::vector<io_ptr> mgtPortMap_;
+    std::vector<puzzle_cell_ptr> puzzleCells_;
+    std::vector<global_cell_ptr> globalCells_;
+    std::vector<io_ptr> brainPorts_;
 
 
-    void createCellMap();
-    void connectRowCells();
-    void connectColumnCells();
+    void createPuzzleCells();
 
-    void createGlobalMap();
+    void connectPuzzleRows();
+
+    void connectPuzzleCols();
+
+    void createGlobalCells();
     void connectGlobals();
 
-    void connectBrainToCells();
+    void connectBrainToPuzzleCells();
 
 public:
 //    Brain();
 
-    void printMessagesRcvd();
+    void printNumMsgsRcvd();
 
     void printConnections();
 
