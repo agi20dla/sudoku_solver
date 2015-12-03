@@ -20,12 +20,13 @@ public:
 
     void run() override;
 
-    io_ptr getMsgConnection(const std::string &direction = "g") override;
+    io_ptr createPort(const std::string &direction) override;
 
-    ulong numMessagesOnQueue() override;
+    ulong numMessagesOnHub() override;
     ulong numMessagesSent() override ;
     ulong numMessagesRcvd() override;
-    ulong numConnections() override;
+
+    ulong numPortsToHub() override;
 
     GlobalCell &operator=(const GlobalCell &other);
 

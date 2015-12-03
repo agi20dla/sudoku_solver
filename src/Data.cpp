@@ -57,17 +57,17 @@ void Data::init(const vector<uint> values)
     puzzle_vec = values;
 }
 
-string Data::getPuzzleStr() {
+string Data::getDataAsString() {
     return puzzle_str;
 }
 
-vector<uint> Data::getPuzzleVec() const {
+vector<uint> Data::getDataAsVector() const {
     return puzzle_vec;
 }
 
 
 bool operator==(const Data &lhs, const Data &rhs) {
-    return lhs.getPuzzleVec() == rhs.getPuzzleVec();
+    return lhs.getDataAsVector() == rhs.getDataAsVector();
 }
 
 bool operator!=(const Data &lhs, const Data &rhs) {

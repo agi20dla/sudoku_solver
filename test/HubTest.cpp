@@ -26,7 +26,7 @@ TEST(HubTest, HubPullsMessageFromQueueAndGivesToIoPort)
 
     hub->run();
 
-    ASSERT_TRUE(hub->numMessagesOnQueue() == 0);
+    ASSERT_TRUE(hub->getNumMsgsOnQueue() == 0);
     ASSERT_EQ(ioPort->getNumMessagesRecieved(),1);
     ASSERT_EQ(ioPort->getNumMsgsForwardedToHub(), 0);
     ASSERT_EQ(ioPort->getNumMessagesSent(), 0);

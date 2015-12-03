@@ -20,9 +20,10 @@ void Hub::run() {
 
     while (tryPop(ioMessage)) {
         // send message to ports
-        boost::uuids::uuid rcvPortUuid = ioMessage.getRcvPortUuid();
+        boost::uuids::uuid fwdPortUuid = ioMessage.getForwardingPortUUID();
         for (io_ptr ioPort : ioPorts_) {
-            if (rcvPortUuid != ioPort->getUuid()
+            // but not back to the port that sent us this message
+            if (fwdPortUuid != ioPort->getUuid()
                 && ioPort->getDirection() == ioMessage.getDirection()) {
                 if (ioPort->sendToExt(ioMessage)) {
                     ++messagesSent_;
@@ -37,19 +38,19 @@ void Hub::addIoPort(io_ptr ioPort) {
     numPorts_++;
 }
 
-ulong Hub::numMessagesOnQueue() {
+ulong Hub::getNumMsgsOnQueue() {
     return messageQueue_.size();
 }
 
-ulong Hub::numMessagesSent() {
+ulong Hub::getNumMsgsSent() {
     return messagesSent_;
 }
 
-ulong Hub::numMessagesRcvd() {
+ulong Hub::getNumMsgsRcvd() {
     return messageQueue_.get_num_messages_rcvd();
 }
 
-ulong Hub::numPorts() {
+ulong Hub::getNumPorts() {
     return numPorts_;
 }
 

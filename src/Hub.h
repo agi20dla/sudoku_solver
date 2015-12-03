@@ -30,7 +30,6 @@ public:
     virtual void run();
 
     Hub();
-
     Hub(const Hub &other);
 
     bool tryPop(IoMessage &popped);
@@ -39,13 +38,13 @@ public:
 
     void addIoPort(io_ptr ioPort);
 
-    ulong numMessagesOnQueue();
+    ulong getNumMsgsOnQueue();
 
-    ulong numMessagesSent();
+    ulong getNumMsgsSent();
 
-    ulong numMessagesRcvd();
+    ulong getNumMsgsRcvd();
 
-    ulong numPorts();
+    ulong getNumPorts();
 };
 
 

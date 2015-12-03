@@ -15,7 +15,7 @@ using namespace std;
 class IoMessage {
 
 private:
-    std::string message_;
+    std::string command_;
     uint value_;
     std::string direction_;
     boost::uuids::uuid rcvPortUuid_;
@@ -27,18 +27,20 @@ public:
 
     IoMessage(const IoMessage& other);
 
-    IoMessage(const std::string message, const uint value, const std::string direction);
+    IoMessage(const std::string command, const uint value, const std::string direction);
 
-    const string getMessage();
+    const string getCommand();
+
+    const uint getValue();
 
     const string getDirection();
 
-    const boost::uuids::uuid getMsgUuid();
+    const boost::uuids::uuid getUuid();
 
-    void setRcvPortUuid(boost::uuids::uuid uuid);
-    boost::uuids::uuid getRcvPortUuid();
+    // Stores the uuid of the port that forwarded this message, so the hub can avoid sending a message right back to that port
+    void setForwardingPortUUID(boost::uuids::uuid uuid);
 
-    const uint getValue();
+    boost::uuids::uuid getForwardingPortUUID();
 
     IoMessage& operator=(const IoMessage& other);
 };

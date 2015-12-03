@@ -14,31 +14,8 @@ class IoPort;
 using namespace std;
 using namespace boost;
 
-//Brain::Brain()
-//{}
 
 
-/**
- * Reset a sudoku brain to the following map.
- *
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v   v   v   v   v   v   v   v   v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v   v   v   v   v   v   v   v   v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- * v G v G v   v G v G v   v G v G v
- * C h C h C h C h C h C h C h C h C
- */
 void Brain::reset() {
 
     puzzleCells_.clear();
@@ -56,57 +33,11 @@ void Brain::reset() {
 }
 
 
-void Brain::pushCell(puzzle_cell_ptr cell) {
-    puzzle_cell_ptr c = cell;
-    puzzleCells_.push_back(c);
-}
-
-puzzle_cell_ptr Brain::getCell(const uint index) {
-    puzzle_cell_ptr c = puzzleCells_.at(index);
-    return c;
-}
-
-puzzle_cell_ptr Brain::getCell(const uint row, const uint col) {
-    puzzle_cell_ptr c = puzzleCells_.at(row * 9 + col);
-    return c;
-}
-
-void Brain::pushGlobal(global_cell_ptr global) {
-    global_cell_ptr g = global;
-    globalCells_.push_back(g);
-}
-
-global_cell_ptr Brain::getGlobal(const uint index) {
-    global_cell_ptr g = globalCells_.at(index);
-    return g;
-}
-
-global_cell_ptr Brain::getGlobal(const uint row, const uint col) {
-    global_cell_ptr g = globalCells_.at(row * 6 + col);
-    return g;
-}
-
-io_ptr Brain::getMgtPort(const uint row, const uint col) {
-    io_ptr p = brainPorts_[row * 9 + col];
-    return p;
-}
-
-
-
-/**
- * Just create the cell map by adding new cells to the vector of vectors
- */
 void Brain::createPuzzleCells()
 {
     for (uint idx = 0; idx < 81; idx++) {
-        pushCell(make_shared<PuzzleCell>());
-    }
-}
-
-
-void Brain::connectBrainToPuzzleCells() {
-    for (auto c : puzzleCells_) {
-        brainPorts_.push_back(c->connect("b"));
+        puzzle_cell_ptr c(make_shared<PuzzleCell>());
+        puzzleCells_.push_back(c);
     }
 }
 
@@ -115,8 +46,8 @@ void Brain::connectPuzzleRows()
 {
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 8; col++) {
-            auto cell1 = getCell(row, col);
-            auto cell2 = getCell(row, col + 1);
+            auto cell1 = getPuzzleCell(row, col);
+            auto cell2 = getPuzzleCell(row, col + 1);
             if (cell1 && cell2) {
                 cell1->connect(cell2, "h");
             }
@@ -124,11 +55,12 @@ void Brain::connectPuzzleRows()
     }
 }
 
+
 void Brain::connectPuzzleCols() {
     for (uint col = 0; col < 9; col++) {
         for (uint row = 0; row < 8; row++) {
-            auto cell1 = getCell(row, col);
-            auto cell2 = getCell(row + 1, col);
+            auto cell1 = getPuzzleCell(row, col);
+            auto cell2 = getPuzzleCell(row + 1, col);
             if (cell1 && cell2) {
                 cell1->connect(cell2, "v");
             }
@@ -139,14 +71,12 @@ void Brain::connectPuzzleCols() {
 
 void Brain::createGlobalCells() {
     for (uint idx = 0; idx < 36; idx++) {
-        pushGlobal(make_shared<GlobalCell>());
+        global_cell_ptr g(make_shared<GlobalCell>());
+        globalCells_.push_back(g);
     }
 }
 
-/**
- * Connects all the Global Cells to their intended
- * Puzzle Cells
- */
+
 void Brain::connectGlobals() {
     uint gRow = 0;
     for (uint row = 0; row < 9; row++) {
@@ -158,18 +88,18 @@ void Brain::connectGlobals() {
             if ((col +1) % 3 == 0) {
                 continue;
             }
-            global_cell_ptr global = getGlobal(gRow, gCol);
+            global_cell_ptr global = getGlobalCell(gRow, gCol);
             // top left
-            global->connect(getCell(row, col), "g");
+            global->connect(getPuzzleCell(row, col), "g");
 
             // top right
-            global->connect(getCell(row, col+1), "g");
+            global->connect(getPuzzleCell(row, col + 1), "g");
 
             // bottom left
-            global->connect(getCell(row+1, col), "g");
+            global->connect(getPuzzleCell(row + 1, col), "g");
 
             // bottom right
-            global->connect(getCell(row+1, col+1), "g");
+            global->connect(getPuzzleCell(row + 1, col + 1), "g");
             gCol++;
         }
         gRow++;
@@ -177,33 +107,37 @@ void Brain::connectGlobals() {
 }
 
 
-void Brain::printConnections() {
-    // cell map connections
-    cout << endl << "PuzzleCell connections" << endl;
-    uint idx = 0;
+void Brain::connectBrainToPuzzleCells() {
     for (auto c : puzzleCells_) {
-        ulong connections = c->numConnections();
-        cout << connections << " ";
-
-        idx++;
-        if (idx % 3 == 0) {
-            cout << " ";
-        }
-        if (idx % 9 == 0) {
-            cout << endl;
-        }
-        if (idx % 27 == 0) {
-            cout << endl;
-        }
+        brainPorts_.push_back(c->connect("b"));
     }
 }
+
+
+puzzle_cell_ptr Brain::getPuzzleCell(const uint row, const uint col) {
+    puzzle_cell_ptr c = puzzleCells_.at(row * 9 + col);
+    return c;
+}
+
+
+global_cell_ptr Brain::getGlobalCell(const uint row, const uint col) {
+    global_cell_ptr g = globalCells_.at(row * 6 + col);
+    return g;
+}
+
+
+io_ptr Brain::getBrainPort(const uint row, const uint col) {
+    io_ptr p = brainPorts_[row * 9 + col];
+    return p;
+}
+
 
 void Brain::printValues() {
     cout << endl << "PuzzleCell values" << endl;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
             cout << "r:" << row << ",c:" << col << " - ";
-            if (auto cell = getCell(row, col)) {
+            if (auto cell = getPuzzleCell(row, col)) {
                 vector<uint> *values = cell->getPossibleValues();
                 bool skip = true;
 
@@ -242,11 +176,8 @@ void Brain::printNumMsgsRcvd()
     }
 }
 
-/**
- * Run until there's nothing else to do
- * TODO: Change test for number of messages to just be a bool on whether any cell has messages and
- * short circuit the check
- */
+
+//TODO: Change test for number of messages to just be a bool on whether any cell has messages and
 void Brain::run(bool debug)
 {
     bool firstRun = true;
@@ -276,10 +207,10 @@ void Brain::run(bool debug)
 
         numMsgsRemaining = 0;
         for (auto c : puzzleCells_) {
-            numMsgsRemaining += c->numMessagesOnQueue();
+            numMsgsRemaining += c->numMessagesOnHub();
         }
         for (auto g : globalCells_) {
-            numMsgsRemaining += g->numMessagesOnQueue();
+            numMsgsRemaining += g->numMessagesOnHub();
         }
     }
 
@@ -295,33 +226,37 @@ void Brain::setValue(const uint row, const uint col, const uint value)
         return;
     }
     IoMessage ioMessage(string("set"), value, "b");
-    io_ptr mgtPort = getMgtPort(row, col);
+    io_ptr mgtPort = getBrainPort(row, col);
     mgtPort->fwdToQueue(ioMessage);
 }
+
 
 void Brain::removeValue(const uint row, const uint col, const uint value)
 {
     IoMessage ioMessage(string("rm"), value, "b");
-    getMgtPort(row, col)->fwdToQueue(ioMessage);
+    getBrainPort(row, col)->fwdToQueue(ioMessage);
 }
+
 
 vector<uint> *Brain::getValues(const uint row, const uint col)
 {
     vector<uint> *values;
-    auto cell = getCell(row, col);
+    auto cell = getPuzzleCell(row, col);
     if (cell) {
         values = cell->getPossibleValues();
     }
     return values;
 }
 
+
+//TODO: use the soleValue of the Puzzle Cell to simplify this
 void Brain::printSolution() {
     cout << endl << "Solution" << endl;
     vector<std::string> solution;
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
 
-            if (auto cell = getCell(row, col)) {
+            if (auto cell = getPuzzleCell(row, col)) {
                 auto values = cell->getPossibleValues();
                 uint value = 0;
                 uint numValues = 0;
@@ -356,6 +291,7 @@ void Brain::printSolution() {
         }
     }
 }
+
 
 void Brain::initialize(const vector<uint> values) {
     uint row = 0;

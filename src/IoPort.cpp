@@ -13,24 +13,28 @@ boost::mutex IoPort::mutex_;
 
 IoPort::IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed,
                string direction)
-        : hub_(hub)
-        , msgsProcessed_(msgsProcessed), myDirection_(direction)
+        : hub_(hub), msgsProcessed_(msgsProcessed), myDirection_(direction)
 {
     boost::uuids::random_generator generator;
     uuid_ = generator();
 }
 
+IoPort::IoPort(std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed, string direction)
+        : hub_(nullptr), msgsProcessed_(msgsProcessed), myDirection_(direction) {
+    boost::uuids::random_generator generator;
+    uuid_ = generator();
+}
+
 void IoPort::fwdToQueue(IoMessage ioMessage) {
-    if (msgsProcessed_->find(ioMessage.getMsgUuid()) == msgsProcessed_->end()) {
-        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage.getMsgUuid(), 1);
+    if (msgsProcessed_->find(ioMessage.getUuid()) == msgsProcessed_->end()) {
+        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage.getUuid(), 1);
 
         // lock the messages processed since we are not using a custom concurrent map.
         boost::mutex::scoped_lock lock(mutex_);
         msgsProcessed_->insert(newMsgUuid);
         lock.unlock();
 
-        // store the uuid of this message in the message
-        ioMessage.setRcvPortUuid(uuid_);
+        ioMessage.setForwardingPortUUID(uuid_);
         ++numMessagesRecieved;
 
         // put it on the hub
@@ -62,7 +66,7 @@ bool IoPort::sendToExt(IoMessage ioMessage)
         otherPort_->fwdToQueue(ioMessage);
         sent = true;
         ++numMessagesSent;
-        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage.getMsgUuid(), 1);
+        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage.getUuid(), 1);
         msgsProcessed_->insert(newMsgUuid);
     }
     return sent;
@@ -86,4 +90,8 @@ boost::uuids::uuid IoPort::getUuid() {
 
 const string IoPort::getDirection() {
     return myDirection_;
+}
+
+void IoPort::setHub(hub_ptr hub) {
+    hub_ = hub;
 }

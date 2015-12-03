@@ -38,6 +38,12 @@ public:
     IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
            std::string direction);
 
+    IoPort(std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
+           std::string direction);
+
+    // Sets the hub that this port is attached to
+    void setHub(hub_ptr hub);
+
     // Number of messages forwarded to the queue
     size_t getNumMsgsForwardedToHub();
 

@@ -39,5 +39,5 @@ TEST(Integration, MessageTravelsFromPort1QueueToHubToPort2)
 
     hub1->run();
 
-    ASSERT_TRUE(hub2->numMessagesOnQueue() == 0);
+    ASSERT_TRUE(hub2->getNumMsgsOnQueue() == 0);
 }

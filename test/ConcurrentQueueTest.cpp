@@ -62,5 +62,5 @@ TEST_F(ConcurrentQueueInstance, PushAndPopSharedPtrIoMessage) {
     concurrentQueue.push(pushed);
     IoMessage popped;
     concurrentQueue.try_pop(popped);
-    ASSERT_EQ(std::string("message"), popped.getMessage());
+    ASSERT_EQ(std::string("message"), popped.getCommand());
 }

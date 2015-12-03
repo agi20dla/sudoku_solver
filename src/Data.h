@@ -21,9 +21,9 @@ public:
 
     void init(const std::vector<uint> values);
 
-    std::string getPuzzleStr();
+    std::string getDataAsString();
 
-    std::vector<uint> getPuzzleVec() const;
+    std::vector<uint> getDataAsVector() const;
 
     friend bool operator==(const Data &lhs, const Data &rhs);
 

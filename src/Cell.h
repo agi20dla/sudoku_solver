@@ -16,20 +16,31 @@ protected:
 public:
     Cell();
 
-    Cell(const Cell &other);
-
+    // Creates a new port and sends it to the other cell for a connection
+    // The other cell will also create a new port, connect the ports, and
+    // return it's port so we can connect to it.
     void connect(shared_ptr<Cell> cell, const std::string &direction);
+
+
+    // Creates a port for this cell and returns it for the caller's use
     io_ptr connect(const std::string &direction);
+
+    // Creates a port for this cell and connects the given port to it
+    // Returns the newly created port for the caller's use
     io_ptr connect(io_ptr otherPort, const std::string &direction);
 
+    // Run the derived cell's processing
     virtual void run() = 0;
 
-    virtual io_ptr getMsgConnection(const std::string &direction) = 0;
+    // Basic version of creating a port.  Just creates a port and sends it back
+    // It is up to the implementation calsses to assign a hub to this port
+    virtual io_ptr createPort(const std::string &direction);
 
-    virtual ulong numMessagesOnQueue() = 0;
+    virtual ulong numMessagesOnHub() = 0;
     virtual ulong numMessagesSent() = 0;
     virtual ulong numMessagesRcvd() = 0;
-    virtual ulong numConnections() = 0;
+
+    virtual ulong numPortsToHub() = 0;
 
     Cell& operator=(const Cell& other);
 };

@@ -28,7 +28,7 @@ TEST(IoPortTest, IoPortForwardsAMessageToAQueue)
     IoMessage poppedMessage;
     hub->tryPop(poppedMessage);
 
-    ASSERT_THAT(poppedMessage.getMessage(), Eq("message"));
+    ASSERT_THAT(poppedMessage.getCommand(), Eq("message"));
 }
 
 TEST(IoPortTest, IoPortSendsAMessageToAnotherIoPort)
@@ -49,7 +49,7 @@ TEST(IoPortTest, IoPortSendsAMessageToAnotherIoPort)
 
     IoMessage poppedMessage;
     cellHub2->tryPop(poppedMessage);
-    ASSERT_THAT(poppedMessage.getMessage(), Eq("message"));
+    ASSERT_THAT(poppedMessage.getCommand(), Eq("message"));
 }
 
 TEST(IoPortTest, IoPortExceptsOnMultipleConnects)
@@ -83,7 +83,7 @@ TEST(IoPortTest, IoPortAddsUuidToForwardedMessage)
     IoMessage poppedMessage;
     cellHub->tryPop(poppedMessage);
 
-    boost::uuids::uuid rcvPortUuid = poppedMessage.getRcvPortUuid();
+    boost::uuids::uuid rcvPortUuid = poppedMessage.getForwardingPortUUID();
     boost::uuids::uuid ioPortUuid = ioPort.getUuid();
 
     ASSERT_EQ(rcvPortUuid, ioPortUuid);

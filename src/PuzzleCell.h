@@ -13,8 +13,9 @@
 
 class PuzzleCell : public Cell {
 private:
-    // represents the possible value this cell can hold
+    // represents the possible values this cell can hold
     // initialized to all values (1-9) being possible
+    // the 0 value is not used in this context
     std::vector<uint> possibleValues_{0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
     uint soleValue_;
     cell_hub_ptr hub_;
@@ -26,15 +27,13 @@ public:
 
     void run() override;  // in GlobalCell
 
-    io_ptr getMsgConnection(const std::string &direction) override;
+    io_ptr createPort(const std::string &direction) override;
 
-    ulong numMessagesOnQueue() override;
-
+    ulong numMessagesOnHub() override;
     ulong numMessagesSent() override;
-
     ulong numMessagesRcvd() override;
 
-    ulong numConnections() override;
+    ulong numPortsToHub() override;
 
     std::vector<uint> *getPossibleValues();
 

@@ -14,9 +14,7 @@
 #include "IoMessage.h"
 #include "IoPort.h"
 #include "Hub.h"
-//#include "Cell.h"
-
-class Cell;
+#include "Cell.h"
 
 class CellHub : public Hub {
 private:
@@ -27,14 +25,18 @@ public:
     CellHub();
     CellHub(const CellHub & other);
 
+    // Iterates through all the messages on the message queue, calls processCommand
+    // and forwards the message along the appropriate ports
     void run() override;
 
+    // Sets this hub's owning cell
     void setCell(PuzzleCell *cell);
 
-    Cell *getCell() const;
-
+    // Processes the given command, e.g. "rm" or "set" for the given value
     void processCommand(const string& command, const uint value);
 
+    // Sends out a message with the given command and value to all
+    // ports connected to this hub
     void broadcast(const string command, const uint value);
 };
 

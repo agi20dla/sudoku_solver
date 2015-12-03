@@ -12,19 +12,9 @@ Cell::Cell()
 {
 }
 
-Cell::Cell(const Cell &other)
-        : rcvdMsgUUIDs_(other.rcvdMsgUUIDs_)
-{
-}
 
-
-/**
- * create a new port and send it to the other cell for a connection
- * The other cell will also create a new port, connect the ports, and
- * return it's port so we can connect to it.
- */
 void Cell::connect(shared_ptr<Cell> otherCell, const string &direction) {
-    io_ptr port = getMsgConnection(direction);
+    io_ptr port = createPort(direction);
 
     if (otherCell) {
         io_ptr otherPort = otherCell->connect(port, direction);
@@ -33,25 +23,35 @@ void Cell::connect(shared_ptr<Cell> otherCell, const string &direction) {
 }
 
 
-/**
- * create a management port connected to the messaging queue
- * send that port back so the caller can connect to us
- */
+
 io_ptr Cell::connect(const std::string &direction) {
-    io_ptr port = getMsgConnection(direction);
+    io_ptr port = createPort(direction);
     return port;
 }
 
+
 io_ptr Cell::connect(io_ptr otherPort, const string &direction)
 {
-    io_ptr port = getMsgConnection(direction);
+    io_ptr port = createPort(direction);
     port->connect(otherPort);
     return port;
 }
+
 
 Cell &Cell::operator=(const Cell &other) {
     if (this == &other) {
         return *this;
     }
     return *this;
+}
+
+
+/**
+ * create a port connected to the message queue
+ * add that port to the message hub
+ * send that port back to the calling cell so it can connect to us
+ */
+io_ptr Cell::createPort(const string &direction) {
+    io_ptr port = std::make_shared<IoPort>(rcvdMsgUUIDs_, direction);
+    return port;
 }
