@@ -58,10 +58,6 @@ private:
     // Connects this Brain to the Puzzle Cells via a b direction port
     void connectBrainToPuzzleCells();
 
-    // Runs all the hubs for all the cells until we either solve the puzzle or
-    // there are no more messages being generated
-    long run(bool debug = false);
-
 public:
     /**
     * Reset a sudoku brain to the below map.
@@ -116,6 +112,10 @@ public:
     // Run until there's nothing else to do
     // Set debug to true to output state information as it runs
     int solve(bool debug = false);
+
+    // Runs all the hubs for all the cells until we either solve the puzzle or
+    // there are no more messages being generated
+    long run(bool debug = false);
 
     // set the value of a particular cell via a management message
     void setValue(const uint row, const uint col, const uint value);

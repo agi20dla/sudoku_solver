@@ -46,7 +46,7 @@ TEST(BrainTest, SolveEasyPuzzle30) {
 }
 
 
-TEST(BrainTest, SolveEasyPuzzle32) {
+TEST(BrainTest, SolveMediumPuzzle32) {
     Data data;
     data.init("32_medium.pzl");
     Brain brain;
@@ -64,7 +64,7 @@ TEST(BrainTest, SolveEasyPuzzle32) {
 }
 
 
-TEST(BrainTest, SolveEasyPuzzle67) {
+TEST(BrainTest, SolveHardPuzzle67) {
     Data data;
     data.init("67_hard.pzl");
     Brain brain;
@@ -82,7 +82,7 @@ TEST(BrainTest, SolveEasyPuzzle67) {
 }
 
 
-TEST(BrainTest, SolveEasyPuzzle100) {
+TEST(BrainTest, SolveDiabolicalPuzzle100) {
     Data data;
     data.init("100_diabolical.pzl");
     Brain brain;
