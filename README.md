@@ -3,7 +3,7 @@
 
 It's purpose is as a learning tool for the author, me, Jason C. Sherman.  I taught myself C++ over 2 decades ago
 using Microsoft Visual C++ and wrote a fairly good sized app with it.  But, I wanted to learn C++11/14, boost,
-TDD in C++, concurrency, multithreading, etc.  I came up with the genious idea of a program that solves sudoku
+TDD, concurrency, multithreading, etc.  I came up with the genious idea of a program that solves sudoku
 problems, modeled after my impression of how neurons are connected together (I am *NOT* a neuroscientist and there
 are no weights attached to any cell's input or output).
 
@@ -34,11 +34,3 @@ They communicate by passing messages through the IO Ports mentioned earlier.
 As far as each cell knows, it's just getting or sending a message.  It only knows that a message came from a certain
 port and that it needs to go out of a certain port.  The management portion of the cell will take some action based on
 the message content, if needed.
-
-## For Developers, use these conventions
-
-###Branches should be named with the following prefix tokens.  e.g. feat/readfile
-wip       Works in progress; stuff I know won't be finished soon
-feat      Feature I'm adding or expanding
-bug       Bug fix or experiment
-junk      Throwaway branch created to experiment
