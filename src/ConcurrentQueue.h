@@ -92,6 +92,12 @@ public:
 
         return rcvd;
     }
+
+    void clear() {
+        std::queue<T> emptyQueue;
+        std::swap(queue_, emptyQueue);
+    }
+
 };
 
 

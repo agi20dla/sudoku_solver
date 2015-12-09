@@ -8,10 +8,10 @@
 using namespace std;
 
 Cell::Cell()
-        : rcvdMsgUUIDs_(make_shared<boost::unordered_map<boost::uuids::uuid, uint>>())
-{
-}
+        : rcvdMsgUUIDs_(make_shared<boost::unordered_map<boost::uuids::uuid, uint>>()) { }
 
+Cell::Cell(const Cell &other)
+        : rcvdMsgUUIDs_(other.rcvdMsgUUIDs_) { }
 
 void Cell::connect(shared_ptr<Cell> otherCell, const string &direction) {
     io_ptr port = createPort(direction);
@@ -55,3 +55,4 @@ io_ptr Cell::createPort(const string &direction) {
     io_ptr port = std::make_shared<IoPort>(rcvdMsgUUIDs_, direction);
     return port;
 }
+

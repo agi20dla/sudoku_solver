@@ -45,6 +45,8 @@ public:
     ulong getNumMsgsRcvd();
 
     ulong getNumPorts();
+
+    void clear();
 };
 
 

@@ -13,7 +13,7 @@ using namespace std;
  * Shamelessly stolen from:
  * http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes
  *
- * TODO: To be taken out in final release, but staying here while building the program
+ * To be taken out in final release, but staying here while building the program
  */
 void handler(int sig) {
     void *array[10];
@@ -29,7 +29,6 @@ void handler(int sig) {
 }
 
 int main(int argc, char **argv) {
-    // TODO: take out the SIGSEGV handler in final code
     signal(SIGSEGV, handler);
 
     if (argc == 3 || argc == 1) {
@@ -41,7 +40,6 @@ int main(int argc, char **argv) {
         cerr << "Usage: " << endl;
         cerr << "To solve a specific problem: " << argv[0] << " FILENAME" << endl;
 
-        // TODO: Take out test code from release build?
         cerr << "or" << endl;
         cerr << "To run internal tests: " << argv[0] << endl;
         return 1;
@@ -52,5 +50,7 @@ int main(int argc, char **argv) {
     data.init(filename);
     Brain brain;
     brain.reset();
-    return 0;
+    brain.setValues(data.getDataAsVector());
+    return brain.solve(false);
+
 }

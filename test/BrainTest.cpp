@@ -21,7 +21,7 @@ TEST(BrainTest, SendHMessage) {
     IoMessage ioMessage(string("message"), 0, "h");
     port->fwdToQueue(ioMessage);
 
-    brain.run();
+    brain.solve();
 
     puzzle_cell_ptr cell08 = brain.getPuzzleCell(0, 8);
     ASSERT_EQ(cell08->numMessagesRcvd(), 1);
@@ -38,7 +38,7 @@ TEST(BrainTest, SendVMessage) {
     IoMessage ioMessage(string("message"), 0, "v");
     port->fwdToQueue(ioMessage);
 
-    brain.run();
+    brain.solve();
 
     puzzle_cell_ptr cell80 = brain.getPuzzleCell(8, 0);
     ASSERT_EQ(cell80->numMessagesRcvd(), 1);
@@ -55,7 +55,7 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
     IoMessage ioMessage(string("message"), 0, "g");
     port->fwdToQueue(ioMessage);
 
-    brain.run(true);
+    brain.solve(true);
 
     puzzle_cell_ptr cell22 = brain.getPuzzleCell(2, 2);
     ASSERT_EQ(0, cell22->numMessagesRcvd());
@@ -66,7 +66,7 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
     for (uint row = 3; row < 6; row++) {
         for (uint col = 3; col < 6; col++) {
             puzzle_cell_ptr cell = brain.getPuzzleCell(row, col);
-            ASSERT_EQ(1, cell->numMessagesRcvd()) << "row: " << to_string(row) << ", col: " << to_string(col);
+            ASSERT_EQ(1, cell->numMessagesRcvd());
         }
     }
 }
@@ -86,7 +86,7 @@ TEST(BrainTest, SendGhvMessage) {
     IoMessage ioMessageV(string("message"), 0, "v");
     port->fwdToQueue(ioMessageV);
 
-    brain.run(true);
+    brain.solve(true);
 
     puzzle_cell_ptr cell32 = brain.getPuzzleCell(3, 2);
     ASSERT_EQ(cell32->numMessagesRcvd(), 1);
@@ -103,7 +103,7 @@ TEST(BrainTest, SendGhvMessage) {
     for (uint row = 3; row < 6; row++) {
         for (uint col = 3; col < 6; col++) {
             puzzle_cell_ptr cell = brain.getPuzzleCell(row, col);
-            ASSERT_GE(cell->numMessagesRcvd(), 1) << "row: " << to_string(row) << ", col: " << to_string(col);
+            ASSERT_GE(cell->numMessagesRcvd(), 1);
         }
     }
 }
@@ -113,7 +113,7 @@ TEST(BrainTest, RemoveValue) {
     Brain brain;
     brain.reset();
     brain.removeValue(0, 0, 5);
-    brain.run();
+    brain.solve();
     vector<uint> *values = brain.getValues(0, 0);
     uint value = (*values).at(5);
     ASSERT_EQ(0, value);
@@ -123,7 +123,7 @@ TEST(BrainTest, RemoveSingleValueDoesntAffectOtherValues) {
     Brain brain;
     brain.reset();
     brain.removeValue(0, 0, 5);
-    brain.run();
+    brain.solve();
     vector<uint> *values = brain.getValues(0, 0);
 
     uint value4 = (*values)[4];
@@ -137,7 +137,7 @@ TEST(BrainTest, RemoveSingleValueDoesntAffectOtherCells) {
     Brain brain;
     brain.reset();
     brain.removeValue(0, 0, 5);
-    brain.run();
+    brain.solve();
     vector<uint> *values10 = brain.getValues(1, 0);
 
     uint value105 = (*values10)[5];
@@ -155,7 +155,7 @@ TEST(BrainTest, SetValue) {
     brain.reset();
 
     brain.setValue(0, 0, 5);
-    brain.run(true);
+    brain.solve(true);
 
     // check this block's cells to make sure it's values are set / reset appropriately
     for (uint row = 0; row < 3; row++) {
@@ -164,11 +164,11 @@ TEST(BrainTest, SetValue) {
             if (row == 0 && col == 0) {
                 vector<uint> *values = brain.getValues(row, col);
                 uint value5 = (*values)[5];
-                EXPECT_EQ(1, value5) << "row: " << row << ", col: " << col << endl;
+                EXPECT_EQ(1, value5);
             } else {
                 vector<uint> *values = brain.getValues(row, col);
                 uint value5 = (*values)[5];
-                EXPECT_EQ(0, value5) << "row: " << row << ", col: " << col << endl;;
+                EXPECT_EQ(0, value5);
             }
         }
     }
@@ -195,7 +195,7 @@ TEST(BrainTest, SetTwoValuesInOneBlock) {
 
     brain.setValue(0, 0, 5);
     brain.setValue(2, 2, 9);
-    brain.run(true);
+    brain.solve(true);
 
     // check this block's cells to make sure it's values are set / reset appropriately
     for (uint row = 0; row < 3; row++) {
@@ -231,7 +231,7 @@ TEST(BrainTest, SetTwoValuesInOneBlock) {
         }
         vector<uint> *values = brain.getValues(2, col);
         uint value9 = (*values)[9];
-        ASSERT_EQ(0, value9) << "row: 2, col: " << to_string(col);
+        ASSERT_EQ(0, value9);
     }
 
     // check the vertical cells to make sure their values are set/reset appropriately
@@ -289,5 +289,5 @@ TEST(BrainTest, SetInitialValuesForPuzzle) {
     brain.setValue(8, 7, 7);
     brain.setValue(8, 8, 5);
 
-    brain.run(true);
+    brain.solve(true);
 }

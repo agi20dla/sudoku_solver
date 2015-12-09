@@ -10,11 +10,35 @@
 #include "PuzzleCell.h"
 #include "common.h"
 
+struct valStruct {
+    uint row;
+    uint col;
+    uint val;
+};
+
+struct puzzleState {
+    uint row;
+    uint col;
+    uint soleValue;
+    vector<uint> possibles;
+};
+
+struct solutionPath {
+    vector<puzzleState> states;
+    vector<valStruct> possibles;
+};
+
 class Brain {
 private:
     std::vector<puzzle_cell_ptr> puzzleCells_;
     std::vector<global_cell_ptr> globalCells_;
     std::vector<io_ptr> brainPorts_;
+
+    // holds previous solutions when we get stuck
+    std::vector<solutionPath> solutionPaths_;
+
+    bool firstRun_ = true;
+    long numRuns_ = 0;
 
     // Creates Puzzle Cells and adds them to puzzleCells_
     void createPuzzleCells();
@@ -33,6 +57,10 @@ private:
 
     // Connects this Brain to the Puzzle Cells via a b direction port
     void connectBrainToPuzzleCells();
+
+    // Runs all the hubs for all the cells until we either solve the puzzle or
+    // there are no more messages being generated
+    long run(bool debug = false);
 
 public:
     /**
@@ -87,10 +115,20 @@ public:
 
     // Run until there's nothing else to do
     // Set debug to true to output state information as it runs
-    void run(bool debug = false);
+    int solve(bool debug = false);
 
     // set the value of a particular cell via a management message
     void setValue(const uint row, const uint col, const uint value);
+
+    // Directly set the sole value and possible values, avoiding sending an "rm" message to all other cells
+    void setValue(const uint row, const uint col, const uint value, const std::vector<uint> possibles);
+
+    // Initialize the Puzzle Cells to the given values
+    // Where a value is 1-9, and 0 represents a cell whose value hasn't been set
+    void setValues(const vector<uint> vector);
+
+    // Initialize the Puzzle Cells to the given solution
+    void setValues(const vector <puzzleState> solution);
 
     // Remove the given value from the Puzzle Cell at the given row and column
     void removeValue(const uint row, const uint col, const uint value);
@@ -109,11 +147,14 @@ public:
     // the format of a Sudoku puzzle grid
     void printNumMsgsRcvd();
 
-    // Initialize the Puzzle Cells to the given values
-    // Where a value is 1-9, and 0 represents a cell whose value hasn't been set
-    void initialize(const vector<uint> vector);
+    // Return true if all the Puzzle Cells contain a sole value
+    bool isPuzzleSolved();
 
     std::vector<uint> getSolution();
+
+    std::vector<puzzleState> getSolutionStruct();
+
+    vector<valStruct> getPossibleSolutions();
 };
 
 

@@ -19,7 +19,6 @@ class IoPort
 private:
     hub_ptr hub_;
 
-    // TODO: might have to worry about concurrency on this one
     shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed_;
 
     io_ptr otherPort_;

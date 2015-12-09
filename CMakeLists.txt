@@ -22,6 +22,10 @@ configure_file(test/resources/30_easy.pzl ${CMAKE_CURRENT_BINARY_DIR}/30_easy.pz
 configure_file(test/resources/30_answer.pzl ${CMAKE_CURRENT_BINARY_DIR}/30_answer.pzl COPYONLY)
 configure_file(test/resources/32_medium.pzl ${CMAKE_CURRENT_BINARY_DIR}/32_medium.pzl COPYONLY)
 configure_file(test/resources/32_answer.pzl ${CMAKE_CURRENT_BINARY_DIR}/32_answer.pzl COPYONLY)
+configure_file(test/resources/67_hard.pzl ${CMAKE_CURRENT_BINARY_DIR}/67_hard.pzl COPYONLY)
+configure_file(test/resources/67_answer.pzl ${CMAKE_CURRENT_BINARY_DIR}/67_answer.pzl COPYONLY)
+configure_file(test/resources/100_diabolical.pzl ${CMAKE_CURRENT_BINARY_DIR}/100_diabolical.pzl COPYONLY)
+configure_file(test/resources/100_answer.pzl ${CMAKE_CURRENT_BINARY_DIR}/100_answer.pzl COPYONLY)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 

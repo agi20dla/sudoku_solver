@@ -62,3 +62,7 @@ void Hub::push(IoMessage ioMessage) {
     messageQueue_.push(ioMessage);
 
 }
+
+void Hub::clear() {
+    messageQueue_.clear();
+}

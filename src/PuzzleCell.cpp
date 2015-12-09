@@ -71,4 +71,23 @@ uint PuzzleCell::getSoleValue() {
 
 void PuzzleCell::setSoleValue(const uint soleValue) {
     soleValue_ = soleValue;
+    possibleValues_ = vector<uint>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    possibleValues_.at(soleValue) = 1;
+    hub_->broadcast("rm", soleValue);
+}
+
+void PuzzleCell::setPossibles(const vector<uint> &possibles) {
+    possibleValues_ = vector<uint>(possibles);
+}
+
+void PuzzleCell::reset(const uint soleValue, const vector<uint> possibles) {
+    hub_->clear();
+    soleValue_ = soleValue;
+    possibleValues_ = std::vector<uint>{possibles};
+}
+
+void PuzzleCell::reset() {
+    hub_->clear();
+    soleValue_ = 0;
+    possibleValues_ = std::vector<uint>{0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 }

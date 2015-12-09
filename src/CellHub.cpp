@@ -7,6 +7,7 @@
 #include "../src/IoPort.h"
 #include "CellHub.h"
 #include "PuzzleCell.h"
+#include "Exceptions.h"
 
 using namespace std;
 
@@ -49,11 +50,17 @@ void CellHub::run() {
 
 void CellHub::processCommand(const string& command, const uint value) {
     if (command == "rm") {
+        // if value being removed is the sole value, emit an exception
+        if (cell_->getSoleValue() == value) {
+            throw attempt_to_remove_sole_value();
+        }
+
         // remove this value as a possible solution
         (*cell_->getPossibleValues())[value] = 0;
 
         // if removing a value leaves only one possible value
-        // then send a rm message to the cell for that value
+        // then set this cell's sole value and
+        // broadcast a rm message to other cells for that value
         if (cell_->getSoleValue() == 0) {
             uint testValue = 0;
             int numValues = 0;
@@ -84,6 +91,7 @@ void CellHub::processCommand(const string& command, const uint value) {
         for (uint idx = 1; idx < (*cell_->getPossibleValues()).size(); idx++) {
             if (idx == value) {
                 (*cell_->getPossibleValues())[idx] = 1;
+                cell_->setSoleValue(idx);
             } else {
                 (*cell_->getPossibleValues())[idx] = 0;
             }
