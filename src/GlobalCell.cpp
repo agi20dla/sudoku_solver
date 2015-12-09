@@ -38,9 +38,9 @@ ulong GlobalCell::numMessagesRcvd() {
     return hub_->getNumMsgsRcvd();
 }
 
-ulong GlobalCell::numPortsToHub() {
-    return hub_->getNumPorts();
-}
+//ulong GlobalCell::numPortsToHub() {
+//    return hub_->getNumPorts();
+//}
 
 GlobalCell &GlobalCell::operator=(const GlobalCell &other) {
     if (this == &other) {

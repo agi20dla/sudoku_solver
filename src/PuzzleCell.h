@@ -33,10 +33,7 @@ public:
     ulong numMessagesSent() override;
     ulong numMessagesRcvd() override;
 
-    ulong numPortsToHub() override;
-
-    // reset this cell's possible values to 0,1,1,1,1,1,1,1,1,1
-    void reset();
+//    ulong numPortsToHub() override;
 
     void reset(const uint soleValue, const vector<uint> possibles);
 

@@ -54,9 +54,9 @@ ulong PuzzleCell::numMessagesRcvd() {
 }
 
 
-ulong PuzzleCell::numPortsToHub() {
-    return hub_->getNumPorts();
-}
+//ulong PuzzleCell::numPortsToHub() {
+//    return hub_->getNumPorts();
+//}
 
 
 vector<uint> *PuzzleCell::getPossibleValues() {
@@ -84,10 +84,4 @@ void PuzzleCell::reset(const uint soleValue, const vector<uint> possibles) {
     hub_->clear();
     soleValue_ = soleValue;
     possibleValues_ = std::vector<uint>{possibles};
-}
-
-void PuzzleCell::reset() {
-    hub_->clear();
-    soleValue_ = 0;
-    possibleValues_ = std::vector<uint>{0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 }

@@ -16,10 +16,6 @@ struct attempt_to_remove_sole_value : /*public boost::exception,*/ public std::e
     const char *what() const noexcept { return "Attempted to remove sole value"; }
 };
 
-struct array_out_of_bounds_exception : /*public boost::exception,*/ public std::exception {
-    const char *what() const noexcept { return "Array parameters out of bounds"; }
-};
-
 struct bad_puzzle_file : /*public boost::exception,*/ public std::exception {
     const char *what() const noexcept { return "File is not a Sudoku Solver puzzle file"; }
 };

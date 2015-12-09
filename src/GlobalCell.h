@@ -26,7 +26,7 @@ public:
     ulong numMessagesSent() override ;
     ulong numMessagesRcvd() override;
 
-    ulong numPortsToHub() override;
+//    ulong numPortsToHub() override;
 
     GlobalCell &operator=(const GlobalCell &other);
 

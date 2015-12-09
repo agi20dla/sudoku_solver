@@ -42,7 +42,6 @@ public:
     virtual ulong numMessagesSent() = 0;
     virtual ulong numMessagesRcvd() = 0;
 
-    virtual ulong numPortsToHub() = 0;
 
     Cell& operator=(const Cell& other);
 };

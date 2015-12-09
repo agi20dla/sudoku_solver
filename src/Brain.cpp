@@ -201,8 +201,8 @@ int Brain::solve(bool debug)
     }
 
     // store puzzle state and possible solutions
-    solutionPath solPath{getSolutionStruct(), getPossibleSolutions()};
-    solutionPaths_.push_back(solPath);
+    solutionPath firstPath{getSolutionStruct(), getPossibleSolutions()};
+    solutionPaths_.push_back(firstPath);
 
     // brute force a solution
     while (!isPuzzleSolved() && solutionPaths_.size() > 0) {
@@ -360,9 +360,7 @@ vector<uint> *Brain::getValues(const uint row, const uint col)
 {
     vector<uint> *values;
     auto cell = getPuzzleCell(row, col);
-    if (cell) {
-        values = cell->getPossibleValues();
-    }
+    values = cell->getPossibleValues();
     return values;
 }
 
