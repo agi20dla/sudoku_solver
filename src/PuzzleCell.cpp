@@ -19,9 +19,9 @@ PuzzleCell::PuzzleCell(const PuzzleCell &other)
 {
 }
 
-void PuzzleCell::run()
+bool PuzzleCell::run()
 {
-    hub_->run();
+    return hub_->run();
 }
 
 

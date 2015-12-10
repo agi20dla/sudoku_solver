@@ -7,7 +7,6 @@
 #include "../src/IoPort.h"
 #include "CellHub.h"
 #include "PuzzleCell.h"
-#include "Exceptions.h"
 
 using namespace std;
 
@@ -24,16 +23,10 @@ void CellHub::setCell(PuzzleCell *cell) {
     cell_ = cell;
 }
 
-void CellHub::run() {
+bool CellHub::run() {
     IoMessage ioMessage;
 
     while (tryPop(ioMessage)) {
-        // save the command and the value
-        string command = ioMessage.getCommand();
-        uint value = ioMessage.getValue();
-        // process command and value
-        processCommand(command, value);
-
         // send message to ports
         boost::uuids::uuid fwdPortUuid = ioMessage.getForwardingPortUUID();
         for (io_ptr ioPort : ioPorts_) {
@@ -44,15 +37,22 @@ void CellHub::run() {
                 }
             }
         }
+        // save the command and the value
+        string command = ioMessage.getCommand();
+        uint value = ioMessage.getValue();
+        // process command and value
+        return processCommand(command, value);
     }
+
+    return true;
 }
 
 
-void CellHub::processCommand(const string& command, const uint value) {
+bool CellHub::processCommand(const string& command, const uint value) {
     if (command == "rm") {
         // if value being removed is the sole value, emit an exception
         if (cell_->getSoleValue() == value) {
-            throw attempt_to_remove_sole_value();
+            return false;
         }
 
         // remove this value as a possible solution
@@ -69,7 +69,7 @@ void CellHub::processCommand(const string& command, const uint value) {
                 // If we already have one value and we found another one,
                 // then there's nothing to do
                 if (possible == 1 && testValue > 0) {
-                    return;
+                    return true;
                 } else if (possible == 1) {
                     testValue = idx;
                     numValues++;
@@ -98,6 +98,8 @@ void CellHub::processCommand(const string& command, const uint value) {
         }
         broadcast("rm", value);
     }
+
+    return true;
 }
 
 void CellHub::broadcast(const string msg, const uint value) {

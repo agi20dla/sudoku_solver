@@ -15,14 +15,12 @@ IoPort::IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::u
                string direction)
         : hub_(hub), msgsProcessed_(msgsProcessed), myDirection_(direction)
 {
-    boost::uuids::random_generator generator;
-    uuid_ = generator();
+    uuid_ = getID();
 }
 
 IoPort::IoPort(std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed, string direction)
         : hub_(nullptr), msgsProcessed_(msgsProcessed), myDirection_(direction) {
-    boost::uuids::random_generator generator;
-    uuid_ = generator();
+    uuid_ = getID();
 }
 
 void IoPort::fwdToQueue(IoMessage ioMessage) {

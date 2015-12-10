@@ -7,7 +7,6 @@
 #include <iostream>
 #include "Brain.h"
 #include "GlobalCell.h"
-#include "Exceptions.h"
 
 class IoPort;
 
@@ -184,14 +183,12 @@ int Brain::solve(bool debug)
     printSolution();
 
     if (firstRun_) {
-        try {
-            // Run first time
-            run(debug);
-            firstRun_ = false;
-        } catch (const attempt_to_remove_sole_value &e) {
+        // Run first time
+        if (!run(debug)) {
             cerr << "Attempeted to solve bad puzzle" << endl;
             return 1;
         }
+        firstRun_ = false;
     }
 
     if (isPuzzleSolved()) {
@@ -216,8 +213,7 @@ int Brain::solve(bool debug)
 
         for (valStruct ss : possibles) {
             setValue(ss.row, ss.col, ss.val);
-            try {
-                run(debug);
+            if (run(debug)) {
                 if (isPuzzleSolved()) {
                     break;
                 } else {
@@ -226,8 +222,8 @@ int Brain::solve(bool debug)
                     solutionPath solPath{getSolutionStruct(), getPossibleSolutions()};
                     solutionPaths_.push_back(solPath);
                 }
-            } catch (const attempt_to_remove_sole_value &e) {
-                // This exception happens when we've tried to run down a bad path
+            } else {
+                // This happens when we've tried to run down a bad path
                 // reset all the cells for the next possible value
                 uint idx = 0;
                 for (auto c : puzzleCells_) {
@@ -246,7 +242,7 @@ int Brain::solve(bool debug)
 }
 
 
-long Brain::run(bool debug) {
+bool Brain::run(bool debug) {
     bool firstRun = true;
     bool msgsRemaining = true;
 
@@ -260,7 +256,9 @@ long Brain::run(bool debug) {
 
         // run the cells
         for (auto c : puzzleCells_) {
-            c->run();
+            if (!c->run()) {
+                return false;
+            }
         }
 
         if (numRuns_ % 5 == 0 || debug) {
@@ -292,7 +290,7 @@ long Brain::run(bool debug) {
         }
     }
 
-    return numRuns_;
+    return true;
 }
 
 

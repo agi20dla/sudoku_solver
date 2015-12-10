@@ -20,7 +20,6 @@ private:
     std::string direction_;
     boost::uuids::uuid rcvPortUuid_;
     boost::uuids::uuid uuid_;
-    boost::uuids::random_generator uuidGenerator_;
 
 public:
     IoMessage();
@@ -28,6 +27,11 @@ public:
     IoMessage(const IoMessage& other);
 
     IoMessage(const std::string command, const uint value, const std::string direction);
+
+    boost::uuids::uuid getID() {
+        static boost::uuids::random_generator gen;
+        return gen();
+    }
 
     const string getCommand();
 

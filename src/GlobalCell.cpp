@@ -13,8 +13,8 @@ GlobalCell::GlobalCell(const GlobalCell &other)
         : Cell(other)
         , hub_(other.hub_) { }
 
-void GlobalCell::run() {
-    hub_->run();
+bool GlobalCell::run() {
+    return hub_->run();
 }
 
 

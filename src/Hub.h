@@ -27,7 +27,7 @@ protected:
 
 
 public:
-    virtual void run();
+    virtual bool run();
 
     Hub();
     Hub(const Hub &other);

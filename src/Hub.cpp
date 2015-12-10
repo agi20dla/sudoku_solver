@@ -15,7 +15,7 @@ Hub::Hub(const Hub &other)
         : messageQueue_(other.messageQueue_), ioPorts_(other.ioPorts_), messageUUIDs(other.messageUUIDs),
           messagesSent_(other.messagesSent_), messagesRcvd_(other.messagesRcvd_), numPorts_(0) { }
 
-void Hub::run() {
+bool Hub::run() {
     IoMessage ioMessage;
 
     while (tryPop(ioMessage)) {
@@ -31,6 +31,8 @@ void Hub::run() {
             }
         }
     }
+
+    return true;
 }
 
 void Hub::addIoPort(io_ptr ioPort) {

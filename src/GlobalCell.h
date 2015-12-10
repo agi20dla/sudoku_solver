@@ -18,7 +18,7 @@ public:
     GlobalCell();
     GlobalCell(const GlobalCell &other);
 
-    void run() override;
+    bool run() override;
 
     io_ptr createPort(const std::string &direction) override;
 

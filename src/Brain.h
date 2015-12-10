@@ -115,7 +115,7 @@ public:
 
     // Runs all the hubs for all the cells until we either solve the puzzle or
     // there are no more messages being generated
-    long run(bool debug = false);
+    bool run(bool debug = false);
 
     // set the value of a particular cell via a management message
     void setValue(const uint row, const uint col, const uint value);

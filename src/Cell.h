@@ -32,7 +32,7 @@ public:
     io_ptr connect(io_ptr otherPort, const std::string &direction);
 
     // Run the derived cell's processing
-    virtual void run() = 0;
+    virtual bool run() = 0;
 
     // Basic version of creating a port.  Just creates a port and sends it back
     // It is up to the implementation calsses to assign a hub to this port

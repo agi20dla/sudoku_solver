@@ -8,7 +8,7 @@
 IoMessage::IoMessage()
         : command_(""), value_(0), direction_("")
 {
-     uuid_ = uuidGenerator_();
+    uuid_ = getID();
 }
 
 IoMessage::IoMessage(const IoMessage& other)
@@ -17,14 +17,13 @@ IoMessage::IoMessage(const IoMessage& other)
         , direction_(other.direction_)
         , rcvPortUuid_(other.rcvPortUuid_)
         , uuid_(other.uuid_)
-        , uuidGenerator_(other.uuidGenerator_)
 {
 }
 
 IoMessage::IoMessage(const string command, const uint value, const string direction)
         : command_(command), value_(value), direction_(direction)
 {
-    uuid_ = uuidGenerator_();
+    uuid_ = getID();
 }
 
 

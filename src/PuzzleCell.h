@@ -25,7 +25,7 @@ public:
 
     PuzzleCell(const PuzzleCell &other);
 
-    void run() override;  // in GlobalCell
+    bool run() override;  // in GlobalCell
 
     io_ptr createPort(const std::string &direction) override;
 
