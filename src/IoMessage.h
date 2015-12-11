@@ -28,11 +28,6 @@ public:
 
     IoMessage(const std::string command, const uint value, const std::string direction);
 
-    boost::uuids::uuid getID() {
-        static boost::uuids::random_generator gen;
-        return gen();
-    }
-
     const string getCommand();
 
     const uint getValue();

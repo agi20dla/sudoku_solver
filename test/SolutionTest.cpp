@@ -10,25 +10,25 @@ using namespace ::testing;
 using namespace std;
 
 
-//TEST(BrainTest, SolveEasyPuzzle02) {
-//    Data data;
-//    data.init("02_easy.pzl");
-//    Brain brain;
-//    brain.reset();
-//    brain.setValues(data.getDataAsVector());
-//    brain.solve(true);
+TEST(SolutionTest, SolveEasyPuzzle02) {
+    Data data;
+    data.init("02_easy.pzl");
+    Brain brain;
+    brain.reset();
+    brain.setValues(data.getDataAsVector());
+    brain.solve(true);
+
+    Data solution;
+    solution.init("02_answer.pzl");
+
+    Data puzzleSolution;
+    puzzleSolution.init(brain.getSolution());
+
+    ASSERT_TRUE(solution == puzzleSolution);
+}
 //
-//    Data solution;
-//    solution.init("02_answer.pzl");
 //
-//    Data puzzleSolution;
-//    puzzleSolution.init(brain.getSolution());
-//
-//    ASSERT_TRUE(solution == puzzleSolution);
-//}
-//
-//
-//TEST(BrainTest, SolveEasyPuzzle30) {
+//TEST(SolutionTest, SolveEasyPuzzle30) {
 //    Data data;
 //    data.init("30_easy.pzl");
 //    Brain brain;
@@ -46,7 +46,7 @@ using namespace std;
 //}
 //
 //
-//TEST(BrainTest, SolveMediumPuzzle32) {
+//TEST(SolutionTest, SolveMediumPuzzle32) {
 //    Data data;
 //    data.init("32_medium.pzl");
 //    Brain brain;
@@ -64,7 +64,7 @@ using namespace std;
 //}
 
 
-TEST(BrainTest, SolveHardPuzzle67) {
+TEST(SolutionTest, SolveHardPuzzle67) {
     Data data;
     data.init("67_hard.pzl");
     Brain brain;
@@ -82,7 +82,7 @@ TEST(BrainTest, SolveHardPuzzle67) {
 }
 
 //
-//TEST(BrainTest, SolveDiabolicalPuzzle100) {
+//TEST(SolutionTest, SolveDiabolicalPuzzle100) {
 //    Data data;
 //    data.init("100_diabolical.pzl");
 //    Brain brain;

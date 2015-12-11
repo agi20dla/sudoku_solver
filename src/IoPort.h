@@ -40,11 +40,6 @@ public:
     IoPort(std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
            std::string direction);
 
-    boost::uuids::uuid getID() {
-        static boost::uuids::random_generator gen;
-        return gen();
-    }
-
     // Sets the hub that this port is attached to
     void setHub(hub_ptr hub);
 

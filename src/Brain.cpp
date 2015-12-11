@@ -261,7 +261,7 @@ bool Brain::run(bool debug) {
             }
         }
 
-        if (numRuns_ % 5 == 0 || debug) {
+        if (numRuns_ % 50 == 0 || debug) {
             cout << endl;
             cout << "Run number: " << numRuns_ << endl;
             printSolution();

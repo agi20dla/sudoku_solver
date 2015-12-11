@@ -40,7 +40,7 @@ set(SOURCE_FILES
         src/Brain.h src/Brain.cpp
         src/common.h
         src/GlobalCell.h src/GlobalCell.cpp
-        src/Data.h src/Data.cpp src/Cell.cpp src/Cell.h)
+        src/Data.h src/Data.cpp src/Cell.cpp src/Cell.h src/Random.h)
 
 set(TEST_FILES
         test/ConcurrentQueueTest.cpp

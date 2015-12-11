@@ -6,6 +6,7 @@
 #include "Exceptions.h"
 #include "IoPort.h"
 #include "CellHub.h"
+#include "Random.h"
 
 using namespace std;
 
@@ -15,12 +16,12 @@ IoPort::IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::u
                string direction)
         : hub_(hub), msgsProcessed_(msgsProcessed), myDirection_(direction)
 {
-    uuid_ = getID();
+    uuid_ = Random::getInstance().getNewUUID();
 }
 
 IoPort::IoPort(std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed, string direction)
         : hub_(nullptr), msgsProcessed_(msgsProcessed), myDirection_(direction) {
-    uuid_ = getID();
+    uuid_ = Random::getInstance().getNewUUID();
 }
 
 void IoPort::fwdToQueue(IoMessage ioMessage) {
