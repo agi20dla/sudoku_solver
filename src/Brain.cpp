@@ -69,7 +69,7 @@ void Brain::connectPuzzleCols() {
 
 
 void Brain::createGlobalCells() {
-    for (uint idx = 0; idx < 36; idx++) {
+    for (uint idx = 0; idx < 9; idx++) {
         global_cell_ptr g(make_shared<GlobalCell>());
         globalCells_.push_back(g);
     }
@@ -77,31 +77,32 @@ void Brain::createGlobalCells() {
 
 
 void Brain::connectGlobals() {
-    uint gRow = 0;
+//    uint gRow = 0;
     for (uint row = 0; row < 9; row++) {
-        if ((row+1) % 3 == 0) {
-            continue;
-        }
-        uint gCol = 0;
+//        if ((row+1) % 3 == 0) {
+//            continue;
+//        }
+//        uint gCol = 0;
         for (uint col = 0; col < 9; col++) {
-            if ((col +1) % 3 == 0) {
-                continue;
-            }
-            global_cell_ptr global = getGlobalCell(gRow, gCol);
-            // top left
+//            if ((col +1) % 3 == 0) {
+//                continue;
+//            }
+            global_cell_ptr global = getGlobalCell(row/3, col/3);
             global->connect(getPuzzleCell(row, col), std::string("g"));
-
-            // top right
-            global->connect(getPuzzleCell(row, col + 1), std::string("g"));
-
-            // bottom left
-            global->connect(getPuzzleCell(row + 1, col), std::string("g"));
-
-            // bottom right
-            global->connect(getPuzzleCell(row + 1, col + 1), std::string("g"));
-            gCol++;
+//            // top left
+//            global->connect(getPuzzleCell(row, col), std::string("g"));
+//
+//            // top right
+//            global->connect(getPuzzleCell(row, col + 1), std::string("g"));
+//
+//            // bottom left
+//            global->connect(getPuzzleCell(row + 1, col), std::string("g"));
+//
+//            // bottom right
+//            global->connect(getPuzzleCell(row + 1, col + 1), std::string("g"));
+//            gCol++;
         }
-        gRow++;
+//        gRow++;
     }
 }
 
@@ -120,7 +121,7 @@ puzzle_cell_ptr Brain::getPuzzleCell(const uint row, const uint col) {
 
 
 global_cell_ptr Brain::getGlobalCell(const uint row, const uint col) {
-    global_cell_ptr g = globalCells_.at(row * 6 + col);
+    global_cell_ptr g = globalCells_.at(row * 3 + col);
     return g;
 }
 
