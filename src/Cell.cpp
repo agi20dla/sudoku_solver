@@ -57,7 +57,9 @@ Cell &Cell::operator=(const Cell &other) {
  * add that port to the message hub
  * send that port back to the calling cell so it can connect to us
  */
-io_ptr Cell::createPort(const string &direction) {
-    io_ptr port = std::make_shared<IoPort>(rcvdMsgUUIDs_, direction);
+io_ptr Cell::createPort(const std::string &direction) {
+    io_ptr port = std::make_shared<IoPort>();
+    port->setDirection(direction);
+    port->addRcvdMsgMap(rcvdMsgUUIDs_);
     return port;
 }

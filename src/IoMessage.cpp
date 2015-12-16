@@ -7,9 +7,9 @@
 #include "Random.h"
 
 IoMessage::IoMessage()
-        : command_(""), value_(0), direction_("")
+        : command_(""), value_(0), direction_(""), uuid_(Random::getInstance().getNewUUID())
 {
-    uuid_ = Random::getInstance().getNewUUID();
+//    uuid_ = Random::getInstance().getNewUUID();
 }
 
 IoMessage::IoMessage(const IoMessage &other)
@@ -22,9 +22,9 @@ IoMessage::IoMessage(const IoMessage &other)
 }
 
 IoMessage::IoMessage(const string &command, const uint value, const string &direction)
-        : command_(command), value_(value), direction_(direction)
+        : command_(command), value_(value), direction_(direction), uuid_(Random::getInstance().getNewUUID())
 {
-    uuid_ = Random::getInstance().getNewUUID();
+//    uuid_ = Random::getInstance().getNewUUID();
 }
 
 

@@ -20,6 +20,7 @@ private:
 
 protected:
     std::vector<io_ptr> ioPorts_;
+    boost::uuids::uuid uuid_;
     std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>> messageUUIDs;
 
     ulong messagesSent_;

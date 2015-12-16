@@ -22,14 +22,16 @@ TEST(Integration, MessageTravelsFromPort1QueueToHubToPort2)
 {
     std::shared_ptr<CellHub> hub1 = make_shared<CellHub>();
     std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsReceived1 = make_shared<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>>();
-    std::shared_ptr<IoPort> port1 = make_shared<IoPort>(cell_hub_ptr(hub1), msgsReceived1, "g");
+    std::shared_ptr<IoPort> port1 = make_shared<IoPort>();
+    port1->init(cell_hub_ptr(hub1), msgsReceived1, "g");
 
     hub1->addIoPort(port1);
 
     std::shared_ptr<CellHub> hub2 = make_shared<CellHub>();
     ConcurrentQueue messageQueue2;
     std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsReceived2 = make_shared<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>>();
-    std::shared_ptr<IoPort> port2 = make_shared<IoPort>(cell_hub_ptr(hub2), msgsReceived2, "g");
+    std::shared_ptr<IoPort> port2 = make_shared<IoPort>();
+    port2->init(cell_hub_ptr(hub2), msgsReceived2, "g");
 
     port1->connect(port2);
 

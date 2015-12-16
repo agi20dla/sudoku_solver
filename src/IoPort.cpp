@@ -13,26 +13,10 @@ using namespace std;
 
 //boost::mutex IoPort::mutex_;
 
-IoPort::IoPort(hub_ptr hub,
-               std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsProcessed,
-               const string &direction)
-        : hub_(hub), msgsProcessed_(msgsProcessed), myDirection_(direction)
-{
+IoPort::IoPort() {
     uuid_ = Random::getInstance().getNewUUID();
 }
 
-IoPort::IoPort(
-        std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsProcessed,
-        const string &direction)
-        : hub_(nullptr), msgsProcessed_(msgsProcessed), myDirection_(direction) {
-    uuid_ = Random::getInstance().getNewUUID();
-}
-
-
-IoPort::~IoPort() {
-    msgsProcessed_.reset();
-    otherPort_.reset();
-}
 
 
 void IoPort::fwdToQueue(std::shared_ptr<IoMessage> ioMessage) {
@@ -100,4 +84,20 @@ const string IoPort::getDirection() {
 
 void IoPort::setHub(hub_ptr hub) {
     hub_ = hub;
+}
+
+void IoPort::addRcvdMsgMap(
+        msg_map_ptr msgsProcessed) {
+    msgsProcessed_ = msgsProcessed;
+}
+
+void IoPort::setDirection(const std::string &direction) {
+    myDirection_ = direction;
+}
+
+void IoPort::init(hub_ptr hub, msg_map_ptr msgsProcessed, const std::string &direction) {
+    hub_ = hub;
+    msgsProcessed_ = msgsProcessed;
+    myDirection_ = direction;
+
 }

@@ -34,17 +34,19 @@ private:
     static boost::mutex mutex_;
 
 public:
-    IoPort(hub_ptr hub,
-           std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsProcessed,
-           const std::string &direction);
+    IoPort();
 
-    IoPort(std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsProcessed,
-           const std::string &direction);
-
-    ~IoPort();
 
     // Sets the hub that this port is attached to
     void setHub(hub_ptr hub);
+
+    // Adds the owning cell's map of received messages
+    void addRcvdMsgMap(msg_map_ptr msgsProcessed);
+
+    // Sets the direction for the messages this port will handle
+    void setDirection(const std::string &direction);
+
+    void init(hub_ptr hub, msg_map_ptr msgsProcessed, const std::string &direction);
 
     // Number of messages forwarded to the queue
     size_t getNumMsgsForwardedToHub();
