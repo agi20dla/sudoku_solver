@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include <boost/functional/hash/hash.hpp>
+#include <boost/functional/hash.hpp>
 #include "common.h"
 
 class Cell {

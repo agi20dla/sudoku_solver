@@ -8,7 +8,7 @@
 using namespace std;
 
 Hub::Hub()
-        : messageQueue_(ConcurrentQueue()), ioPorts_(vector<io_ptr>()),
+        : messageQueue_(ConcurrentQueue<io_msg_ptr>()), ioPorts_(vector<io_ptr>()),
           uuid_(Random::getInstance().getNewUUID()),
           messagesSent_(0), messagesRcvd_(0) { }
 

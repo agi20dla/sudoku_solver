@@ -28,7 +28,7 @@ struct measure {
     }
 };
 
-void queueLoad(ConcurrentQueue queue, long numElements) {
+void queueLoad(ConcurrentQueue<io_msg_ptr> queue, long numElements) {
     for (int idx = 0; idx < numElements; idx++) {
         queue.push(make_shared<IoMessage>());
     }
@@ -36,7 +36,7 @@ void queueLoad(ConcurrentQueue queue, long numElements) {
 
 // Best time = ~44ms
 TEST(SpeedTest, ConcurrentQueueIoMessage50K) {
-    ConcurrentQueue queue;
+    ConcurrentQueue<io_msg_ptr> queue;
     long numElements = 50000;
 
     std::cout << endl << "Time: " << measure<>::execution([&]() {

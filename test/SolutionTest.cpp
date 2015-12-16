@@ -81,20 +81,20 @@ TEST(SolutionTest, SolveHardPuzzle67) {
     ASSERT_TRUE(solution == puzzleSolution);
 }
 
-//
-//TEST(SolutionTest, SolveDiabolicalPuzzle100) {
-//    Data data;
-//    data.init("100_diabolical.pzl");
-//    Brain brain;
-//    brain.reset();
-//    brain.setValues(data.getDataAsVector());
-//    brain.solve(true);
-//
-//    Data solution;
-//    solution.init("100_answer.pzl");
-//
-//    Data puzzleSolution;
-//    puzzleSolution.init(brain.getSolution());
-//
-//    ASSERT_TRUE(solution == puzzleSolution);
-//}
+
+TEST(SolutionTest, SolveDiabolicalPuzzle100) {
+    Data data;
+    data.init("100_diabolical.pzl");
+    Brain brain;
+    brain.reset();
+    brain.setValues(data.getDataAsVector());
+    brain.solve(true);
+
+    Data solution;
+    solution.init("100_answer.pzl");
+
+    Data puzzleSolution;
+    puzzleSolution.init(brain.getSolution());
+
+    ASSERT_TRUE(solution == puzzleSolution);
+}

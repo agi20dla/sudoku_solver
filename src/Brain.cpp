@@ -77,32 +77,11 @@ void Brain::createGlobalCells() {
 
 
 void Brain::connectGlobals() {
-//    uint gRow = 0;
     for (uint row = 0; row < 9; row++) {
-//        if ((row+1) % 3 == 0) {
-//            continue;
-//        }
-//        uint gCol = 0;
         for (uint col = 0; col < 9; col++) {
-//            if ((col +1) % 3 == 0) {
-//                continue;
-//            }
             global_cell_ptr global = getGlobalCell(row/3, col/3);
             global->connect(getPuzzleCell(row, col), std::string("g"));
-//            // top left
-//            global->connect(getPuzzleCell(row, col), std::string("g"));
-//
-//            // top right
-//            global->connect(getPuzzleCell(row, col + 1), std::string("g"));
-//
-//            // bottom left
-//            global->connect(getPuzzleCell(row + 1, col), std::string("g"));
-//
-//            // bottom right
-//            global->connect(getPuzzleCell(row + 1, col + 1), std::string("g"));
-//            gCol++;
         }
-//        gRow++;
     }
 }
 
@@ -198,20 +177,18 @@ int Brain::solve(bool debug)
     }
 
     // store puzzle state and possible solutions
-    solutionPath firstPath{getSolutionStruct(), getPossibleSolutions()};
+    SolutionPath firstPath{getSolutionStruct(), getPossibleSolutions()};
+    solutionHashes_.insert(firstPath);
     solutionPaths_.push_back(firstPath);
 
     // brute force a solution
     while (!isPuzzleSolved() && solutionPaths_.size() > 0) {
-        cout << "Exploring solution:" << endl;
-        printSolution();
-
-        solutionPath path = solutionPaths_.back();
+        SolutionPath path = solutionPaths_.back();
         solutionPaths_.pop_back();
-        vector<valStruct> possibles = path.possibles;
-        vector<puzzleState> puzzleStates = path.states;
+        vector<CellValue> possibles = path.possibles;
+        vector<PuzzleState> puzzleStates = path.states;
 
-        for (valStruct ss : possibles) {
+        for (CellValue ss : possibles) {
             setValue(ss.row, ss.col, ss.val);
             if (run(debug)) {
                 if (isPuzzleSolved()) {
@@ -219,8 +196,25 @@ int Brain::solve(bool debug)
                 } else {
                     // finished running with no exception, but no solution
                     // so save this solution for the next iteration
-                    solutionPath solPath{getSolutionStruct(), getPossibleSolutions()};
-                    solutionPaths_.push_back(solPath);
+                    SolutionPath solPath{getSolutionStruct(), getPossibleSolutions()};
+                    if (solutionHashes_.find(solPath) == solutionHashes_.end()) {
+                        auto it = solutionPaths_.begin();
+                        for (; it != solutionPaths_.end(); it++) {
+                            if ((*it) > solPath) {
+                                solutionPaths_.insert(it, solPath);
+                                break;
+                            }
+                        }
+                        if (it == solutionPaths_.end()) {
+                            solutionPaths_.push_back(solPath);
+                        }
+
+//                        solutionPaths_.push_back(solPath);
+                    } else {
+                        cout << "*************************** ";
+                        cout << "Already tried this solution ";
+                        cout << "*************************** " << endl;
+                    }
                 }
             } else {
                 // This happens when we've tried to run down a bad path
@@ -249,6 +243,11 @@ bool Brain::run(bool debug) {
     while (firstRun || msgsRemaining) {
         firstRun = false;
         numRuns_++;
+        if (numRuns_ % 500 == 0 || debug) {
+            cout << endl;
+            cout << "Run number: " << numRuns_ << endl;
+            printSolution();
+        }
         // run the globals
         for (auto g : globalCells_) {
             g->run();
@@ -261,11 +260,6 @@ bool Brain::run(bool debug) {
             }
         }
 
-        if (numRuns_ % 50 == 0 || debug) {
-            cout << endl;
-            cout << "Run number: " << numRuns_ << endl;
-            printSolution();
-        }
         if (debug) {
             printValues();
             printNumMsgsRcvd();
@@ -320,7 +314,7 @@ void Brain::setValue(const uint row, const uint col, const uint value, const vec
 }
 
 
-void Brain::setValues(const vector<puzzleState> solution) {
+void Brain::setValues(const vector<PuzzleState> solution) {
     uint row = 0;
     uint col = 0;
     for (auto s : solution) {
@@ -398,15 +392,11 @@ void Brain::printSolution() {
 }
 
 
-vector<puzzleState> Brain::getSolutionStruct() {
-//    vector<uint> solution;
-    vector<puzzleState> solution;
-    uint rowcol = 0;
+vector<PuzzleState> Brain::getSolutionStruct() {
+    vector<PuzzleState> solution;
     for (puzzle_cell_ptr cell : puzzleCells_) {
-        puzzleState ss{rowcol / 9, rowcol % 9, cell->getSoleValue(), *cell->getPossibleValues()};
-//         solution.push_back(cell->getSoleValue());
+        PuzzleState ss{cell->getSoleValue(), *cell->getPossibleValues()};
         solution.push_back(ss);
-        rowcol++;
     }
     return solution;
 }
@@ -418,7 +408,6 @@ vector<uint> Brain::getSolution() {
     for (puzzle_cell_ptr cell : puzzleCells_)
     {
          solution.push_back(cell->getSoleValue());
-//        solution.push_back(ss);
         rowcol++;
     }
     return solution;
@@ -436,15 +425,15 @@ bool Brain::isPuzzleSolved() {
     return solved;
 }
 
-vector<valStruct> Brain::getPossibleSolutions() {
-    vector<valStruct> possibles;
+vector<CellValue> Brain::getPossibleSolutions() {
+    vector<CellValue> possibles;
     for (uint idx = 0; idx < 81; idx++) {
         puzzle_cell_ptr c = puzzleCells_.at(idx);
         if (c->getSoleValue() == 0) {
             vector<uint> *values = c->getPossibleValues();
             for (uint vidx = 1; vidx < 9; vidx++) {
                 if (values->at(vidx) == 1) {
-                    possibles.emplace_back(valStruct{idx / 9, idx % 9, vidx});
+                    possibles.emplace_back(CellValue{idx / 9, idx % 9, vidx});
                 }
             }
         }
@@ -456,4 +445,46 @@ Brain::Brain() : uuid_(Random::getInstance().getNewUUID()) { }
 
 boost::uuids::uuid Brain::getUUID() {
     return uuid_;
+}
+
+
+bool operator< (const SolutionPath& lhs, const SolutionPath& rhs) {
+    int lhsVal = 0, rhsVal = 0;
+    for (auto lstate : lhs.states) {
+        if (lstate.soleValue == 0) {
+            lhsVal++;
+        }
+        for (auto p : lstate.possibles) {
+            if (p == 0) {
+                lhsVal++;
+            } else {
+                lhsVal--;
+            }
+        }
+    }
+    for (auto rstate : rhs.states) {
+        if (rstate.soleValue == 0) {
+            rhsVal++;
+        }
+        for (auto p : rstate.possibles) {
+            if (p == 0) {
+                rhsVal++;
+            } else {
+                rhsVal--;
+            }
+        }
+    }
+    return lhsVal < rhsVal;
+}
+
+bool operator> (const SolutionPath& lhs, const SolutionPath& rhs) {
+    return rhs < lhs;
+}
+
+bool operator<= (const SolutionPath& lhs, const SolutionPath& rhs) {
+    return !(lhs > rhs);
+}
+
+bool operator>= (const SolutionPath& lhs, const SolutionPath& rhs) {
+    return !(lhs < rhs);
 }

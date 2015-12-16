@@ -16,7 +16,7 @@
 
 class Hub {
 private:
-    ConcurrentQueue messageQueue_;
+    ConcurrentQueue<io_msg_ptr> messageQueue_;
 
 protected:
     std::vector<io_ptr> ioPorts_;

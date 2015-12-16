@@ -27,7 +27,7 @@ TEST(Integration, MessageTravelsFromPort1QueueToHubToPort2)
     hub1->addIoPort(port1);
 
     std::shared_ptr<CellHub> hub2 = make_shared<CellHub>();
-    ConcurrentQueue messageQueue2;
+    ConcurrentQueue<io_msg_ptr> concurrentQueue;
     std::shared_ptr<IoPort> port2 = make_shared<IoPort>();
     port2->init(cell_hub_ptr(hub2), std::string("g"));
 

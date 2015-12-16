@@ -3,6 +3,7 @@
 //
 
 #include <boost/uuid/uuid.hpp>
+#include <iostream>
 #include "IoMessage.h"
 
 IoMessage::IoMessage()
