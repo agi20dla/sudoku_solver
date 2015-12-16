@@ -18,7 +18,6 @@ public:
 private:
     boost::mt19937 ran;
     boost::uuids::random_generator random_generator;
-//    boost::uuids::uuid uuid = boost::uuids::random_generator(ran)();
 
     Random() {
         random_generator = boost::uuids::basic_random_generator<boost::mt19937>(ran);

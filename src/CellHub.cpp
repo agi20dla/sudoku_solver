@@ -3,8 +3,8 @@
 //
 
 #include <string>
-#include "gmock/gmock.h"
-#include "../src/IoPort.h"
+//#include "gmock/gmock.h"
+#include "IoPort.h"
 #include "CellHub.h"
 #include "PuzzleCell.h"
 
@@ -24,31 +24,34 @@ void CellHub::setCell(PuzzleCell *cell) {
 }
 
 bool CellHub::run() {
-    IoMessage ioMessage;
+    std::shared_ptr<IoMessage> ioMessage = tryPop();
 
-    while (tryPop(ioMessage)) {
+    while (ioMessage) {
         // send message to ports
-        boost::uuids::uuid fwdPortUuid = ioMessage.getForwardingPortUUID();
+        boost::uuids::uuid fwdPortUuid = ioMessage->getForwardingPortUUID();
         for (io_ptr ioPort : ioPorts_) {
             if (fwdPortUuid != ioPort->getUuid()
-                && ioPort->getDirection() == ioMessage.getDirection()) {
+                && ioPort->getDirection() == ioMessage->getDirection()) {
                 if (ioPort->sendToExt(ioMessage)) {
                     ++messagesSent_;
                 }
             }
         }
         // save the command and the value
-        string command = ioMessage.getCommand();
-        uint value = ioMessage.getValue();
+        string command = ioMessage->getCommand();
+        uint value = ioMessage->getValue();
         // process command and value
-        return processCommand(command, value);
+        if (!processCommand(command, value)) {
+            return false;
+        }
+        ioMessage = tryPop();
     }
 
     return true;
 }
 
 
-bool CellHub::processCommand(const string& command, const uint value) {
+bool CellHub::processCommand(const string &command, const uint value) {
     if (command == "rm") {
         // if value being removed is the sole value, emit an exception
         if (cell_->getSoleValue() == value) {
@@ -102,9 +105,9 @@ bool CellHub::processCommand(const string& command, const uint value) {
     return true;
 }
 
-void CellHub::broadcast(const string msg, const uint value) {
+void CellHub::broadcast(const string &command, const uint value) {
     for (io_ptr ioPort : ioPorts_)
     {
-        ioPort->sendToExt(IoMessage(msg, value, ioPort->getDirection()));
+        ioPort->sendToExt(make_shared<IoMessage>(std::string(command), value, std::string(ioPort->getDirection())));
     }
 }

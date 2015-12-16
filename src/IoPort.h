@@ -6,9 +6,9 @@
 #define SUDOKU_SOLVER_IOPORT_H
 
 #include <boost/uuid/uuid.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include <unordered_map>
 #include <memory>
 #include "ConcurrentQueue.h"
 #include "IoMessage.h"
@@ -19,7 +19,7 @@ class IoPort
 private:
     hub_ptr hub_;
 
-    shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsProcessed_;
+    shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsProcessed_;
 
     io_ptr otherPort_;
 
@@ -34,11 +34,14 @@ private:
     static boost::mutex mutex_;
 
 public:
-    IoPort(hub_ptr hub, std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
-           std::string direction);
+    IoPort(hub_ptr hub,
+           std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsProcessed,
+           const std::string &direction);
 
-    IoPort(std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint> > msgsProcessed,
-           std::string direction);
+    IoPort(std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsProcessed,
+           const std::string &direction);
+
+    ~IoPort();
 
     // Sets the hub that this port is attached to
     void setHub(hub_ptr hub);
@@ -53,10 +56,10 @@ public:
     size_t getNumMessagesRecieved();
 
     // put a message on the queue
-    void fwdToQueue(IoMessage ioMessage);
+    void fwdToQueue(std::shared_ptr<IoMessage> ioMessage);
 
     // send a message to a connected IoPort
-    bool sendToExt(IoMessage ioMessage);
+    bool sendToExt(std::shared_ptr<IoMessage> ioMessage);
 
     // Connect to another IoPort
     void connect(io_ptr otherPort);

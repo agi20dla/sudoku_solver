@@ -8,7 +8,7 @@
 
 #include "../src/CellHub.h"
 
-using namespace testing;
+using namespace ::testing;
 
 /**
  * Set up a hub with a message queue and an IO port
@@ -21,19 +21,19 @@ using namespace testing;
 TEST(Integration, MessageTravelsFromPort1QueueToHubToPort2)
 {
     std::shared_ptr<CellHub> hub1 = make_shared<CellHub>();
-    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived1 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
+    std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsReceived1 = make_shared<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>>();
     std::shared_ptr<IoPort> port1 = make_shared<IoPort>(cell_hub_ptr(hub1), msgsReceived1, "g");
 
     hub1->addIoPort(port1);
 
     std::shared_ptr<CellHub> hub2 = make_shared<CellHub>();
-    ConcurrentQueue<IoMessage> messageQueue2;
-    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived2 = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
+    ConcurrentQueue messageQueue2;
+    std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsReceived2 = make_shared<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>>();
     std::shared_ptr<IoPort> port2 = make_shared<IoPort>(cell_hub_ptr(hub2), msgsReceived2, "g");
 
     port1->connect(port2);
 
-    IoMessage ioMessage = IoMessage(std::string("message"), 0, "t");
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"));
 
     hub1->push(ioMessage);
 

@@ -15,13 +15,13 @@ using namespace std;
 
 TEST(HubTest, HubPullsMessageFromQueueAndGivesToIoPort)
 {
-    std::shared_ptr<boost::unordered_map<boost::uuids::uuid, uint>> msgsReceived = make_shared<boost::unordered_map<boost::uuids::uuid, uint>>();
+    std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsReceived = make_shared<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>>();
     std::shared_ptr<CellHub> hub(make_shared<CellHub>());
 
     std::shared_ptr<IoPort> ioPort = make_shared<IoPort>(cell_hub_ptr(hub), msgsReceived, "g");
     hub->addIoPort(ioPort);
 
-    IoMessage ioMessage(std::string("message"), 0, "g");
+    auto ioMessage = std::make_shared<IoMessage>(std::string("message"), 0, std::string("g"));
     hub->push(ioMessage);
 
     hub->run();

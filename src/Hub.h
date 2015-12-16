@@ -6,20 +6,21 @@
 #define SUDOKU_SOLVER_HUB_H
 
 
+#include <boost/functional/hash.hpp>
+#include <unordered_map>
+#include <memory>
 #include "IoMessage.h"
 #include "ConcurrentQueue.h"
-#include <boost/unordered_map.hpp>
 #include "common.h"
-
-class IoPort;
+#include "IoPort.h"
 
 class Hub {
 private:
-    ConcurrentQueue<IoMessage> messageQueue_;
+    ConcurrentQueue messageQueue_;
 
 protected:
     std::vector<io_ptr> ioPorts_;
-    boost::unordered_map<boost::uuids::uuid, uint> messageUUIDs;
+    std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>> messageUUIDs;
 
     ulong messagesSent_;
     ulong messagesRcvd_;
@@ -32,9 +33,9 @@ public:
     Hub();
     Hub(const Hub &other);
 
-    bool tryPop(IoMessage &popped);
+    std::shared_ptr<IoMessage> tryPop();
 
-    void push(IoMessage ioMessage);
+    void push(std::shared_ptr<IoMessage> ioMessage);
 
     void addIoPort(io_ptr ioPort);
 

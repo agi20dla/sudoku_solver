@@ -18,7 +18,7 @@ TEST(BrainTest, SendHMessage) {
     brain.reset();
     puzzle_cell_ptr cell00 = brain.getPuzzleCell(0, 0);
     io_ptr port = cell00->createPort("t");
-    IoMessage ioMessage(string("message"), 0, "h");
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("h"));
     port->fwdToQueue(ioMessage);
 
     brain.run();
@@ -35,7 +35,7 @@ TEST(BrainTest, SendVMessage) {
     brain.reset();
     puzzle_cell_ptr cell00 = brain.getPuzzleCell(0, 0);
     io_ptr port = cell00->createPort("t");
-    IoMessage ioMessage(string("message"), 0, "v");
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("v"));
     port->fwdToQueue(ioMessage);
 
     brain.run();
@@ -52,7 +52,7 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
     brain.reset();
     puzzle_cell_ptr cell44 = brain.getPuzzleCell(4, 4);
     io_ptr port = cell44->createPort("t");
-    IoMessage ioMessage(string("message"), 0, "g");
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"));
     port->fwdToQueue(ioMessage);
 
     brain.run(true);
@@ -77,13 +77,13 @@ TEST(BrainTest, SendGhvMessage) {
 
     puzzle_cell_ptr cell33 = brain.getPuzzleCell(3, 3);
     io_ptr port = cell33->createPort("t");
-    IoMessage ioMessageG(string("message"), 0, "g");
+    auto ioMessageG = std::make_shared<IoMessage>(string("message"), 0, std::string("g"));
     port->fwdToQueue(ioMessageG);
 
-    IoMessage ioMessageH(string("message"), 0, "h");
+    auto ioMessageH = std::make_shared<IoMessage>(string("message"), 0, std::string("h"));
     port->fwdToQueue(ioMessageH);
 
-    IoMessage ioMessageV(string("message"), 0, "v");
+    auto ioMessageV = std::make_shared<IoMessage>(string("message"), 0, std::string("v"));
     port->fwdToQueue(ioMessageV);
 
     brain.run(true);

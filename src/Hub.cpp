@@ -3,12 +3,11 @@
 //
 
 #include "Hub.h"
-#include "IoPort.h"
 
 using namespace std;
 
 Hub::Hub()
-        : messageQueue_(ConcurrentQueue<IoMessage>()), ioPorts_(vector<io_ptr>()), messagesSent_(0), messagesRcvd_(0),
+        : messageQueue_(ConcurrentQueue()), ioPorts_(vector<io_ptr>()), messagesSent_(0), messagesRcvd_(0),
           numPorts_(0) { }
 
 Hub::Hub(const Hub &other)
@@ -16,20 +15,20 @@ Hub::Hub(const Hub &other)
           messagesSent_(other.messagesSent_), messagesRcvd_(other.messagesRcvd_), numPorts_(0) { }
 
 bool Hub::run() {
-    IoMessage ioMessage;
-
-    while (tryPop(ioMessage)) {
+    std::shared_ptr<IoMessage> ioMessage = tryPop();
+    while (ioMessage) {
         // send message to ports
-        boost::uuids::uuid fwdPortUuid = ioMessage.getForwardingPortUUID();
+        boost::uuids::uuid fwdPortUuid = ioMessage->getForwardingPortUUID();
         for (io_ptr ioPort : ioPorts_) {
             // but not back to the port that sent us this message
             if (fwdPortUuid != ioPort->getUuid()
-                && ioPort->getDirection() == ioMessage.getDirection()) {
+                && ioPort->getDirection() == ioMessage->getDirection()) {
                 if (ioPort->sendToExt(ioMessage)) {
                     ++messagesSent_;
                 }
             }
         }
+        ioMessage = tryPop();
     }
 
     return true;
@@ -56,11 +55,11 @@ ulong Hub::getNumPorts() {
     return numPorts_;
 }
 
-bool Hub::tryPop(IoMessage &popped) {
-    return messageQueue_.try_pop(popped);
+std::shared_ptr<IoMessage> Hub::tryPop() {
+    return messageQueue_.try_pop();
 }
 
-void Hub::push(IoMessage ioMessage) {
+void Hub::push(std::shared_ptr<IoMessage> ioMessage) {
     messageQueue_.push(ioMessage);
 
 }

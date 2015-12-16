@@ -7,7 +7,6 @@
 #include <chrono>
 #include "gmock/gmock.h"
 #include "../src/ConcurrentQueue.h"
-#include "../src/IoMessage.h"
 #include "../src/Hub.h"
 
 using namespace ::testing;
@@ -29,37 +28,16 @@ struct measure {
     }
 };
 
-template<typename Q>
-void queueLoad(ConcurrentQueue<shared_ptr<Q>> queue, long numElements) {
+void queueLoad(ConcurrentQueue queue, long numElements) {
     for (int idx = 0; idx < numElements; idx++) {
-        queue.push(make_shared<Q>());
+        queue.push(make_shared<IoMessage>());
     }
 }
 
-// Best time = ~36ms
-TEST(SpeedTest, ConcurrentQueueSPInt10K) {
-    ConcurrentQueue<shared_ptr<int>> queue;
-    long numElements = 10000;
-
-    std::cout << endl << "Time: " << measure<>::execution([&]() {
-        queueLoad(queue, numElements);
-    }) << endl;
-}
-
 // Best time = ~44ms
-TEST(SpeedTest, ConcurrentQueueIoMessage10K) {
-    ConcurrentQueue<shared_ptr<IoMessage>> queue;
-    long numElements = 10000;
-
-    std::cout << endl << "Time: " << measure<>::execution([&]() {
-        queueLoad(queue, numElements);
-    }) << endl;
-}
-
-// Best time = ~121ms
-TEST(SpeedTest, ConcurrentQueueHub10K) {
-    ConcurrentQueue<shared_ptr<Hub>> queue;
-    long numElements = 10000;
+TEST(SpeedTest, ConcurrentQueueIoMessage50K) {
+    ConcurrentQueue queue;
+    long numElements = 50000;
 
     std::cout << endl << "Time: " << measure<>::execution([&]() {
         queueLoad(queue, numElements);

@@ -8,7 +8,6 @@
 #include <memory>
 
 #include <boost/uuid/uuid.hpp>
-#include <boost/unordered_map.hpp>
 
 #include "ConcurrentQueue.h"
 #include "IoMessage.h"
@@ -33,11 +32,11 @@ public:
     void setCell(PuzzleCell *cell);
 
     // Processes the given command, e.g. "rm" or "set" for the given value
-    bool processCommand(const string& command, const uint value);
+    bool processCommand(const string &command, const uint value);
 
     // Sends out a message with the given command and value to all
     // ports connected to this hub
-    void broadcast(const string command, const uint value);
+    void broadcast(const string &command, const uint value);
 };
 
 

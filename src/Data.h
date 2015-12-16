@@ -17,9 +17,9 @@ private:
 public:
     Data();
 
-    void init(const std::string filename);
+    void init(const std::string &filename);
 
-    void init(const std::vector<uint> values);
+    void init(const std::vector<uint> &values);
 
     std::string getDataAsString();
 

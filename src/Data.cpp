@@ -14,7 +14,7 @@ using namespace std;
 Data::Data() {
 }
 
-void Data::init(const string filename) {
+void Data::init(const string &filename) {
     ifstream myFile(filename);
     string line;
     string puzzle;
@@ -52,7 +52,7 @@ void Data::init(const string filename) {
 }
 
 
-void Data::init(const vector<uint> values)
+void Data::init(const vector<uint> &values)
 {
     puzzle_vec = values;
 }

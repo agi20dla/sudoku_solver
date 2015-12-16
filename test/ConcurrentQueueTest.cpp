@@ -4,63 +4,49 @@
 #include <string>
 #include "gmock/gmock.h"
 #include "../src/ConcurrentQueue.h"
-#include "../src/IoMessage.h"
 
 using namespace ::testing;
 using namespace std;
 
-class ConcurrentQueueInstance : public testing::Test {
-};
-
-TEST_F(ConcurrentQueueInstance, InitialQueueIsEmpty)
+TEST(ConcurrentQueueTest, InitialQueueIsEmpty)
 {
-    ConcurrentQueue<int> concurrentQueue;
+    ConcurrentQueue concurrentQueue;
     concurrentQueue.empty();
 }
 
-TEST_F(ConcurrentQueueInstance, PushAndTryPop)
+TEST(ConcurrentQueueTest, PushAndTryPop)
 {
-    ConcurrentQueue<int> concurrentQueue;
-    int pushed = 1;
+    ConcurrentQueue concurrentQueue;
+    std::shared_ptr<IoMessage> pushed = std::make_shared<IoMessage>(std::string("message"), 0, std::string("up"));
     concurrentQueue.push(pushed);
-    int popped;
-    concurrentQueue.try_pop(popped);
-    ASSERT_THAT(1, popped);
+    auto popped = concurrentQueue.try_pop();
+    ASSERT_THAT(popped->getCommand(), Eq(std::string("message")));
 }
 
-TEST_F(ConcurrentQueueInstance, PushAndWaitAndPop)
+TEST(ConcurrentQueueTest, PushAndWaitAndPop)
 {
-    ConcurrentQueue<int> concurrentQueue;
-    int pushed = 1;
+    ConcurrentQueue concurrentQueue;
+    std::shared_ptr<IoMessage> pushed = std::make_shared<IoMessage>(std::string("message"), 0, std::string("up"));
     concurrentQueue.push(pushed);
-    int popped = concurrentQueue.wait_and_pop();
-    ASSERT_THAT(1, popped);
+    auto popped = concurrentQueue.wait_and_pop();
+    ASSERT_THAT(popped->getCommand(), Eq(std::string("message")));
 }
 
-TEST_F(ConcurrentQueueInstance, AssignQueueToAnotherQueue)
+TEST(ConcurrentQueueTest, AssignQueueToAnotherQueue)
 {
-    ConcurrentQueue<int> concurrentQueue;
-    concurrentQueue.push(1);
-    ConcurrentQueue<int> otherQueue = concurrentQueue;
-    int popped = otherQueue.wait_and_pop();
-    ASSERT_THAT(1, popped);
+    ConcurrentQueue concurrentQueue;
+    std::shared_ptr<IoMessage> pushed = std::make_shared<IoMessage>(std::string("message"), 0, std::string("up"));
+    concurrentQueue.push(pushed);
+    ConcurrentQueue otherQueue = concurrentQueue;
+    auto popped = otherQueue.wait_and_pop();
+
+    ASSERT_THAT(popped->getCommand(), Eq(std::string("message")));
 }
 
-TEST_F(ConcurrentQueueInstance, PushAndPopSharedPtrInt) {
-    ConcurrentQueue<int> concurrentQueue;
-    int pushed = 1;
+TEST(ConcurrentQueueTest, PushAndPopSharedPtrIoMessage) {
+    ConcurrentQueue concurrentQueue;
+    std::shared_ptr<IoMessage> pushed = std::make_shared<IoMessage>(std::string("message"), 0, std::string("up"));
     concurrentQueue.push(pushed);
-    int popped;
-    concurrentQueue.try_pop(popped);
-    ASSERT_EQ(1, popped);
-}
-
-
-TEST_F(ConcurrentQueueInstance, PushAndPopSharedPtrIoMessage) {
-    ConcurrentQueue<IoMessage> concurrentQueue;
-    IoMessage pushed(std::string("message"), 0, "up");
-    concurrentQueue.push(pushed);
-    IoMessage popped;
-    concurrentQueue.try_pop(popped);
-    ASSERT_EQ(std::string("message"), popped.getCommand());
+    auto popped = concurrentQueue.try_pop();
+    ASSERT_THAT(popped->getCommand(), Eq(std::string("message")));
 }

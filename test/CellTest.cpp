@@ -17,7 +17,7 @@ TEST(CellTest, CellIsCreated)
 TEST(CellTest, GetNewConnectionToCell)
 {
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
-    auto port = cell->createPort("t");
+    auto port = cell->createPort(string("t"));
     ASSERT_TRUE(port != nullptr);
 }
 
@@ -27,13 +27,13 @@ TEST(CellTest, SendMessageThroughCell)
     auto port1 = cell->createPort("t");
     auto port2 = cell->createPort("t");
 
-    IoMessage fwdMessage(std::string("message"), 0, "t");
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"));
 
-    port1->fwdToQueue(fwdMessage);
+    port1->fwdToQueue(ioMessage);
 
     cell->run();
 
-    ASSERT_THAT(port2->getNumMessagesRecieved(), Eq(1));
+    ASSERT_EQ(1, port2->getNumMessagesRecieved());
 }
 
 
@@ -41,19 +41,19 @@ TEST(CellTest, SendMessageThroughCell)
 TEST(CellTest, SendMessageThroughCellToAnotherCell)
 {
     std::shared_ptr<PuzzleCell> cell1 = make_shared<PuzzleCell>();
-    auto port1 = cell1->createPort("t");
-    auto port2 = cell1->createPort("t");
+    auto port1 = cell1->createPort(string("t"));
+    auto port2 = cell1->createPort(string("t"));
 
     std::shared_ptr<PuzzleCell> cell2 = make_shared<PuzzleCell>();
-    auto port3 = cell2->createPort("t");
+    auto port3 = cell2->createPort(string("t"));
 
     port2->connect(port3);
     port3->connect(port2);
 
-    IoMessage message(std::string("message"), 0, "t");
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"));
 
     // simulate sending a message from another IoPort
-    port1->fwdToQueue(message);
+    port1->fwdToQueue(ioMessage);
 
     cell1->run();
     cell2->run();
@@ -78,10 +78,10 @@ TEST(CellTest, CellsCanConnectToEachOther)
     std::shared_ptr<IoPort> port = cell1->createPort("t");
     std::shared_ptr<PuzzleCell> cell2 = make_shared<PuzzleCell>();
 
-    cell1->connect(cell2, "t");
+    cell1->connect(cell2, string("t"));
 
-    IoMessage message(std::string("message"), 0, "t");
-    port->fwdToQueue(message);
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"));
+    port->fwdToQueue(ioMessage);
     cell1->run();
 
     ASSERT_EQ(cell2->numMessagesOnHub(), 1);
@@ -91,11 +91,11 @@ TEST(CellTest, CellsCanConnectToEachOther)
 TEST(CellTest, GlobalCellDoesNotSendBackMessage)
 {
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
-    std::shared_ptr<IoPort> port = cell->createPort("g");
+    std::shared_ptr<IoPort> port = cell->createPort(string("g"));
 
-    IoMessage message(string("message"), 0, "g");
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"));
 
-    port->fwdToQueue(message);
+    port->fwdToQueue(ioMessage);
     ASSERT_EQ(1, port->getNumMessagesRecieved());
     ASSERT_EQ(1, port->getNumMsgsForwardedToHub());
     ASSERT_EQ(0, port->getNumMessagesSent());
@@ -131,23 +131,24 @@ TEST(CellTest, MessageOnlyGoesHorizontally)
     std::shared_ptr<PuzzleCell> br = make_shared<PuzzleCell>();
     std::shared_ptr<PuzzleCell> global = make_shared<PuzzleCell>();
 
-    tl->connect(tr, "h");
-    tl->connect(bl, "v");
-    tl->connect(global, "g");
+    tl->connect(tr, string("h"));
+    tl->connect(bl, string("v"));
+    tl->connect(global, string("g"));
 
-    tr->connect(br, "v");
-    tr->connect(global, "g");
+    tr->connect(br, string("v"));
+    tr->connect(global, string("g"));
 
-    br->connect(bl, "h");
-    br->connect(global, "g");
+    br->connect(bl, string("h"));
+    br->connect(global, string("g"));
 
-    bl->connect(global, "g");
+    bl->connect(global, string("g"));
+
 
     // set up external connection
     std::shared_ptr<IoPort> tlMsgPort = tl->createPort("t");
 
-    IoMessage message(string("message"), 0, "h");
-    tlMsgPort->fwdToQueue(message);
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("h"));
+    tlMsgPort->fwdToQueue(ioMessage);
 
     ASSERT_EQ(tl->numMessagesOnHub(), 1);
 
@@ -192,23 +193,23 @@ TEST(CellTest, MessageOnlyGoesVertically)
     std::shared_ptr<PuzzleCell> br = make_shared<PuzzleCell>();
     std::shared_ptr<PuzzleCell> global = make_shared<PuzzleCell>();
 
-    tl->connect(tr, "h");
-    tl->connect(bl, "v");
-    tl->connect(global, "g");
+    tl->connect(tr, string("h"));
+    tl->connect(bl, string("v"));
+    tl->connect(global, string("g"));
 
-    tr->connect(br, "v");
-    tr->connect(global, "g");
+    tr->connect(br, string("v"));
+    tr->connect(global, string("g"));
 
-    br->connect(bl, "h");
-    br->connect(global, "g");
+    br->connect(bl, string("h"));
+    br->connect(global, string("g"));
 
-    bl->connect(global, "g");
+    bl->connect(global, string("g"));
 
     // set up external connection
     std::shared_ptr<IoPort> brMsgPort = br->createPort("t");
 
-    IoMessage message(string("message"), 0, "v");
-    brMsgPort->fwdToQueue(message);
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("v"));
+    brMsgPort->fwdToQueue(ioMessage);
 
     ASSERT_EQ(br->numMessagesOnHub(), 1);
 
@@ -252,23 +253,23 @@ TEST(CellTest, MessageGoesGlobal)
     std::shared_ptr<PuzzleCell> br = make_shared<PuzzleCell>();
     std::shared_ptr<PuzzleCell> global = make_shared<PuzzleCell>();
 
-    tl->connect(tr, "h");
-    tl->connect(bl, "v");
-    tl->connect(global, "g");
+    tl->connect(tr, string("h"));
+    tl->connect(bl, string("v"));
+    tl->connect(global, string("g"));
 
-    tr->connect(br, "v");
-    tr->connect(global, "g");
+    tr->connect(br, string("v"));
+    tr->connect(global, string("g"));
 
-    br->connect(bl, "h");
-    br->connect(global, "g");
+    br->connect(bl, string("h"));
+    br->connect(global, string("g"));
 
-    bl->connect(global, "g");
+    bl->connect(global, string("g"));
 
     // set up external connection
-    std::shared_ptr<IoPort> extPort = br->createPort("t");
+    std::shared_ptr<IoPort> extPort = br->createPort(string("t"));
 
-    IoMessage message(string("message"), 0, "g");
-    extPort->fwdToQueue(message);
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"));
+    extPort->fwdToQueue(ioMessage);
 
     ASSERT_EQ(br->numMessagesOnHub(), 1);
 
@@ -346,9 +347,9 @@ TEST(CellTest, MessageGoesGlobal)
 TEST(CellTest, SetMessageIsProcessed)
 {
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
-    std::shared_ptr<IoPort> port = cell->createPort("m");
+    std::shared_ptr<IoPort> port = cell->createPort(string("m"));
 
-    IoMessage ioMessage(string("set"), 5, "g");
+    auto ioMessage = std::make_shared<IoMessage>(string("set"), 5, std::string("g"));
 
     port->fwdToQueue(ioMessage);
 
@@ -363,9 +364,9 @@ TEST(CellTest, SetMessageIsProcessed)
 TEST(CellTest, RmMessageIsProcessed)
 {
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
-    std::shared_ptr<IoPort> port = cell->createPort("m");
+    std::shared_ptr<IoPort> port = cell->createPort(string("m"));
 
-    IoMessage ioMessage(string("rm"), 5, "h");
+    auto ioMessage = std::make_shared<IoMessage>(string("rm"), 5, std::string("h"));
 
     port->fwdToQueue(ioMessage);
 

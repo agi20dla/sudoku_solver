@@ -3,6 +3,7 @@
 #include "Data.h"
 #include "Brain.h"
 #include <execinfo.h>
+#include <thread>
 
 //int readFile(char *string);
 
@@ -51,6 +52,12 @@ int main(int argc, char **argv) {
     Brain brain;
     brain.reset();
     brain.setValues(data.getDataAsVector());
-    return brain.solve(false);
+    int result = brain.solve(false);
+    auto start = std::chrono::high_resolution_clock::now();
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    std::cout << "Waited " << elapsed.count() << " ms\n";
 
+    return result;
 }

@@ -12,7 +12,7 @@ IoMessage::IoMessage()
     uuid_ = Random::getInstance().getNewUUID();
 }
 
-IoMessage::IoMessage(const IoMessage& other)
+IoMessage::IoMessage(const IoMessage &other)
         : command_(other.command_)
         , value_(other.value_)
         , direction_(other.direction_)
@@ -21,7 +21,7 @@ IoMessage::IoMessage(const IoMessage& other)
 {
 }
 
-IoMessage::IoMessage(const string command, const uint value, const string direction)
+IoMessage::IoMessage(const string &command, const uint value, const string &direction)
         : command_(command), value_(value), direction_(direction)
 {
     uuid_ = Random::getInstance().getNewUUID();
@@ -44,17 +44,17 @@ const boost::uuids::uuid IoMessage::getUuid() {
     return uuid_;
 }
 
-IoMessage &IoMessage::operator=(const IoMessage& other) {
-    if (this == &other) {
-        return *this;
-    }
-    command_ = other.command_;
-    value_ = other.value_;
-    direction_ = other.direction_;
-    rcvPortUuid_ = other.rcvPortUuid_;
-    uuid_ = other.uuid_;
-    return *this;
-}
+//IoMessage &IoMessage::operator=(const IoMessage &other) {
+//    if (this == &other) {
+//        return *this;
+//    }
+//    command_ = other.command_;
+//    value_ = other.value_;
+//    direction_ = other.direction_;
+//    rcvPortUuid_ = other.rcvPortUuid_;
+//    uuid_ = other.uuid_;
+//    return *this;
+//}
 
 void IoMessage::setForwardingPortUUID(boost::uuids::uuid uuid) {
     rcvPortUuid_ = uuid;

@@ -8,8 +8,6 @@
 #include "Brain.h"
 #include "GlobalCell.h"
 
-class IoPort;
-
 using namespace std;
 using namespace boost;
 
@@ -49,7 +47,7 @@ void Brain::connectPuzzleRows()
             auto cell1 = getPuzzleCell(row, col);
             auto cell2 = getPuzzleCell(row, col + 1);
             if (cell1 && cell2) {
-                cell1->connect(cell2, "h");
+                cell1->connect(cell2, std::string("h"));
             }
         }
     }
@@ -62,7 +60,7 @@ void Brain::connectPuzzleCols() {
             auto cell1 = getPuzzleCell(row, col);
             auto cell2 = getPuzzleCell(row + 1, col);
             if (cell1 && cell2) {
-                cell1->connect(cell2, "v");
+                cell1->connect(cell2, std::string("v"));
             }
         }
     }
@@ -90,16 +88,16 @@ void Brain::connectGlobals() {
             }
             global_cell_ptr global = getGlobalCell(gRow, gCol);
             // top left
-            global->connect(getPuzzleCell(row, col), "g");
+            global->connect(getPuzzleCell(row, col), std::string("g"));
 
             // top right
-            global->connect(getPuzzleCell(row, col + 1), "g");
+            global->connect(getPuzzleCell(row, col + 1), std::string("g"));
 
             // bottom left
-            global->connect(getPuzzleCell(row + 1, col), "g");
+            global->connect(getPuzzleCell(row + 1, col), std::string("g"));
 
             // bottom right
-            global->connect(getPuzzleCell(row + 1, col + 1), "g");
+            global->connect(getPuzzleCell(row + 1, col + 1), std::string("g"));
             gCol++;
         }
         gRow++;
@@ -302,7 +300,7 @@ void Brain::setValue(const uint row, const uint col, const uint value)
         return;
     }
     getPuzzleCell(row, col)->setSoleValue(value);
-    IoMessage ioMessage(string("set"), value, "b");
+    auto ioMessage = make_shared<IoMessage>(std::string("set"), value, std::string("b"));
     io_ptr mgtPort = getBrainPort(row, col);
     mgtPort->fwdToQueue(ioMessage);
 }
@@ -349,7 +347,7 @@ void Brain::setValues(const vector<uint> values) {
 
 void Brain::removeValue(const uint row, const uint col, const uint value)
 {
-    IoMessage ioMessage(string("rm"), value, "b");
+    auto ioMessage = std::make_shared<IoMessage>(string("rm"), value, std::string("b"));
     getBrainPort(row, col)->fwdToQueue(ioMessage);
 }
 

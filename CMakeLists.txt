@@ -50,7 +50,7 @@ set(TEST_FILES
         test/CellTest.cpp
         test/BrainTest.cpp
         test/DataTest.cpp
-        test/SolutionTest.cpp src/Hub.cpp src/Hub.h test/SpeedTest.cpp)
+        test/SolutionTest.cpp src/Hub.cpp src/Hub.h test/SpeedTest.cpp test/RandomTest.cpp)
 
 add_executable(sudoku_solver ${SOURCE_FILES} ${TEST_FILES})
 

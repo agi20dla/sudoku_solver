@@ -24,9 +24,9 @@ private:
 public:
     IoMessage();
 
-    IoMessage(const IoMessage& other);
+    IoMessage(const IoMessage &other);
 
-    IoMessage(const std::string command, const uint value, const std::string direction);
+    IoMessage(const std::string &command, const uint value, const std::string &direction);
 
     const string getCommand();
 
@@ -41,7 +41,7 @@ public:
 
     boost::uuids::uuid getForwardingPortUUID();
 
-    IoMessage& operator=(const IoMessage& other);
+//    IoMessage& operator=(const IoMessage &other);
 };
 
 

@@ -9,12 +9,13 @@
 #include <queue>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
+#include "IoMessage.h"
 
-template<class T>
+//template<class T>
 class ConcurrentQueue
 {
 private:
-    std::queue<T> queue_;
+    std::queue<std::shared_ptr<IoMessage> > queue_;
     mutable boost::mutex the_mutex;
     boost::condition_variable the_condition_variable;
 
@@ -26,13 +27,21 @@ public:
     : num_messages_rcvd_(0)
     {}
 
-    ConcurrentQueue(const ConcurrentQueue<T> &otherQueue)
+    ConcurrentQueue(const ConcurrentQueue &otherQueue)
             : queue_(otherQueue.queue_)
             , num_messages_rcvd_(0)
     {}
 
-    void push(T const& data)
+    ~ConcurrentQueue()
     {
+        while (!queue_.empty()) {
+            auto iom = queue_.front();
+            queue_.pop();
+            iom = nullptr;
+        }
+    }
+
+    void push(std::shared_ptr<IoMessage> data) {
         boost::mutex::scoped_lock lock(the_mutex);
         queue_.push(data);
         ++num_messages_rcvd_;
@@ -47,7 +56,7 @@ public:
     }
 
 
-    bool try_pop(T& popped)
+    std::shared_ptr<IoMessage> try_pop()
     {
         boost::mutex::scoped_lock lock(the_mutex);
 
@@ -56,12 +65,12 @@ public:
             return false;
         }
 
-        popped = queue_.front();
+        std::shared_ptr<IoMessage> popped = queue_.front();
         queue_.pop();
-        return true;
+        return popped;
     }
 
-    T wait_and_pop()
+    std::shared_ptr<IoMessage> wait_and_pop()
     {
         boost::mutex::scoped_lock lock(the_mutex);
         while(queue_.empty())
@@ -69,7 +78,7 @@ public:
             the_condition_variable.wait(lock);
         }
 
-        T popped_value = queue_.front();
+        std::shared_ptr<IoMessage> popped_value = queue_.front();
         queue_.pop();
         return popped_value;
     }
@@ -94,7 +103,7 @@ public:
     }
 
     void clear() {
-        std::queue<T> emptyQueue;
+        std::queue<std::shared_ptr<IoMessage> > emptyQueue;
         std::swap(queue_, emptyQueue);
     }
 
