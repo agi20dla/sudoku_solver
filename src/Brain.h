@@ -30,6 +30,7 @@ struct solutionPath {
 
 class Brain {
 private:
+    boost::uuids::uuid uuid_;
     std::vector<puzzle_cell_ptr> puzzleCells_;
     std::vector<global_cell_ptr> globalCells_;
     std::vector<io_ptr> brainPorts_;
@@ -59,6 +60,8 @@ private:
     void connectBrainToPuzzleCells();
 
 public:
+    Brain();
+
     /**
     * Reset a sudoku brain to the below map.
     * C = Puzzle Cell
@@ -155,6 +158,8 @@ public:
     std::vector<puzzleState> getSolutionStruct();
 
     vector<valStruct> getPossibleSolutions();
+
+    boost::uuids::uuid getUUID();
 };
 
 

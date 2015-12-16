@@ -62,12 +62,13 @@ public:
 
         if (queue_.empty())
         {
-            return false;
-        }
+            return nullptr;
+        } else {
 
-        std::shared_ptr<IoMessage> popped = queue_.front();
-        queue_.pop();
-        return popped;
+            std::shared_ptr<IoMessage> popped = queue_.front();
+            queue_.pop();
+            return popped;
+        }
     }
 
     std::shared_ptr<IoMessage> wait_and_pop()

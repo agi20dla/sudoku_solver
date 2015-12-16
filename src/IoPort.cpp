@@ -7,30 +7,17 @@
 #include "Exceptions.h"
 #include "IoPort.h"
 #include "CellHub.h"
-#include "Random.h"
 
 using namespace std;
 
 //boost::mutex IoPort::mutex_;
 
-IoPort::IoPort() {
-    uuid_ = Random::getInstance().getNewUUID();
-}
-
-
+IoPort::IoPort() { }
 
 void IoPort::fwdToQueue(std::shared_ptr<IoMessage> ioMessage) {
-    if (msgsProcessed_->find(ioMessage->getUuid()) == msgsProcessed_->end()) {
-        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage->getUuid(), 1);
-
-//        // lock the messages processed since we are not using a custom concurrent map.
-//        boost::mutex::scoped_lock lock(mutex_);
-        msgsProcessed_->insert(newMsgUuid);
-//        lock.unlock();
-
-        ioMessage->setForwardingPortUUID(uuid_);
+    if (!ioMessage->getHubUUID(hub_->getUUID())) {
+        ioMessage->addHubUUID(hub_->getUUID());
         ++numMessagesRecieved;
-
         // put it on the hub
         hub_->push(ioMessage);
         ++numMsgsForwardedToHub;
@@ -51,13 +38,10 @@ void IoPort::connect(io_ptr otherPort)
 bool IoPort::sendToExt(std::shared_ptr<IoMessage> ioMessage)
 {
     bool sent = false;
-    ++numMessagesRecieved;
-    if (otherPort_ && (ioMessage->getDirection() == myDirection_)) {
+    if (otherPort_ && (ioMessage->getDirection() == myDirection_) && !ioMessage->getHubUUID(otherPort_->getHubUuid())) {
         otherPort_->fwdToQueue(ioMessage);
         sent = true;
         ++numMessagesSent;
-        std::pair<boost::uuids::uuid, uint> newMsgUuid(ioMessage->getUuid(), 1);
-        msgsProcessed_->insert(newMsgUuid);
     }
     return sent;
 }
@@ -74,9 +58,6 @@ size_t IoPort::getNumMessagesRecieved(){
     return numMessagesRecieved;
 }
 
-boost::uuids::uuid IoPort::getUuid() {
-    return uuid_;
-}
 
 const string IoPort::getDirection() {
     return myDirection_;
@@ -86,18 +67,16 @@ void IoPort::setHub(hub_ptr hub) {
     hub_ = hub;
 }
 
-void IoPort::addRcvdMsgMap(
-        msg_map_ptr msgsProcessed) {
-    msgsProcessed_ = msgsProcessed;
-}
-
 void IoPort::setDirection(const std::string &direction) {
     myDirection_ = direction;
 }
 
-void IoPort::init(hub_ptr hub, msg_map_ptr msgsProcessed, const std::string &direction) {
+void IoPort::init(hub_ptr hub, const std::string &direction) {
     hub_ = hub;
-    msgsProcessed_ = msgsProcessed;
     myDirection_ = direction;
 
+}
+
+boost::uuids::uuid IoPort::getHubUuid() {
+    return hub_->getUUID();
 }

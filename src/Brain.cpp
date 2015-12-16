@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Brain.h"
 #include "GlobalCell.h"
+#include "Random.h"
 
 using namespace std;
 using namespace boost;
@@ -300,7 +301,7 @@ void Brain::setValue(const uint row, const uint col, const uint value)
         return;
     }
     getPuzzleCell(row, col)->setSoleValue(value);
-    auto ioMessage = make_shared<IoMessage>(std::string("set"), value, std::string("b"));
+    auto ioMessage = make_shared<IoMessage>(std::string("set"), value, std::string("b"), uuid_);
     io_ptr mgtPort = getBrainPort(row, col);
     mgtPort->fwdToQueue(ioMessage);
 }
@@ -347,7 +348,7 @@ void Brain::setValues(const vector<uint> values) {
 
 void Brain::removeValue(const uint row, const uint col, const uint value)
 {
-    auto ioMessage = std::make_shared<IoMessage>(string("rm"), value, std::string("b"));
+    auto ioMessage = std::make_shared<IoMessage>(string("rm"), value, std::string("b"), uuid_);
     getBrainPort(row, col)->fwdToQueue(ioMessage);
 }
 
@@ -448,4 +449,10 @@ vector<valStruct> Brain::getPossibleSolutions() {
         }
     }
     return possibles;
+}
+
+Brain::Brain() : uuid_(Random::getInstance().getNewUUID()) { }
+
+boost::uuids::uuid Brain::getUUID() {
+    return uuid_;
 }

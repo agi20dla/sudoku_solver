@@ -5,6 +5,7 @@
 #include <string>
 #include "gmock/gmock.h"
 #include "../src/PuzzleCell.h"
+#include "../src/Random.h"
 
 using namespace ::testing;
 using namespace std;
@@ -23,15 +24,19 @@ TEST(CellTest, GetNewConnectionToCell)
 
 TEST(CellTest, SendMessageThroughCell)
 {
-    std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
-    auto port1 = cell->createPort("t");
-    auto port2 = cell->createPort("t");
+    std::shared_ptr<PuzzleCell> cell1 = make_shared<PuzzleCell>();
+    auto port1 = cell1->createPort("t");
 
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"));
+    std::shared_ptr<PuzzleCell> cell2 = make_shared<PuzzleCell>();
+    auto port2 = cell2->createPort("t");
+
+    port1->connect(port2);
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"), uuid);
 
     port1->fwdToQueue(ioMessage);
 
-    cell->run();
+    cell1->run();
 
     ASSERT_EQ(1, port2->getNumMessagesRecieved());
 }
@@ -50,7 +55,8 @@ TEST(CellTest, SendMessageThroughCellToAnotherCell)
     port2->connect(port3);
     port3->connect(port2);
 
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"));
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"), uuid);
 
     // simulate sending a message from another IoPort
     port1->fwdToQueue(ioMessage);
@@ -62,7 +68,7 @@ TEST(CellTest, SendMessageThroughCellToAnotherCell)
     ASSERT_EQ(1, port1->getNumMsgsForwardedToHub());
     ASSERT_EQ(0, port1->getNumMessagesSent());
 
-    ASSERT_EQ(1, port2->getNumMessagesRecieved());
+    ASSERT_EQ(0, port2->getNumMessagesRecieved());
     ASSERT_EQ(0, port2->getNumMsgsForwardedToHub());
     ASSERT_EQ(1, port2->getNumMessagesSent());
 
@@ -80,7 +86,8 @@ TEST(CellTest, CellsCanConnectToEachOther)
 
     cell1->connect(cell2, string("t"));
 
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"));
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("t"), uuid);
     port->fwdToQueue(ioMessage);
     cell1->run();
 
@@ -93,7 +100,8 @@ TEST(CellTest, GlobalCellDoesNotSendBackMessage)
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
     std::shared_ptr<IoPort> port = cell->createPort(string("g"));
 
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"));
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"), uuid);
 
     port->fwdToQueue(ioMessage);
     ASSERT_EQ(1, port->getNumMessagesRecieved());
@@ -147,7 +155,8 @@ TEST(CellTest, MessageOnlyGoesHorizontally)
     // set up external connection
     std::shared_ptr<IoPort> tlMsgPort = tl->createPort("t");
 
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("h"));
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("h"), uuid);
     tlMsgPort->fwdToQueue(ioMessage);
 
     ASSERT_EQ(tl->numMessagesOnHub(), 1);
@@ -208,7 +217,8 @@ TEST(CellTest, MessageOnlyGoesVertically)
     // set up external connection
     std::shared_ptr<IoPort> brMsgPort = br->createPort("t");
 
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("v"));
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("v"), uuid);
     brMsgPort->fwdToQueue(ioMessage);
 
     ASSERT_EQ(br->numMessagesOnHub(), 1);
@@ -268,7 +278,8 @@ TEST(CellTest, MessageGoesGlobal)
     // set up external connection
     std::shared_ptr<IoPort> extPort = br->createPort(string("t"));
 
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"));
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"), uuid);
     extPort->fwdToQueue(ioMessage);
 
     ASSERT_EQ(br->numMessagesOnHub(), 1);
@@ -349,7 +360,8 @@ TEST(CellTest, SetMessageIsProcessed)
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
     std::shared_ptr<IoPort> port = cell->createPort(string("m"));
 
-    auto ioMessage = std::make_shared<IoMessage>(string("set"), 5, std::string("g"));
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("set"), 5, std::string("g"), uuid);
 
     port->fwdToQueue(ioMessage);
 
@@ -366,7 +378,8 @@ TEST(CellTest, RmMessageIsProcessed)
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
     std::shared_ptr<IoPort> port = cell->createPort(string("m"));
 
-    auto ioMessage = std::make_shared<IoMessage>(string("rm"), 5, std::string("h"));
+    auto uuid = Random::getInstance().getNewUUID();
+    auto ioMessage = std::make_shared<IoMessage>(string("rm"), 5, std::string("h"), uuid);
 
     port->fwdToQueue(ioMessage);
 

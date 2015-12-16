@@ -60,6 +60,5 @@ Cell &Cell::operator=(const Cell &other) {
 io_ptr Cell::createPort(const std::string &direction) {
     io_ptr port = std::make_shared<IoPort>();
     port->setDirection(direction);
-    port->addRcvdMsgMap(rcvdMsgUUIDs_);
     return port;
 }

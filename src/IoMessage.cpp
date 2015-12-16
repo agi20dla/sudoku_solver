@@ -4,27 +4,18 @@
 
 #include <boost/uuid/uuid.hpp>
 #include "IoMessage.h"
-#include "Random.h"
 
 IoMessage::IoMessage()
-        : command_(""), value_(0), direction_(""), uuid_(Random::getInstance().getNewUUID())
-{
-//    uuid_ = Random::getInstance().getNewUUID();
-}
+        : command_(""), value_(0), direction_("") { }
 
 IoMessage::IoMessage(const IoMessage &other)
-        : command_(other.command_)
-        , value_(other.value_)
-        , direction_(other.direction_)
-        , rcvPortUuid_(other.rcvPortUuid_)
-        , uuid_(other.uuid_)
-{
-}
+        : command_(other.command_), value_(other.value_),
+          direction_(other.direction_) { }
 
-IoMessage::IoMessage(const string &command, const uint value, const string &direction)
-        : command_(command), value_(value), direction_(direction), uuid_(Random::getInstance().getNewUUID())
+IoMessage::IoMessage(const string &command, const uint value, const string &direction, const boost::uuids::uuid hubUUID)
+        : command_(command), value_(value), direction_(direction)
 {
-//    uuid_ = Random::getInstance().getNewUUID();
+    hubUuids_.insert(hubUUID);
 }
 
 
@@ -40,26 +31,38 @@ const uint IoMessage::getValue() {
     return value_;
 }
 
-const boost::uuids::uuid IoMessage::getUuid() {
-    return uuid_;
+bool IoMessage::getHubUUID(const boost::uuids::uuid uuid) {
+    bool found = false;
+    std::unordered_set<boost::uuids::uuid, boost::hash<boost::uuids::uuid>>::iterator it = hubUuids_.find(uuid);
+    if (it != hubUuids_.end()) {
+        found = true;
+    }
+    return found;
 }
 
-//IoMessage &IoMessage::operator=(const IoMessage &other) {
-//    if (this == &other) {
-//        return *this;
-//    }
-//    command_ = other.command_;
-//    value_ = other.value_;
-//    direction_ = other.direction_;
-//    rcvPortUuid_ = other.rcvPortUuid_;
-//    uuid_ = other.uuid_;
-//    return *this;
-//}
-
-void IoMessage::setForwardingPortUUID(boost::uuids::uuid uuid) {
-    rcvPortUuid_ = uuid;
+void IoMessage::addHubUUID(const boost::uuids::uuid &&uuid) {
+    hubUuids_.insert(uuid);
 }
 
-boost::uuids::uuid IoMessage::getForwardingPortUUID() {
-    return rcvPortUuid_;
+IoMessage &IoMessage::operator=(const IoMessage &other) {
+    if (this != &other) {
+        command_ = other.command_;
+        value_ = other.value_;
+        direction_ = other.direction_;
+        hubUuids_ = other.hubUuids_;
+    }
+
+    return *this;
+}
+
+IoMessage &IoMessage::operator=(IoMessage &&other) {
+    assert(this != &other);
+    if (this != &other) {
+        command_ = other.command_;
+        value_ = other.value_;
+        direction_ = other.direction_;
+        hubUuids_ = other.hubUuids_;
+    }
+
+    return *this;
 }

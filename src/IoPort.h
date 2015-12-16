@@ -19,13 +19,9 @@ class IoPort
 private:
     hub_ptr hub_;
 
-    shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> msgsProcessed_;
-
     io_ptr otherPort_;
 
     std::string myDirection_;
-
-    boost::uuids::uuid uuid_;
 
     size_t numMessagesRecieved = 0;
     size_t numMsgsForwardedToHub = 0;
@@ -40,13 +36,10 @@ public:
     // Sets the hub that this port is attached to
     void setHub(hub_ptr hub);
 
-    // Adds the owning cell's map of received messages
-    void addRcvdMsgMap(msg_map_ptr msgsProcessed);
-
     // Sets the direction for the messages this port will handle
     void setDirection(const std::string &direction);
 
-    void init(hub_ptr hub, msg_map_ptr msgsProcessed, const std::string &direction);
+    void init(hub_ptr hub, const std::string &direction);
 
     // Number of messages forwarded to the queue
     size_t getNumMsgsForwardedToHub();
@@ -63,12 +56,12 @@ public:
     // send a message to a connected IoPort
     bool sendToExt(std::shared_ptr<IoMessage> ioMessage);
 
+    boost::uuids::uuid getHubUuid();
+
     // Connect to another IoPort
     void connect(io_ptr otherPort);
 
     const string getDirection();
-
-    boost::uuids::uuid getUuid();
 };
 
 

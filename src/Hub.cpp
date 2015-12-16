@@ -8,23 +8,21 @@
 using namespace std;
 
 Hub::Hub()
-        : messageQueue_(ConcurrentQueue()), ioPorts_(vector<io_ptr>()), uuid_(Random::getInstance().getNewUUID()),
-          messagesSent_(0), messagesRcvd_(0), numPorts_(0) { }
+        : messageQueue_(ConcurrentQueue()), ioPorts_(vector<io_ptr>()),
+          uuid_(Random::getInstance().getNewUUID()),
+          messagesSent_(0), messagesRcvd_(0) { }
 
 Hub::Hub(const Hub &other)
         : messageQueue_(other.messageQueue_), ioPorts_(other.ioPorts_),
-          uuid_(Random::getInstance().getNewUUID()), messageUUIDs(other.messageUUIDs),
-          messagesSent_(other.messagesSent_), messagesRcvd_(other.messagesRcvd_), numPorts_(0) { }
+          uuid_(Random::getInstance().getNewUUID()),
+          messagesSent_(other.messagesSent_), messagesRcvd_(other.messagesRcvd_) { }
 
 bool Hub::run() {
     std::shared_ptr<IoMessage> ioMessage = tryPop();
-    while (ioMessage) {
+    while (ioMessage != nullptr) {
         // send message to ports
-        boost::uuids::uuid fwdPortUuid = ioMessage->getForwardingPortUUID();
         for (io_ptr ioPort : ioPorts_) {
-            // but not back to the port that sent us this message
-            if (fwdPortUuid != ioPort->getUuid()
-                && ioPort->getDirection() == ioMessage->getDirection()) {
+            if (ioPort->getDirection() == ioMessage->getDirection()) {
                 if (ioPort->sendToExt(ioMessage)) {
                     ++messagesSent_;
                 }
@@ -38,7 +36,6 @@ bool Hub::run() {
 
 void Hub::addIoPort(io_ptr ioPort) {
     ioPorts_.push_back(ioPort);
-    numPorts_++;
 }
 
 ulong Hub::getNumMsgsOnQueue() {
@@ -53,10 +50,6 @@ ulong Hub::getNumMsgsRcvd() {
     return messageQueue_.get_num_messages_rcvd();
 }
 
-ulong Hub::getNumPorts() {
-    return numPorts_;
-}
-
 std::shared_ptr<IoMessage> Hub::tryPop() {
     return messageQueue_.try_pop();
 }
@@ -68,4 +61,8 @@ void Hub::push(std::shared_ptr<IoMessage> ioMessage) {
 
 void Hub::clear() {
     messageQueue_.clear();
+}
+
+const boost::uuids::uuid Hub::getUUID() {
+    return uuid_;
 }

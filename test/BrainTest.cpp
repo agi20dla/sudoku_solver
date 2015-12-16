@@ -18,7 +18,7 @@ TEST(BrainTest, SendHMessage) {
     brain.reset();
     puzzle_cell_ptr cell00 = brain.getPuzzleCell(0, 0);
     io_ptr port = cell00->createPort("t");
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("h"));
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("h"), brain.getUUID());
     port->fwdToQueue(ioMessage);
 
     brain.run();
@@ -35,7 +35,7 @@ TEST(BrainTest, SendVMessage) {
     brain.reset();
     puzzle_cell_ptr cell00 = brain.getPuzzleCell(0, 0);
     io_ptr port = cell00->createPort("t");
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("v"));
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("v"), brain.getUUID());
     port->fwdToQueue(ioMessage);
 
     brain.run();
@@ -52,7 +52,7 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
     brain.reset();
     puzzle_cell_ptr cell44 = brain.getPuzzleCell(4, 4);
     io_ptr port = cell44->createPort("t");
-    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"));
+    auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"), brain.getUUID());
     port->fwdToQueue(ioMessage);
 
     brain.run(true);
@@ -77,13 +77,13 @@ TEST(BrainTest, SendGhvMessage) {
 
     puzzle_cell_ptr cell33 = brain.getPuzzleCell(3, 3);
     io_ptr port = cell33->createPort("t");
-    auto ioMessageG = std::make_shared<IoMessage>(string("message"), 0, std::string("g"));
+    auto ioMessageG = std::make_shared<IoMessage>(string("message"), 0, std::string("g"), brain.getUUID());
     port->fwdToQueue(ioMessageG);
 
-    auto ioMessageH = std::make_shared<IoMessage>(string("message"), 0, std::string("h"));
+    auto ioMessageH = std::make_shared<IoMessage>(string("message"), 0, std::string("h"), brain.getUUID());
     port->fwdToQueue(ioMessageH);
 
-    auto ioMessageV = std::make_shared<IoMessage>(string("message"), 0, std::string("v"));
+    auto ioMessageV = std::make_shared<IoMessage>(string("message"), 0, std::string("v"), brain.getUUID());
     port->fwdToQueue(ioMessageV);
 
     brain.run(true);

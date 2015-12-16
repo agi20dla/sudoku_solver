@@ -9,6 +9,8 @@
 #include <string>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
+#include <boost/functional/hash.hpp>
+#include <unordered_set>
 
 using namespace std;
 
@@ -18,15 +20,15 @@ private:
     std::string command_;
     uint value_;
     std::string direction_;
-    boost::uuids::uuid rcvPortUuid_;
-    boost::uuids::uuid uuid_;
+    std::unordered_set<boost::uuids::uuid, boost::hash<boost::uuids::uuid>> hubUuids_;
 
 public:
     IoMessage();
 
     IoMessage(const IoMessage &other);
 
-    IoMessage(const std::string &command, const uint value, const std::string &direction);
+    IoMessage(const std::string &command, const uint value, const std::string &direction,
+              const boost::uuids::uuid hubUUID);
 
     const string getCommand();
 
@@ -34,14 +36,13 @@ public:
 
     const string getDirection();
 
-    const boost::uuids::uuid getUuid();
+    bool getHubUUID(const boost::uuids::uuid uuid);
 
-    // Stores the uuid of the port that forwarded this message, so the hub can avoid sending a message right back to that port
-    void setForwardingPortUUID(boost::uuids::uuid uuid);
+    void addHubUUID(const boost::uuids::uuid &&uuid);
 
-    boost::uuids::uuid getForwardingPortUUID();
+    IoMessage &operator=(const IoMessage &other);
 
-//    IoMessage& operator=(const IoMessage &other);
+    IoMessage &operator=(IoMessage &&other);
 };
 
 

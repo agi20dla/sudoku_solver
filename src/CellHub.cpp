@@ -26,12 +26,10 @@ void CellHub::setCell(PuzzleCell *cell) {
 bool CellHub::run() {
     std::shared_ptr<IoMessage> ioMessage = tryPop();
 
-    while (ioMessage) {
+    while (ioMessage != nullptr) {
         // send message to ports
-        boost::uuids::uuid fwdPortUuid = ioMessage->getForwardingPortUUID();
         for (io_ptr ioPort : ioPorts_) {
-            if (fwdPortUuid != ioPort->getUuid()
-                && ioPort->getDirection() == ioMessage->getDirection()) {
+            if (ioPort->getDirection() == ioMessage->getDirection()) {
                 if (ioPort->sendToExt(ioMessage)) {
                     ++messagesSent_;
                 }
@@ -108,6 +106,7 @@ bool CellHub::processCommand(const string &command, const uint value) {
 void CellHub::broadcast(const string &command, const uint value) {
     for (io_ptr ioPort : ioPorts_)
     {
-        ioPort->sendToExt(make_shared<IoMessage>(std::string(command), value, std::string(ioPort->getDirection())));
+        ioPort->sendToExt(
+                make_shared<IoMessage>(std::string(command), value, std::string(ioPort->getDirection()), uuid_));
     }
 }
