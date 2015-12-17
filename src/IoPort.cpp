@@ -14,6 +14,12 @@ using namespace std;
 
 IoPort::IoPort() { }
 
+IoPort::~IoPort()
+{
+    hub_.reset();
+    otherPort_.reset();
+}
+
 void IoPort::fwdToQueue(std::shared_ptr<IoMessage> ioMessage) {
     if (!ioMessage->getHubUUID(hub_->getUUID())) {
         ioMessage->addHubUUID(hub_->getUUID());

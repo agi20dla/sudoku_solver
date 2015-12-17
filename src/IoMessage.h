@@ -30,6 +30,8 @@ public:
     IoMessage(const std::string &command, const uint value, const std::string &direction,
               const boost::uuids::uuid hubUUID);
 
+    virtual ~IoMessage();
+
     const string getCommand();
 
     const uint getValue();

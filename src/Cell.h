@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include <boost/functional/hash/hash.hpp>
+#include <boost/functional/hash.hpp>
 #include "common.h"
 
 class Cell {
@@ -21,7 +21,7 @@ public:
 
     Cell(const Cell &other);
 
-    ~Cell();
+    virtual ~Cell();
 
     // Creates a new port and sends it to the other cell for a connection
     // The other cell will also create a new port, connect the ports, and

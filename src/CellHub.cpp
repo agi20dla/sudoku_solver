@@ -18,8 +18,12 @@ CellHub::CellHub(const CellHub &other)
         : cell_(other.cell_)
 { }
 
+CellHub::~CellHub() {
+    cell_.reset();
+}
 
-void CellHub::setCell(PuzzleCell *cell) {
+
+void CellHub::setCell(puzzle_cell_ptr cell) {
     cell_ = cell;
 }
 

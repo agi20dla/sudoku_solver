@@ -3,6 +3,7 @@
 //
 
 #include <boost/uuid/uuid.hpp>
+#include <iostream>
 #include "IoMessage.h"
 
 IoMessage::IoMessage()
@@ -16,6 +17,11 @@ IoMessage::IoMessage(const string &command, const uint value, const string &dire
         : command_(command), value_(value), direction_(direction)
 {
     hubUuids_.insert(hubUUID);
+}
+
+IoMessage::~IoMessage()
+{
+    hubUuids_.clear();
 }
 
 

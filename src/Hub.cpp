@@ -8,14 +8,22 @@
 using namespace std;
 
 Hub::Hub()
-        : messageQueue_(ConcurrentQueue()), ioPorts_(vector<io_ptr>()),
+        : messageQueue_(ConcurrentQueue<io_msg_ptr>()), ioPorts_(vector<io_ptr>()),
           uuid_(Random::getInstance().getNewUUID()),
-          messagesSent_(0), messagesRcvd_(0) { }
+          messagesSent_(0), messagesRcvd_(0)
+{ }
 
 Hub::Hub(const Hub &other)
         : messageQueue_(other.messageQueue_), ioPorts_(other.ioPorts_),
           uuid_(Random::getInstance().getNewUUID()),
-          messagesSent_(other.messagesSent_), messagesRcvd_(other.messagesRcvd_) { }
+          messagesSent_(other.messagesSent_), messagesRcvd_(other.messagesRcvd_)
+{ }
+
+Hub::~Hub()
+{
+    ioPorts_.clear();
+    messageQueue_.clear();
+}
 
 bool Hub::run() {
     std::shared_ptr<IoMessage> ioMessage = tryPop();

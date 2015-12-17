@@ -32,6 +32,7 @@ private:
 public:
     IoPort();
 
+    ~IoPort();
 
     // Sets the hub that this port is attached to
     void setHub(hub_ptr hub);

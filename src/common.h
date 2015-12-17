@@ -4,6 +4,9 @@
 
 #ifndef SUDOKU_SOLVER_COMMON_H
 #define SUDOKU_SOLVER_COMMON_H
+
+//#include <boost/functional/hash.hpp>
+//#include <boost/uuid/uuid.hpp>
 using namespace std;
 
 class PuzzleCell;
@@ -25,6 +28,7 @@ typedef std::shared_ptr<GlobalCell> global_cell_ptr;
 typedef std::shared_ptr<IoPort> io_ptr;
 typedef std::shared_ptr<Hub> hub_ptr;
 typedef std::shared_ptr<CellHub> cell_hub_ptr;
-typedef std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>> msg_map;
-typedef std::shared_ptr<msg_map> msg_map_ptr;
+//typedef std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>> msg_map;
+//typedef std::shared_ptr<msg_map> msg_map_ptr;
+typedef std::shared_ptr<IoMessage> io_msg_ptr;
 #endif //SUDOKU_SOLVER_COMMON_H
