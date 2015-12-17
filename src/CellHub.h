@@ -18,18 +18,19 @@
 class CellHub : public Hub {
 private:
 
-    PuzzleCell *cell_;
-
+//    PuzzleCell *cell_;
+    puzzle_cell_ptr cell_;
 public:
     CellHub();
     CellHub(const CellHub & other);
+    virtual ~CellHub();
 
     // Iterates through all the messages on the message queue, calls processCommand
     // and forwards the message along the appropriate ports
     bool run() override;
 
     // Sets this hub's owning cell
-    void setCell(PuzzleCell *cell);
+    void setCell(puzzle_cell_ptr cell);
 
     // Processes the given command, e.g. "rm" or "set" for the given value
     bool processCommand(const string &command, const uint value);

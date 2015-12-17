@@ -34,6 +34,9 @@ public:
 
     ~ConcurrentQueue()
     {
+        while (!queue_.empty()) {
+            queue_.pop();
+        }
     }
 
     void push(T data) {

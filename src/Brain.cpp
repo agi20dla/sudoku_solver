@@ -12,6 +12,28 @@
 using namespace std;
 using namespace boost;
 
+Brain::Brain() : uuid_(Random::getInstance().getNewUUID()) { }
+
+Brain::~Brain() {
+    /*
+     std::vector<puzzle_cell_ptr> puzzleCells_;
+    std::vector<global_cell_ptr> globalCells_;
+    std::vector<io_ptr> brainPorts_;
+
+    // holds previous solutions when we get stuck
+    std::vector<SolutionPath> solutionPaths_;
+    std::unordered_set<SolutionPath, StateHasher> solutionHashes_;
+     */
+    solutionHashes_.clear();
+    solutionPaths_.clear();
+    brainPorts_.clear();
+    globalCells_.clear();
+    puzzleCells_.clear();
+}
+
+boost::uuids::uuid Brain::getUUID() {
+    return uuid_;
+}
 
 void Brain::reset() {
 
@@ -36,6 +58,7 @@ void Brain::createPuzzleCells()
 {
     for (uint idx = 0; idx < 81; idx++) {
         puzzle_cell_ptr c(make_shared<PuzzleCell>());
+        c->init();
         puzzleCells_.push_back(c);
     }
 }
@@ -440,13 +463,6 @@ vector<CellValue> Brain::getPossibleSolutions() {
     }
     return possibles;
 }
-
-Brain::Brain() : uuid_(Random::getInstance().getNewUUID()) { }
-
-boost::uuids::uuid Brain::getUUID() {
-    return uuid_;
-}
-
 
 bool operator< (const SolutionPath& lhs, const SolutionPath& rhs) {
     int lhsVal = 0, rhsVal = 0;

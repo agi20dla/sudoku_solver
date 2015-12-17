@@ -106,6 +106,7 @@ private:
 
 public:
     Brain();
+    virtual ~Brain();
 
     /**
     * Reset a sudoku brain to the below map.

@@ -5,13 +5,14 @@
 #ifndef SUDOKU_SOLVER_PUZZLECELL_H
 #define SUDOKU_SOLVER_PUZZLECELL_H
 
+#include <memory>
 #include "ConcurrentQueue.h"
 #include "IoMessage.h"
 #include "CellHub.h"
 #include "Cell.h"
 #include "common.h"
 
-class PuzzleCell : public Cell {
+class PuzzleCell : public Cell, public std::enable_shared_from_this<PuzzleCell> {
 private:
     // represents the possible values this cell can hold
     // initialized to all values (1-9) being possible
@@ -23,7 +24,13 @@ private:
 public:
     PuzzleCell();
 
-    PuzzleCell(const PuzzleCell &other);
+    PuzzleCell(const PuzzleCell &other) = delete;
+
+    virtual ~PuzzleCell();
+
+    void init();
+
+    std::shared_ptr<PuzzleCell> getPtr();
 
     bool run() override;  // in GlobalCell
 

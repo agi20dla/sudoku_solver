@@ -8,15 +8,23 @@ using namespace std;
 
 PuzzleCell::PuzzleCell()
         : soleValue_(0)
-        , hub_(make_shared<CellHub>())
 {
-    hub_->setCell(this);
 }
 
-PuzzleCell::PuzzleCell(const PuzzleCell &other)
-        : Cell(other)
-        , soleValue_(other.soleValue_)
+
+PuzzleCell::~PuzzleCell()
 {
+    possibleValues_.clear();
+    hub_.reset();
+}
+
+void PuzzleCell::init() {
+    hub_ = make_shared<CellHub>();
+    hub_->setCell(getPtr());
+}
+
+std::shared_ptr<PuzzleCell> PuzzleCell::getPtr() {
+    return shared_from_this();
 }
 
 bool PuzzleCell::run()

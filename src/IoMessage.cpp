@@ -19,6 +19,11 @@ IoMessage::IoMessage(const string &command, const uint value, const string &dire
     hubUuids_.insert(hubUUID);
 }
 
+IoMessage::~IoMessage()
+{
+    hubUuids_.clear();
+}
+
 
 const string IoMessage::getCommand() {
     return command_;

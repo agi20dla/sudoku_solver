@@ -21,7 +21,7 @@ public:
 
     Cell(const Cell &other);
 
-    ~Cell();
+    virtual ~Cell();
 
     // Creates a new port and sends it to the other cell for a connection
     // The other cell will also create a new port, connect the ports, and

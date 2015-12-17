@@ -17,6 +17,7 @@ class GlobalCell : public Cell {
 public:
     GlobalCell();
     GlobalCell(const GlobalCell &other);
+    virtual ~GlobalCell();
 
     bool run() override;
 

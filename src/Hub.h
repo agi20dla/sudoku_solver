@@ -31,6 +31,7 @@ public:
 
     Hub();
     Hub(const Hub &other);
+    virtual ~Hub();
 
     std::shared_ptr<IoMessage> tryPop();
 

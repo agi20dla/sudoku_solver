@@ -7,11 +7,19 @@
 using namespace std;
 
 GlobalCell::GlobalCell()
-: hub_(make_shared<Hub>()) { }
+: hub_(make_shared<Hub>())
+{ }
 
 GlobalCell::GlobalCell(const GlobalCell &other)
         : Cell(other)
-        , hub_(other.hub_) { }
+        , hub_(other.hub_)
+{ }
+
+GlobalCell::~GlobalCell()
+{
+    hub_.reset();
+}
+
 
 bool GlobalCell::run() {
     return hub_->run();
