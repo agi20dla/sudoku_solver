@@ -36,6 +36,7 @@ public:
 
     io_ptr createPort(const std::string &direction) override;
 
+    bool hubHasMessages() override;
     ulong numMessagesOnHub() override;
     ulong numMessagesSent() override;
     ulong numMessagesRcvd() override;

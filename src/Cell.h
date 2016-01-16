@@ -43,6 +43,7 @@ public:
     // It is up to the implementation calsses to assign a hub to this port
     virtual io_ptr createPort(const std::string &direction);
 
+    virtual bool hubHasMessages() = 0;
     virtual ulong numMessagesOnHub() = 0;
     virtual ulong numMessagesSent() = 0;
     virtual ulong numMessagesRcvd() = 0;

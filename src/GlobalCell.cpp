@@ -33,6 +33,10 @@ io_ptr GlobalCell::createPort(const string &direction) {
     return port;
 }
 
+bool GlobalCell::hubHasMessages() {
+    return hub_->hasMessages();
+}
+
 ulong GlobalCell::numMessagesOnHub() {
     ulong numMsgs = hub_->getNumMsgsOnQueue();
     return numMsgs;

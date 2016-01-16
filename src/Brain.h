@@ -6,71 +6,15 @@
 #define SUDOKU_SOLVER_BRAIN_H
 
 #include <vector>
+#include <queue>
+#include <list>
 #include <unordered_set>
 #include <boost/functional/hash.hpp>
 #include "IoPort.h"
 #include "PuzzleCell.h"
 #include "common.h"
+//#include "SolutionMatrix.h"
 
-struct CellValue {
-    uint row;
-    uint col;
-    uint val;
-};
-
-struct PuzzleState {
-    uint soleValue;
-    vector<uint> possibles;
-
-    bool operator==(const PuzzleState &other) const {
-        if (soleValue != other.soleValue) {
-            return false;
-        }
-        for (uint idx = 0; idx < possibles.size(); idx++) {
-            if (possibles.at(idx) != other.possibles.at(idx)) {
-                return false;
-            }
-        }
-        return true;
-    }
-};
-
-struct SolutionPath {
-    vector<PuzzleState> states;
-    vector<CellValue> possibles;
-
-    bool operator==(const SolutionPath &other) const {
-        for (uint idx = 0; idx < states.size(); idx++) {
-            if (!(states.at(idx) == other.states.at(idx))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    friend bool operator< (const SolutionPath& lhs, const SolutionPath& rhs);
-    friend bool operator> (const SolutionPath& lhs, const SolutionPath& rhs);
-    friend bool operator<= (const SolutionPath& lhs, const SolutionPath& rhs);
-    friend bool operator>= (const SolutionPath& lhs, const SolutionPath& rhs);
-};
-
-struct StateHasher
-{
-    std::size_t operator()(const SolutionPath &sp) const {
-        using boost::hash_value;
-        using boost::hash_combine;
-
-        std::size_t seed = 0;
-
-        for (auto pz : sp.states) {
-            hash_combine(seed, hash_value(pz.soleValue));
-            for (auto p : pz.possibles) {
-                hash_combine(seed, p);
-            }
-        }
-        return seed;
-    }
-};
 
 class Brain {
 private:
@@ -80,11 +24,17 @@ private:
     std::vector<io_ptr> brainPorts_;
 
     // holds previous solutions when we get stuck
-    std::vector<SolutionPath> solutionPaths_;
+//    std::vector<SolutionPath> solutionPaths_;
+//    std::queue<SolutionPath> solutionPaths_;
+    std::list<SolutionPath> solutionPaths_;
     std::unordered_set<SolutionPath, StateHasher> solutionHashes_;
+//    SolutionMatrix solutionMatrix_;
 
     bool firstRun_ = true;
     long numRuns_ = 0;
+    long stalls_ = 0;
+    long stalls_used_ = 0;
+    long failures_ = 0;
 
     // Creates Puzzle Cells and adds them to puzzleCells_
     void createPuzzleCells();
@@ -111,44 +61,28 @@ public:
     /**
     * Reset a sudoku brain to the below map.
     * C = Puzzle Cell
-    * G = Global Cell (Connector cells between Puzzle Cells to allow global messages within a block)
+    * G = Global Cell (Not shown.  Each block contains one Global cell connecting all it's Puzzle Cells)
     * h = Horizontal port connection
     * v = Vertical port connection
-    * g = Global connection between Global Cells and neighboring Puzzle Cells
+    * g = Not shown. Connection between Global Cells and a block's Puzzle Cells
     *
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   v   G   v   G   v       v   G   v   G   v       v   G   v   G   v
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   v   G   v   G   v       v   G   v   G   v       v   G   v   G   v
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
-    *
-    *   v       v       v       v       v       v       v       v       v
-    *
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   v   G   v   G   v       v   G   v   G   v       v   G   v   G   v
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   v   G   v   G   v       v   G   v   G   v       v   G   v   G   v
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
-    *
-    *   v       v       v       v       v       v       v       v       v
-    *
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   v   G   v   G   v       v   G   v   G   v       v   G   v   G   v
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   v   G   v   G   v       v   G   v   G   v       v   G   v   G   v
-    *     g   g   g   g           g   g   g   g           g   g   g   g
-    *   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C   h   C
+    *    C h C h C  h  C h C h C  h  C h C h C
+    *    v   v   v     v   v   v     v   v   v
+    *    C h C h C  h  C h C h C  h  C h C h C
+    *    v   v   v     v   v   v     v   v   v
+    *    C h C h C  h  C h C h C  h  C h C h C 
+    *    v   v   v     v   v   v     v   v   v
+    *    C h C h C  h  C h C h C  h  C h C h C
+    *    v   v   v     v   v   v     v   v   v
+    *    C h C h C  h  C h C h C  h  C h C h C
+    *    v   v   v     v   v   v     v   v   v
+    *    C h C h C  h  C h C h C  h  C h C h C 
+    *    v   v   v     v   v   v     v   v   v
+    *    C h C h C  h  C h C h C  h  C h C h C
+    *    v   v   v     v   v   v     v   v   v
+    *    C h C h C  h  C h C h C  h  C h C h C
+    *    v   v   v     v   v   v     v   v   v
+    *    C h C h C  h  C h C h C  h  C h C h C 
     */
     void reset();
 
@@ -177,7 +111,7 @@ public:
     void setValues(const vector<uint> vector);
 
     // Initialize the Puzzle Cells to the given solution
-    void setValues(const vector <PuzzleState> solution);
+    void setValues(const vector <CellState> solution );
 
     // Remove the given value from the Puzzle Cell at the given row and column
     void removeValue(const uint row, const uint col, const uint value);
@@ -201,7 +135,7 @@ public:
 
     std::vector<uint> getSolution();
 
-    std::vector<PuzzleState> getSolutionStruct();
+    std::vector<CellState> getSolutionStates();
 
     vector<CellValue> getPossibleSolutions();
 

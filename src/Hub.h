@@ -27,11 +27,11 @@ protected:
 
 
 public:
-    virtual bool run();
-
     Hub();
     Hub(const Hub &other);
     virtual ~Hub();
+
+    virtual bool run();
 
     std::shared_ptr<IoMessage> tryPop();
 
@@ -39,6 +39,7 @@ public:
 
     void addIoPort(io_ptr ioPort);
 
+    virtual bool hasMessages();
     ulong getNumMsgsOnQueue();
 
     ulong getNumMsgsSent();

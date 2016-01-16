@@ -46,6 +46,10 @@ void Hub::addIoPort(io_ptr ioPort) {
     ioPorts_.push_back(ioPort);
 }
 
+bool Hub::hasMessages() {
+    return messageQueue_.size() > 0;
+}
+
 ulong Hub::getNumMsgsOnQueue() {
     return messageQueue_.size();
 }

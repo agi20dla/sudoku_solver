@@ -45,6 +45,9 @@ io_ptr PuzzleCell::createPort(const string &direction) {
     return port;
 }
 
+bool PuzzleCell::hubHasMessages() {
+    return hub_->hasMessages();
+}
 
 ulong PuzzleCell::numMessagesOnHub() {
     ulong numMsgs = hub_->getNumMsgsOnQueue();

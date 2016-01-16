@@ -4,6 +4,8 @@
 
 #include <string>
 #include "gmock/gmock.h"
+#include "../src/Cell.h"
+#include "../src/GlobalCell.h"
 #include "../src/PuzzleCell.h"
 #include "../src/Random.h"
 
@@ -18,6 +20,7 @@ TEST(CellTest, CellIsCreated)
 TEST(CellTest, GetNewConnectionToCell)
 {
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
+    cell->init();
     auto port = cell->createPort(string("t"));
     ASSERT_TRUE(port != nullptr);
 }
@@ -25,9 +28,11 @@ TEST(CellTest, GetNewConnectionToCell)
 TEST(CellTest, SendMessageThroughCell)
 {
     std::shared_ptr<PuzzleCell> cell1 = make_shared<PuzzleCell>();
+    cell1->init();
     auto port1 = cell1->createPort("t");
 
     std::shared_ptr<PuzzleCell> cell2 = make_shared<PuzzleCell>();
+    cell2->init();
     auto port2 = cell2->createPort("t");
 
     port1->connect(port2);
@@ -46,10 +51,12 @@ TEST(CellTest, SendMessageThroughCell)
 TEST(CellTest, SendMessageThroughCellToAnotherCell)
 {
     std::shared_ptr<PuzzleCell> cell1 = make_shared<PuzzleCell>();
+    cell1->init();
     auto port1 = cell1->createPort(string("t"));
     auto port2 = cell1->createPort(string("t"));
 
     std::shared_ptr<PuzzleCell> cell2 = make_shared<PuzzleCell>();
+    cell2->init();
     auto port3 = cell2->createPort(string("t"));
 
     port2->connect(port3);
@@ -81,8 +88,10 @@ TEST(CellTest, SendMessageThroughCellToAnotherCell)
 TEST(CellTest, CellsCanConnectToEachOther)
 {
     std::shared_ptr<PuzzleCell> cell1 = make_shared<PuzzleCell>();
+    cell1->init();
     std::shared_ptr<IoPort> port = cell1->createPort("t");
     std::shared_ptr<PuzzleCell> cell2 = make_shared<PuzzleCell>();
+    cell2->init();
 
     cell1->connect(cell2, string("t"));
 
@@ -98,6 +107,7 @@ TEST(CellTest, CellsCanConnectToEachOther)
 TEST(CellTest, GlobalCellDoesNotSendBackMessage)
 {
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
+    cell->init();
     std::shared_ptr<IoPort> port = cell->createPort(string("g"));
 
     auto uuid = Random::getInstance().getNewUUID();
@@ -134,22 +144,26 @@ TEST(CellTest, MessageOnlyGoesHorizontally)
 {
     // set up grid
     std::shared_ptr<PuzzleCell> tl = make_shared<PuzzleCell>();
+    tl->init();
     std::shared_ptr<PuzzleCell> tr = make_shared<PuzzleCell>();
+    tr->init();
     std::shared_ptr<PuzzleCell> bl = make_shared<PuzzleCell>();
+    bl->init();
     std::shared_ptr<PuzzleCell> br = make_shared<PuzzleCell>();
-    std::shared_ptr<PuzzleCell> global = make_shared<PuzzleCell>();
+    br->init();
+    std::shared_ptr<GlobalCell> global = make_shared<GlobalCell>();
 
     tl->connect(tr, string("h"));
     tl->connect(bl, string("v"));
-    tl->connect(global, string("g"));
+    tl->connect(static_pointer_cast<Cell>(global), string("g"));
 
     tr->connect(br, string("v"));
-    tr->connect(global, string("g"));
+    tr->connect(static_pointer_cast<Cell>(global), string("g"));
 
     br->connect(bl, string("h"));
-    br->connect(global, string("g"));
+    br->connect(static_pointer_cast<Cell>(global), string("g"));
 
-    bl->connect(global, string("g"));
+    bl->connect(static_pointer_cast<Cell>(global), string("g"));
 
 
     // set up external connection
@@ -197,22 +211,26 @@ TEST(CellTest, MessageOnlyGoesVertically)
 {
     // set up grid
     std::shared_ptr<PuzzleCell> tl = make_shared<PuzzleCell>();
+    tl->init();
     std::shared_ptr<PuzzleCell> tr = make_shared<PuzzleCell>();
+    tr->init();
     std::shared_ptr<PuzzleCell> bl = make_shared<PuzzleCell>();
+    bl->init();
     std::shared_ptr<PuzzleCell> br = make_shared<PuzzleCell>();
-    std::shared_ptr<PuzzleCell> global = make_shared<PuzzleCell>();
+    br->init();
+    std::shared_ptr<GlobalCell> global = make_shared<GlobalCell>();
 
     tl->connect(tr, string("h"));
     tl->connect(bl, string("v"));
-    tl->connect(global, string("g"));
+    tl->connect(static_pointer_cast<Cell>(global), string("g"));
 
     tr->connect(br, string("v"));
-    tr->connect(global, string("g"));
+    tr->connect(static_pointer_cast<Cell>(global), string("g"));
 
     br->connect(bl, string("h"));
-    br->connect(global, string("g"));
+    br->connect(static_pointer_cast<Cell>(global), string("g"));
 
-    bl->connect(global, string("g"));
+    bl->connect(static_pointer_cast<Cell>(global), string("g"));
 
     // set up external connection
     std::shared_ptr<IoPort> brMsgPort = br->createPort("t");
@@ -258,10 +276,15 @@ TEST(CellTest, MessageGoesGlobal)
 {
     // set up grid
     std::shared_ptr<PuzzleCell> tl = make_shared<PuzzleCell>();
+    tl->init();
     std::shared_ptr<PuzzleCell> tr = make_shared<PuzzleCell>();
+    tr->init();
     std::shared_ptr<PuzzleCell> bl = make_shared<PuzzleCell>();
+    bl->init();
     std::shared_ptr<PuzzleCell> br = make_shared<PuzzleCell>();
-    std::shared_ptr<PuzzleCell> global = make_shared<PuzzleCell>();
+    br->init();
+    std::shared_ptr<GlobalCell> global = make_shared<GlobalCell>();
+
 
     tl->connect(tr, string("h"));
     tl->connect(bl, string("v"));
@@ -358,6 +381,7 @@ TEST(CellTest, MessageGoesGlobal)
 TEST(CellTest, SetMessageIsProcessed)
 {
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
+    cell->init();
     std::shared_ptr<IoPort> port = cell->createPort(string("m"));
 
     auto uuid = Random::getInstance().getNewUUID();
@@ -376,6 +400,7 @@ TEST(CellTest, SetMessageIsProcessed)
 TEST(CellTest, RmMessageIsProcessed)
 {
     std::shared_ptr<PuzzleCell> cell = make_shared<PuzzleCell>();
+    cell->init();
     std::shared_ptr<IoPort> port = cell->createPort(string("m"));
 
     auto uuid = Random::getInstance().getNewUUID();

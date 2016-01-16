@@ -54,7 +54,7 @@ bool CellHub::run() {
 
 
 bool CellHub::processCommand(const string &command, const uint value) {
-    if (command == "rm") {
+    if (command.compare("rm") == 0) {
         // if value being removed is the sole value, emit an exception
         if (cell_->getSoleValue() == value) {
             return false;
@@ -88,7 +88,7 @@ bool CellHub::processCommand(const string &command, const uint value) {
 
         // if we got here, then we only have one value, so
         // send out a broadcast message to remove that value as a possibility
-    } else if (command == "set") {
+    } else if (command.compare("set") == 0) {
         // reset all other values, ensuring that only this value is set,
         // then send g, h and, v messages to reset this value in all other
         // relevant cells

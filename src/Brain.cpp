@@ -3,7 +3,7 @@
 //
 
 #include <string>
-#include<vector>
+#include <vector>
 #include <iostream>
 #include "Brain.h"
 #include "GlobalCell.h"
@@ -15,20 +15,124 @@ using namespace boost;
 Brain::Brain() : uuid_(Random::getInstance().getNewUUID()) { }
 
 Brain::~Brain() {
-    /*
-     std::vector<puzzle_cell_ptr> puzzleCells_;
-    std::vector<global_cell_ptr> globalCells_;
-    std::vector<io_ptr> brainPorts_;
-
-    // holds previous solutions when we get stuck
-    std::vector<SolutionPath> solutionPaths_;
-    std::unordered_set<SolutionPath, StateHasher> solutionHashes_;
-     */
     solutionHashes_.clear();
     solutionPaths_.clear();
     brainPorts_.clear();
     globalCells_.clear();
     puzzleCells_.clear();
+}
+
+
+int Brain::solve(bool debug)
+{
+    cout << "Solving Sudoku Puzzle:" << endl;
+    printSolution();
+
+    if (firstRun_) {
+        // Run first time
+        if (!run(debug)) {
+            cerr << "Attempeted to solve bad puzzle" << endl;
+            return 1;
+        }
+        firstRun_ = false;
+    }
+
+    if (isPuzzleSolved()) {
+        cout << "Puzzle solved!" << endl;
+        printSolution();
+        return 0;
+    }
+
+    // store puzzle state and possible solutions
+    SolutionPath firstPath{getSolutionStates(), getPossibleSolutions()};
+    solutionHashes_.insert(firstPath);
+    solutionPaths_.push_back(firstPath);
+
+    // brute force a solution
+    while (!isPuzzleSolved() && solutionPaths_.size() > 0) {
+        SolutionPath path = solutionPaths_.front();
+        stalls_used_++;
+        solutionPaths_.pop_front();
+        vector<CellValue> possibles = path.possibles;
+        vector<CellState> puzzleStates = path.states;
+
+        for (CellValue ss : possibles) {
+            setValue(ss.row, ss.col, ss.val);
+            if (run(debug)) {
+                if (isPuzzleSolved()) {
+                    break;
+                } else {
+                    stalls_++;
+                    // finished running with no exception, but no solution
+                    // so save this solution for the next iteration
+
+                    SolutionPath solPath{getSolutionStates(), getPossibleSolutions()};
+                    solutionPaths_.push_back(solPath);
+                }
+            } else {
+                failures_++;
+                // This happens when we've tried to run down a bad path
+                // reset all the cells for the next possible value
+                uint idx = 0;
+                for (auto c : puzzleCells_) {
+                    c->reset(puzzleStates.at(idx).soleValue, puzzleStates.at(idx).possibles);
+                    idx++;
+                }
+            }
+        }
+    }
+
+    if (isPuzzleSolved()) {
+        cout << "Puzzle solved!" << endl;
+        printSolution();
+    }
+    return 0;
+}
+
+
+bool Brain::run(bool debug) {
+    bool firstRun = true;
+    bool msgsRemaining = true;
+
+    while (firstRun || msgsRemaining) {
+        firstRun = false;
+        numRuns_++;
+        if (numRuns_ % 500 == 0) {
+            cout << endl;
+            printSolution();
+        }
+        // run the globals
+        for (auto g : globalCells_) {
+            g->run();
+        }
+
+        // run the cells
+        for (auto c : puzzleCells_) {
+            if (!c->run()) {
+                // failed run, so bounce out
+                return false;
+            }
+        }
+
+        // check whether any messages are remaining to be processed
+        msgsRemaining = false;
+        for (auto pCell : puzzleCells_) {
+            msgsRemaining = pCell->hubHasMessages();
+            if (msgsRemaining) {
+                break;
+            }
+        }
+        if (!msgsRemaining) {
+            for (auto gCell : globalCells_) {
+                msgsRemaining = gCell->hubHasMessages();
+                if (msgsRemaining) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return true;
 }
 
 boost::uuids::uuid Brain::getUUID() {
@@ -179,138 +283,6 @@ void Brain::printNumMsgsRcvd()
 }
 
 
-int Brain::solve(bool debug)
-{
-    cout << "Solving Sudoku Puzzle:" << endl;
-    printSolution();
-
-    if (firstRun_) {
-        // Run first time
-        if (!run(debug)) {
-            cerr << "Attempeted to solve bad puzzle" << endl;
-            return 1;
-        }
-        firstRun_ = false;
-    }
-
-    if (isPuzzleSolved()) {
-        cout << "Puzzle solved!" << endl;
-        printSolution();
-        return 0;
-    }
-
-    // store puzzle state and possible solutions
-    SolutionPath firstPath{getSolutionStruct(), getPossibleSolutions()};
-    solutionHashes_.insert(firstPath);
-    solutionPaths_.push_back(firstPath);
-
-    // brute force a solution
-    while (!isPuzzleSolved() && solutionPaths_.size() > 0) {
-        SolutionPath path = solutionPaths_.back();
-        solutionPaths_.pop_back();
-        vector<CellValue> possibles = path.possibles;
-        vector<PuzzleState> puzzleStates = path.states;
-
-        for (CellValue ss : possibles) {
-            setValue(ss.row, ss.col, ss.val);
-            if (run(debug)) {
-                if (isPuzzleSolved()) {
-                    break;
-                } else {
-                    // finished running with no exception, but no solution
-                    // so save this solution for the next iteration
-                    SolutionPath solPath{getSolutionStruct(), getPossibleSolutions()};
-                    if (solutionHashes_.find(solPath) == solutionHashes_.end()) {
-                        auto it = solutionPaths_.begin();
-                        for (; it != solutionPaths_.end(); it++) {
-                            if ((*it) > solPath) {
-                                solutionPaths_.insert(it, solPath);
-                                break;
-                            }
-                        }
-                        if (it == solutionPaths_.end()) {
-                            solutionPaths_.push_back(solPath);
-                        }
-
-//                        solutionPaths_.push_back(solPath);
-                    } else {
-                        cout << "*************************** ";
-                        cout << "Already tried this solution ";
-                        cout << "*************************** " << endl;
-                    }
-                }
-            } else {
-                // This happens when we've tried to run down a bad path
-                // reset all the cells for the next possible value
-                uint idx = 0;
-                for (auto c : puzzleCells_) {
-                    c->reset(puzzleStates.at(idx).soleValue, puzzleStates.at(idx).possibles);
-                    idx++;
-                }
-            }
-        }
-    }
-
-    if (isPuzzleSolved()) {
-        cout << "Puzzle solved!" << endl;
-        printSolution();
-    }
-    return 0;
-}
-
-
-bool Brain::run(bool debug) {
-    bool firstRun = true;
-    bool msgsRemaining = true;
-
-    while (firstRun || msgsRemaining) {
-        firstRun = false;
-        numRuns_++;
-        if (numRuns_ % 500 == 0 || debug) {
-            cout << endl;
-            cout << "Run number: " << numRuns_ << endl;
-            printSolution();
-        }
-        // run the globals
-        for (auto g : globalCells_) {
-            g->run();
-        }
-
-        // run the cells
-        for (auto c : puzzleCells_) {
-            if (!c->run()) {
-                return false;
-            }
-        }
-
-        if (debug) {
-            printValues();
-            printNumMsgsRcvd();
-            printSolution();
-        }
-
-        for (auto c : puzzleCells_) {
-            if (c->numMessagesOnHub() > 0) {
-                msgsRemaining = true;
-                break;
-            } else {
-                msgsRemaining = false;
-            }
-        }
-        if (!msgsRemaining) {
-            for (auto g : globalCells_) {
-                if (g->numMessagesOnHub() > 0) {
-                    msgsRemaining = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    return true;
-}
-
-
 void Brain::setValue(const uint row, const uint col, const uint value)
 {
     // value may be 0 during initial puzzle setup when reading from
@@ -337,7 +309,7 @@ void Brain::setValue(const uint row, const uint col, const uint value, const vec
 }
 
 
-void Brain::setValues(const vector<PuzzleState> solution) {
+void Brain::setValues(const vector<CellState> solution ) {
     uint row = 0;
     uint col = 0;
     for (auto s : solution) {
@@ -381,6 +353,12 @@ vector<uint> *Brain::getValues(const uint row, const uint col)
 
 
 void Brain::printSolution() {
+
+    cout << "Run number: " << numRuns_ << endl;
+    cout << "Total number of stalls: " << stalls_ << endl;
+    cout << "Number of stalls left: " << solutionPaths_.size() << endl;
+    cout << "Number of stalls used: " << stalls_used_ << endl;
+    cout << "Number of failures: " << failures_ << endl;
     cout << "Solution" << endl;
     vector<std::string> solution;
     for (uint row = 0; row < 9; row++) {
@@ -415,13 +393,13 @@ void Brain::printSolution() {
 }
 
 
-vector<PuzzleState> Brain::getSolutionStruct() {
-    vector<PuzzleState> solution;
+vector<CellState> Brain::getSolutionStates() {
+    vector<CellState> solutionState;
     for (puzzle_cell_ptr cell : puzzleCells_) {
-        PuzzleState ss{cell->getSoleValue(), *cell->getPossibleValues()};
-        solution.push_back(ss);
+        CellState ss{ cell->getSoleValue(), *cell->getPossibleValues()};
+        solutionState.push_back(ss);
     }
-    return solution;
+    return solutionState;
 }
 
 
@@ -467,27 +445,13 @@ vector<CellValue> Brain::getPossibleSolutions() {
 bool operator< (const SolutionPath& lhs, const SolutionPath& rhs) {
     int lhsVal = 0, rhsVal = 0;
     for (auto lstate : lhs.states) {
-        if (lstate.soleValue == 0) {
-            lhsVal++;
-        }
-        for (auto p : lstate.possibles) {
-            if (p == 0) {
-                lhsVal++;
-            } else {
-                lhsVal--;
-            }
+        if (lstate.soleValue > 0) {
+            lhsVal += 9;
         }
     }
     for (auto rstate : rhs.states) {
-        if (rstate.soleValue == 0) {
-            rhsVal++;
-        }
-        for (auto p : rstate.possibles) {
-            if (p == 0) {
-                rhsVal++;
-            } else {
-                rhsVal--;
-            }
+        if (rstate.soleValue > 0) {
+            rhsVal += 9;
         }
     }
     return lhsVal < rhsVal;
