@@ -5,12 +5,12 @@ message("Generator is set to ${CMAKE_GENERATOR}")
 cmake_minimum_required(VERSION 3.2)
 project(sudoku_solver)
 
-set(GMOCK_HOME /home/jason/src/gmock-1.7.0)
-set(BOOST_ROOT /home/jason/src/boost_1_58_0)
+#set(GMOCK_HOME /home/jason/src/gmock-1.7.0)
+#set(BOOST_ROOT /home/jason/src/boost_1_58_0)
 
-include_directories(${GMOCK_HOME}/include ${GMOCK_HOME}/gtest/include ${BOOST_ROOT} $ENV{CPPUTEST_HOME}/include)
+#include_directories(${GMOCK_HOME}/include ${GMOCK_HOME}/gtest/include ${BOOST_ROOT} $ENV{CPPUTEST_HOME}/include)
 
-link_directories(${GMOCK_HOME}/mybuild ${GMOCK_HOME}/mybuild/gtest ${BOOST_ROOT}/libs $ENV{CPPUTEST_HOME}/lib)
+#link_directories(${GMOCK_HOME}/mybuild ${GMOCK_HOME}/mybuild/gtest ${BOOST_ROOT}/libs $ENV{CPPUTEST_HOME}/lib)
 
 find_package(Boost REQUIRED system thread exception)
 
