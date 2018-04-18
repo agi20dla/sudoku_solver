@@ -50,9 +50,9 @@ int main(int argc, char **argv) {
     Data data;
     data.init(filename);
     Brain brain;
-    brain.reset();
-    brain.setValues(data.getDataAsVector());
-    int result = brain.solve(false);
+//    brain.reset();
+//    brain.setValues(data.getDataAsVector());
+    int result = brain.solve(data.getDataAsVector());
     auto start = std::chrono::high_resolution_clock::now();
     std::this_thread::sleep_for(std::chrono::seconds(2));
     auto end = std::chrono::high_resolution_clock::now();

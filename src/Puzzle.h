@@ -25,37 +25,14 @@ private:
     long stalls_used_ = 0;
     long failures_ = 0;
 
-
-    puzzle_cell_ptr getPuzzleCell(const uint row, const uint col);
-
-    global_cell_ptr getGlobalCell(const uint row, const uint col);
-
-
     // Creates Global Cells and adds them to globalCells_
     void createGlobalCells();
 
     //Connects all the Global Cells to their intended Puzzle Cells
     void connectGlobals();
 
-    // set the value of a particular cell via a management message
-    void setValue(const uint row, const uint col, const uint value);
-
-    // Directly set the sole value and possible values, avoiding sending an "rm" message to all other cells
-    void setValue(const uint row, const uint col, const uint value, const std::vector<uint> possibles);
-
-    // Initialize the Puzzle Cells to the given values
-    // Where a value is 1-9, and 0 represents a cell whose value hasn't been set
-    void setValues(const vector<uint> vector);
-
     // Initialize the Puzzle Cells to the given solution
     void setValues(const vector <CellState> solution);
-
-    // Remove the given value from the Puzzle Cell at the given row and column
-    void removeValue(const uint row, const uint col, const uint value);
-
-    // Get the values from the Puzzle Cell at the given row and column
-    vector<uint> *getValues(const uint row, const uint col);
-
     void printValues();
 
     // Print the current calculated solution of the entire puzzle to cout
@@ -67,16 +44,24 @@ private:
     // the format of a Sudoku puzzle grid
     void printNumMsgsRcvd();
 
-    // Return true if all the Puzzle Cells contain a sole value
-    bool isPuzzleSolved();
+//    // Return true if all the Puzzle Cells contain a sole value
+//    bool isPuzzleSolved();
 
-    std::vector<uint> getSolution();
+//    std::vector<uint> getSolution();
 
     std::vector<CellState> getSolutionStates();
 
     vector<CellValue> getPossibleSolutions();
 
 public:
+
+    Puzzle();
+
+    virtual ~Puzzle();
+
+    int solve();
+
+    bool run();
 
     // Creates Puzzle Cells and adds them to puzzleCells_
     void createPuzzleCells();
@@ -87,7 +72,36 @@ public:
     // Connects the Puzzle Cells in each column via a v direction port
     void connectPuzzleCols();
 
+    puzzle_cell_ptr getPuzzleCell(const uint row, const uint col);
+
+    std::vector<puzzle_cell_ptr> getPuzzleCells();
+
+    global_cell_ptr getGlobalCell(const uint row, const uint col);
+
+    // set the value of a particular cell via a management message
+    void setValue(const uint row, const uint col, const uint value);
+
+    // Directly set the sole value and possible values, avoiding sending an "rm" message to all other cells
+    void setValue(const uint row, const uint col, const uint value, const std::vector<uint> possibles);
+
+    // Initialize the Puzzle Cells to the given values
+    // Where a value is 1-9, and 0 represents a cell whose value hasn't been set
+    void setValues(const vector<uint> vector);
+
+    // Remove the given value from the Puzzle Cell at the given row and column
+    void removeValue(const uint row, const uint col, const uint value);
+
+    // Get the values from the Puzzle Cell at the given row and column
+    vector<uint> *getValues(const uint row, const uint col);
+
+    // Return true if all the Puzzle Cells contain a sole value
+    bool isPuzzleSolved();
+
+    std::vector<uint> getSolution();
+
     void reset();
+
+    boost::uuids::uuid getUUID();
 };
 
 

@@ -13,10 +13,10 @@ using namespace std;
 TEST(SolutionTest, SolveEasyPuzzle02) {
     Data data;
     data.init("02_easy.pzl");
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     brain.setValues(data.getDataAsVector());
-    brain.solve(true);
+    brain.solve();
 
     Data solution;
     solution.init("02_answer.pzl");
@@ -67,10 +67,10 @@ TEST(SolutionTest, SolveEasyPuzzle02) {
 TEST(SolutionTest, SolveHardPuzzle67) {
     Data data;
     data.init("67_hard.pzl");
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     brain.setValues(data.getDataAsVector());
-    brain.solve(true);
+    brain.solve();
 
     Data solution;
     solution.init("67_answer.pzl");
@@ -85,10 +85,10 @@ TEST(SolutionTest, SolveHardPuzzle67) {
 TEST(SolutionTest, SolveDiabolicalPuzzle100) {
     Data data;
     data.init("100_diabolical.pzl");
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     brain.setValues(data.getDataAsVector());
-    brain.solve(true);
+    brain.solve();
 
     Data solution;
     solution.init("100_answer.pzl");

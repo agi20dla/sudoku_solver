@@ -14,7 +14,7 @@ TEST(BrainTest, InitializeGrid) {
 }
 
 TEST(BrainTest, SendHMessage) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     puzzle_cell_ptr cell00 = brain.getPuzzleCell(0, 0);
     io_ptr port = cell00->createPort("t");
@@ -33,7 +33,7 @@ TEST(BrainTest, SendHMessage) {
 }
 
 TEST(BrainTest, SendVMessage) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     puzzle_cell_ptr cell00 = brain.getPuzzleCell(0, 0);
     io_ptr port = cell00->createPort("t");
@@ -52,7 +52,7 @@ TEST(BrainTest, SendVMessage) {
 }
 
 TEST(BrainTest, GlobalMessageStaysInCell) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     puzzle_cell_ptr cell44 = brain.getPuzzleCell(4, 4);
     io_ptr port = cell44->createPort("t");
@@ -78,7 +78,7 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
 }
 
 TEST(BrainTest, SendGhvMessage) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
 
     puzzle_cell_ptr cell33 = brain.getPuzzleCell(3, 3);
@@ -118,7 +118,7 @@ TEST(BrainTest, SendGhvMessage) {
 
 
 TEST(BrainTest, RemoveValue) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     brain.removeValue(0, 0, 5);
     brain.run();
@@ -128,7 +128,7 @@ TEST(BrainTest, RemoveValue) {
 }
 
 TEST(BrainTest, RemoveSingleValueDoesntAffectOtherValues) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     brain.removeValue(0, 0, 5);
     brain.run();
@@ -142,7 +142,7 @@ TEST(BrainTest, RemoveSingleValueDoesntAffectOtherValues) {
 }
 
 TEST(BrainTest, RemoveSingleValueDoesntAffectOtherCells) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
     brain.removeValue(0, 0, 5);
     brain.run();
@@ -159,7 +159,7 @@ TEST(BrainTest, RemoveSingleValueDoesntAffectOtherCells) {
 
 
 TEST(BrainTest, SetValue) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
 
     brain.setValue(0, 0, 5);
@@ -198,7 +198,7 @@ TEST(BrainTest, SetValue) {
 
 
 TEST(BrainTest, SetTwoValuesInOneBlock) {
-    Brain brain;
+    Puzzle brain;
     brain.reset();
 
     brain.setValue(0, 0, 5);

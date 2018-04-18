@@ -6,7 +6,142 @@
 #include "GlobalCell.h"
 #include "Puzzle.h"
 #include "PuzzleCell.h"
+#include "Random.h"
 
+Puzzle::Puzzle() : uuid_(Random::getInstance().getNewUUID()) {}
+
+Puzzle::~Puzzle() {
+
+    globalCells_.clear();
+
+    while (puzzleCells_.size() > 0) {
+        puzzle_cell_ptr c = puzzleCells_.back();
+        puzzleCells_.pop_back();
+        c.reset();
+    }
+    puzzleCells_.clear();
+}
+
+int Puzzle::solve() {
+    /*
+ *
+ * START THREADING HERE
+ *
+ */
+    if (firstRun_) {
+        // Run first time
+        if (!run()) {
+            cerr << "Attempted to solve bad puzzle" << endl;
+            return 1;
+        }
+        firstRun_ = false;
+    }
+
+    if (isPuzzleSolved()) {
+        cout << "Puzzle solved!" << endl;
+        printSolution();
+        return 0;
+    }
+
+    // store puzzle state and possible solutions
+    SolutionPath firstPath{getSolutionStates(), getPossibleSolutions()};
+    solutionHashes_.insert(firstPath);
+    solutionPaths_.push_back(firstPath);
+
+    // brute force a solution
+    while (!isPuzzleSolved() && solutionPaths_.size() > 0) {
+        SolutionPath path = solutionPaths_.front();
+        solutionPaths_.pop_front();
+        stalls_used_++;
+        vector<CellValue> possibles = path.possibles;
+        vector<CellState> puzzleStates = path.states;
+
+        // try all possible values on this state of the puzzle
+        for (CellValue ss : possibles) {
+            setValue(ss.row, ss.col, ss.val);
+
+//            // TODO: This is where we could set up additional processes to run the solutions down
+//            // 1. set up (# cores - 1) threads with futures
+//            // 2. iterate each thread for a true return, which happens when it finds a solution
+//
+//            auto result(std::future::async(std::launch::async, &Brain::run, this));
+////            future<bool> result(std::future::async(launch::async, &Brain::run, this));
+////            future<bool> result(async(launch::async, &Brain::run, this));
+//            auto status = result.wait_for(std::chrono::milliseconds(0));
+//            while (status != future_status::ready) {
+//                status = result.wait_for(std::chrono::milliseconds(10));
+//            }
+//
+//            bool b = result.get();
+            if (run()) {
+                if (isPuzzleSolved()) {
+                    break;
+                } else {
+                    stalls_++;
+                    // finished running with no exception, but no solution
+                    // so save this solution for the next iteration
+
+                    SolutionPath solPath{getSolutionStates(), getPossibleSolutions()};
+                    solutionPaths_.push_back(solPath);
+                }
+            } else {
+                failures_++;
+                // This happens when we've tried to run down a bad path
+                // reset all the cells for the next possible value
+                uint idx = 0;
+                for (auto c : puzzleCells_) {
+                    c->reset(puzzleStates.at(idx).soleValue, puzzleStates.at(idx).possibles);
+                    idx++;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+bool Puzzle::run() {
+    bool msgsRemaining = true;
+
+    while (msgsRemaining) {
+        numRuns_++;
+        if (numRuns_ % 500 == 0) {
+            cout << endl;
+            printSolution();
+        }
+        // run the globals
+        for (auto g : globalCells_) {
+            g->run();
+        }
+
+        // run the cells
+        for (auto c : puzzleCells_) {
+            if (!c->run()) {
+                // failed run, so bounce out
+                return false;
+            }
+        }
+
+        // check whether any messages are remaining to be processed
+        msgsRemaining = false;
+        for (auto pCell : puzzleCells_) {
+            msgsRemaining = pCell->hubHasMessages();
+            if (msgsRemaining) {
+                break;
+            }
+        }
+        if (!msgsRemaining) {
+            for (auto gCell : globalCells_) {
+                msgsRemaining = gCell->hubHasMessages();
+                if (msgsRemaining) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return true;
+}
 void Puzzle::createPuzzleCells() {
     for (uint idx = 0; idx < 81; idx++) {
         puzzle_cell_ptr c(make_shared<PuzzleCell>());
@@ -63,6 +198,10 @@ void Puzzle::connectGlobals() {
 puzzle_cell_ptr Puzzle::getPuzzleCell(const uint row, const uint col) {
     puzzle_cell_ptr c = puzzleCells_.at(row * 9 + col);
     return c;
+}
+
+std::vector<puzzle_cell_ptr> Puzzle::getPuzzleCells() {
+    return puzzleCells_;
 }
 
 global_cell_ptr Puzzle::getGlobalCell(const uint row, const uint col) {
@@ -235,4 +374,9 @@ vector<CellValue> Puzzle::getPossibleSolutions() {
         }
     }
     return possibles;
+}
+
+
+boost::uuids::uuid Puzzle::getUUID() {
+    return uuid_;
 }
