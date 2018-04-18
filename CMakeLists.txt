@@ -11,7 +11,7 @@ set(BOOST_ROOT /home/jason/apps/boost)
 set(BOOST_INCLUDEDIR /home/jason/apps/boost)
 
 include_directories(${GMOCK_HOME}/include ${GTEST_HOME}/include ${BOOST_ROOT}/include $ENV{CPPUTEST_HOME}/include)
-
+link_directories(${BOOST_ROOT}/lib)
 find_package(Boost REQUIRED system thread exception)
 
 find_file(Resources REQUIRED simple.grid)
@@ -40,7 +40,10 @@ set(SOURCE_FILES
         src/Brain.h src/Brain.cpp
         src/common.h
         src/GlobalCell.h src/GlobalCell.cpp
-        src/Data.h src/Data.cpp src/Cell.cpp src/Cell.h src/Random.h src/SolutionMatrix.cpp src/SolutionMatrix.h)
+        src/Data.h src/Data.cpp
+        src/Cell.cpp src/Cell.h
+        src/Random.h
+        src/SolutionMatrix.cpp src/SolutionMatrix.h src/Puzzle.cpp src/Puzzle.h)
 
 set(TEST_FILES
         test/ConcurrentQueueTest.cpp
@@ -50,7 +53,10 @@ set(TEST_FILES
         test/CellTest.cpp
         test/BrainTest.cpp
         test/DataTest.cpp
-        test/SolutionTest.cpp src/Hub.cpp src/Hub.h test/SpeedTest.cpp test/RandomTest.cpp)
+        test/SolutionTest.cpp
+        src/Hub.cpp src/Hub.h
+        test/SpeedTest.cpp
+        test/RandomTest.cpp)
 
 add_executable(sudoku_solver ${SOURCE_FILES} ${TEST_FILES})
 

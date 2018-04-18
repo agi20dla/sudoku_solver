@@ -23,6 +23,7 @@ TEST(CellTest, GetNewConnectionToCell)
     cell->init();
     auto port = cell->createPort(string("t"));
     ASSERT_TRUE(port != nullptr);
+    port.reset();
 }
 
 TEST(CellTest, SendMessageThroughCell)
@@ -44,6 +45,9 @@ TEST(CellTest, SendMessageThroughCell)
     cell1->run();
 
     ASSERT_EQ(1, port2->getNumMessagesRecieved());
+
+    port1.reset();
+    port2.reset();
 }
 
 
@@ -82,6 +86,10 @@ TEST(CellTest, SendMessageThroughCellToAnotherCell)
     ASSERT_EQ(1, port3->getNumMessagesRecieved());
     ASSERT_EQ(1, port3->getNumMsgsForwardedToHub());
     ASSERT_EQ(0, port3->getNumMessagesSent());
+
+    port1.reset();
+    port2.reset();
+    port3.reset();
 }
 
 
@@ -101,6 +109,8 @@ TEST(CellTest, CellsCanConnectToEachOther)
     cell1->run();
 
     ASSERT_EQ(cell2->numMessagesOnHub(), 1);
+
+    port.reset();
 }
 
 
@@ -127,6 +137,8 @@ TEST(CellTest, GlobalCellDoesNotSendBackMessage)
     ASSERT_EQ(1, port->getNumMessagesRecieved());
     ASSERT_EQ(1, port->getNumMsgsForwardedToHub());
     ASSERT_EQ(0, port->getNumMessagesSent());
+
+    port.reset();
 }
 
 /**
@@ -193,6 +205,7 @@ TEST(CellTest, MessageOnlyGoesHorizontally)
     ASSERT_EQ(1, tr->numMessagesRcvd());
     ASSERT_EQ(0, global->numMessagesRcvd());
 
+    tlMsgPort.reset();
 }
 
 
@@ -258,6 +271,8 @@ TEST(CellTest, MessageOnlyGoesVertically)
     ASSERT_EQ(0, bl->numMessagesRcvd());
     ASSERT_EQ(1, tr->numMessagesRcvd());
     ASSERT_EQ(0, global->numMessagesRcvd());
+
+    brMsgPort.reset();
 }
 
 
@@ -376,6 +391,8 @@ TEST(CellTest, MessageGoesGlobal)
 
     ASSERT_EQ(1, global->numMessagesRcvd());
     ASSERT_EQ(0, global->numMessagesOnHub());
+
+    br.reset();
 }
 
 TEST(CellTest, SetMessageIsProcessed)
@@ -395,6 +412,8 @@ TEST(CellTest, SetMessageIsProcessed)
 
     ASSERT_EQ(0, (*values2).at(4));
     ASSERT_EQ(1, (*values2).at(5));
+
+    port.reset();
 }
 
 TEST(CellTest, RmMessageIsProcessed)
@@ -414,4 +433,6 @@ TEST(CellTest, RmMessageIsProcessed)
     uint value = (*values).at(5);
 
     ASSERT_EQ(0, value);
+
+    port.reset();
 }

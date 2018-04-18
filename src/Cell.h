@@ -14,7 +14,12 @@
 
 class Cell {
 protected:
-    std::shared_ptr<std::unordered_map<boost::uuids::uuid, uint, boost::hash<boost::uuids::uuid>>> rcvdMsgUUIDs_;
+    std::shared_ptr
+            <std::unordered_map
+                    <boost::uuids::uuid, uint, boost::hash
+                            <boost::uuids::uuid>
+                    >
+            > rcvdMsgUUIDs_;
 
 public:
     Cell();

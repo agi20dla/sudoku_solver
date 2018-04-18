@@ -62,7 +62,6 @@ public:
         {
             return nullptr;
         } else {
-
             T popped = queue_.front();
             queue_.pop();
             return popped;

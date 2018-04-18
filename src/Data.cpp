@@ -11,8 +11,7 @@
 
 using namespace std;
 
-Data::Data() {
-}
+Data::Data() = default;
 
 void Data::init(const string &filename) {
     ifstream myFile(filename);
@@ -23,10 +22,10 @@ void Data::init(const string &filename) {
             puzzle += line;
         }
         puzzle.erase(
-                std::remove_if(puzzle.begin(), puzzle.end(),
-                               [](char ch) {
-                                   return std::isspace<char>(ch, std::locale::classic());
-                               }), puzzle.end()
+                std::remove_if(puzzle.begin(), puzzle.end(), [](char ch) {
+                    return std::isspace<char>(ch, std::locale::classic());
+                }),
+                puzzle.end()
         );
         if (puzzle.length() != 81) {
             cerr << "File [" << filename << "] is not a Sudoku Solver puzzle file" << endl;
@@ -43,7 +42,7 @@ void Data::init(const string &filename) {
         if ('.' == c) {
             value = 0;
         } else if (c > '0' && c <= '9') {
-            value = boost::lexical_cast<uint>(c);
+            value = boost::lexical_cast<int>(c);
         } else {
             throw bad_puzzle_file();
         }
@@ -54,6 +53,7 @@ void Data::init(const string &filename) {
 
 void Data::init(const vector<uint> &values)
 {
+    // TODO: Should this be copied instead of assigned?
     puzzle_vec = values;
 }
 

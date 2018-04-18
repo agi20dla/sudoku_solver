@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <future>
+#include <boost/concept_check.hpp>
 #include "Brain.h"
 #include "GlobalCell.h"
 #include "Random.h"
@@ -19,19 +21,32 @@ Brain::~Brain() {
     solutionPaths_.clear();
     brainPorts_.clear();
     globalCells_.clear();
+
+    while (puzzleCells_.size() > 0) {
+        puzzle_cell_ptr c = puzzleCells_.back();
+        puzzleCells_.pop_back();
+        c.reset();
+    }
     puzzleCells_.clear();
 }
 
 
 int Brain::solve(bool debug)
 {
+    unsigned maxThreads = std::thread::hardware_concurrency();
+    if (maxThreads == 0) {
+        maxThreads = 1;
+    } else if (maxThreads > 1) {
+        maxThreads -= 1;
+    }
     cout << "Solving Sudoku Puzzle:" << endl;
+    cout << "Can use " << maxThreads << " threads" << endl;
     printSolution();
 
     if (firstRun_) {
         // Run first time
-        if (!run(debug)) {
-            cerr << "Attempeted to solve bad puzzle" << endl;
+        if (!run()) {
+            cerr << "Attempted to solve bad puzzle" << endl;
             return 1;
         }
         firstRun_ = false;
@@ -51,14 +66,29 @@ int Brain::solve(bool debug)
     // brute force a solution
     while (!isPuzzleSolved() && solutionPaths_.size() > 0) {
         SolutionPath path = solutionPaths_.front();
-        stalls_used_++;
         solutionPaths_.pop_front();
+        stalls_used_++;
         vector<CellValue> possibles = path.possibles;
         vector<CellState> puzzleStates = path.states;
 
+        // try all possible values on this state of the puzzle
         for (CellValue ss : possibles) {
             setValue(ss.row, ss.col, ss.val);
-            if (run(debug)) {
+
+            // TODO: This is where we could set up additional processes to run the solutions down
+            // 1. set up (# cores - 1) threads with futures
+            // 2. iterate each thread for a true return, which happens when it finds a solution
+
+            auto result(std::future::async(std::launch::async, &Brain::run, this));
+//            future<bool> result(std::future::async(launch::async, &Brain::run, this));
+//            future<bool> result(async(launch::async, &Brain::run, this));
+            auto status = result.wait_for(std::chrono::milliseconds(0));
+            while (status != future_status::ready) {
+                status = result.wait_for(std::chrono::milliseconds(10));
+            }
+
+            bool b = result.get();
+            if (b) {
                 if (isPuzzleSolved()) {
                     break;
                 } else {
@@ -90,12 +120,10 @@ int Brain::solve(bool debug)
 }
 
 
-bool Brain::run(bool debug) {
-    bool firstRun = true;
+bool Brain::run() {
     bool msgsRemaining = true;
 
-    while (firstRun || msgsRemaining) {
-        firstRun = false;
+    while (msgsRemaining) {
         numRuns_++;
         if (numRuns_ % 500 == 0) {
             cout << endl;
@@ -140,7 +168,6 @@ boost::uuids::uuid Brain::getUUID() {
 }
 
 void Brain::reset() {
-
     puzzleCells_.clear();
     globalCells_.clear();
     brainPorts_.clear();
@@ -158,6 +185,7 @@ void Brain::reset() {
 }
 
 
+// Puzzle
 void Brain::createPuzzleCells()
 {
     for (uint idx = 0; idx < 81; idx++) {
@@ -167,7 +195,7 @@ void Brain::createPuzzleCells()
     }
 }
 
-
+// Puzzle
 void Brain::connectPuzzleRows()
 {
     for (uint row = 0; row < 9; row++) {
@@ -182,6 +210,7 @@ void Brain::connectPuzzleRows()
 }
 
 
+// Puzzle
 void Brain::connectPuzzleCols() {
     for (uint col = 0; col < 9; col++) {
         for (uint row = 0; row < 8; row++) {
@@ -195,6 +224,7 @@ void Brain::connectPuzzleCols() {
 }
 
 
+// Puzzle
 void Brain::createGlobalCells() {
     for (uint idx = 0; idx < 9; idx++) {
         global_cell_ptr g(make_shared<GlobalCell>());
@@ -203,10 +233,11 @@ void Brain::createGlobalCells() {
 }
 
 
+// Puzzle
 void Brain::connectGlobals() {
     for (uint row = 0; row < 9; row++) {
         for (uint col = 0; col < 9; col++) {
-            global_cell_ptr global = getGlobalCell(row/3, col/3);
+            global_cell_ptr global = getGlobalCell(row / 3, col / 3);
             global->connect(getPuzzleCell(row, col), std::string("g"));
         }
     }

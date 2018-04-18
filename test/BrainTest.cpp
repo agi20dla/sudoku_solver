@@ -28,6 +28,8 @@ TEST(BrainTest, SendHMessage) {
 
     puzzle_cell_ptr cell10 = brain.getPuzzleCell(1, 0);
     ASSERT_EQ(cell10->numMessagesRcvd(), 0);
+
+    port.reset();
 }
 
 TEST(BrainTest, SendVMessage) {
@@ -45,6 +47,8 @@ TEST(BrainTest, SendVMessage) {
 
     puzzle_cell_ptr cell01 = brain.getPuzzleCell(0, 1);
     ASSERT_EQ(cell01->numMessagesRcvd(), 0);
+
+    port.reset();
 }
 
 TEST(BrainTest, GlobalMessageStaysInCell) {
@@ -55,7 +59,7 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
     auto ioMessage = std::make_shared<IoMessage>(string("message"), 0, std::string("g"), brain.getUUID());
     port->fwdToQueue(ioMessage);
 
-    brain.run(true);
+    brain.run();
 
     puzzle_cell_ptr cell22 = brain.getPuzzleCell(2, 2);
     ASSERT_EQ(0, cell22->numMessagesRcvd());
@@ -69,6 +73,8 @@ TEST(BrainTest, GlobalMessageStaysInCell) {
             ASSERT_EQ(1, cell->numMessagesRcvd());
         }
     }
+
+    port.reset();
 }
 
 TEST(BrainTest, SendGhvMessage) {
@@ -86,7 +92,7 @@ TEST(BrainTest, SendGhvMessage) {
     auto ioMessageV = std::make_shared<IoMessage>(string("message"), 0, std::string("v"), brain.getUUID());
     port->fwdToQueue(ioMessageV);
 
-    brain.run(true);
+    brain.run();
 
     puzzle_cell_ptr cell32 = brain.getPuzzleCell(3, 2);
     ASSERT_EQ(cell32->numMessagesRcvd(), 1);
@@ -106,6 +112,8 @@ TEST(BrainTest, SendGhvMessage) {
             ASSERT_GE(cell->numMessagesRcvd(), 1);
         }
     }
+
+    port.reset();
 }
 
 
@@ -155,7 +163,7 @@ TEST(BrainTest, SetValue) {
     brain.reset();
 
     brain.setValue(0, 0, 5);
-    brain.run(true);
+    brain.run();
 
     // check this block's cells to make sure it's values are set / reset appropriately
     for (uint row = 0; row < 3; row++) {
@@ -195,7 +203,7 @@ TEST(BrainTest, SetTwoValuesInOneBlock) {
 
     brain.setValue(0, 0, 5);
     brain.setValue(2, 2, 9);
-    brain.run(true);
+    brain.run();
 
     // check this block's cells to make sure it's values are set / reset appropriately
     for (uint row = 0; row < 3; row++) {

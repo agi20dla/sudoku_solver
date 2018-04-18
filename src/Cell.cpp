@@ -14,6 +14,12 @@ Cell::Cell()
 Cell::Cell(const Cell &other)
         : rcvdMsgUUIDs_(other.rcvdMsgUUIDs_) { }
 
+Cell::~Cell() {
+    rcvdMsgUUIDs_.reset();
+//    rcvdMsgUUIDs_->clear();
+}
+
+
 void Cell::connect(shared_ptr<Cell> otherCell, const string &direction) {
     io_ptr port = createPort(direction);
 
@@ -21,12 +27,6 @@ void Cell::connect(shared_ptr<Cell> otherCell, const string &direction) {
         io_ptr otherPort = otherCell->connect(port, direction);
         port->connect(otherPort);
     }
-}
-
-
-Cell::~Cell() {
-    rcvdMsgUUIDs_->clear();
-    rcvdMsgUUIDs_.reset();
 }
 
 

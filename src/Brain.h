@@ -19,8 +19,8 @@
 class Brain {
 private:
     boost::uuids::uuid uuid_;
-    std::vector<puzzle_cell_ptr> puzzleCells_;
-    std::vector<global_cell_ptr> globalCells_;
+    std::vector<puzzle_cell_ptr> puzzleCells_;      // Puzzle
+    std::vector<global_cell_ptr> globalCells_;      // Puzzle
     std::vector<io_ptr> brainPorts_;
 
     // holds previous solutions when we get stuck
@@ -98,7 +98,7 @@ public:
 
     // Runs all the hubs for all the cells until we either solve the puzzle or
     // there are no more messages being generated
-    bool run(bool debug = false);
+    bool run();
 
     // set the value of a particular cell via a management message
     void setValue(const uint row, const uint col, const uint value);
