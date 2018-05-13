@@ -6,24 +6,24 @@
 #include <vector>
 #include <iostream>
 #include <future>
-#include <boost/concept_check.hpp>
+//#include <boost/concept_check.hpp>
 #include "Brain.h"
 #include "Random.h"
 
 using namespace std;
 using namespace boost;
 
-Brain::Brain() : uuid_(Random::getInstance().getNewUUID()) { }
+Brain::Brain() : uuid_(Random::getInstance().getNewUUID()) {
+}
 
 Brain::~Brain() {
-    solutionHashes_.clear();
+//    solutionHashes_.clear();
     solutionPaths_.clear();
     brainPorts_.clear();
 }
 
 
 int Brain::solve(const vector<uint> vector) {
-    setValues(vector);
 
     unsigned maxThreads = std::thread::hardware_concurrency();
     if (maxThreads == 0) {
@@ -35,11 +35,25 @@ int Brain::solve(const vector<uint> vector) {
     cout << "Can use " << maxThreads << " threads" << endl;
     printSolution();
 
-    // create first puzzle object based on input data
+    // Create first puzzle object and run it, set useQueue param to false
+    Puzzle firstPuzzle(solutionPaths_);
+    firstPuzzle.setValues(vector);
+    bool solved = firstPuzzle.run();
+    // Determine whether solved
+    if (solved) {
+        // great!  print solution and be done
+    } else {
+
+    }
+
+    // if not, get SolutionPath and start brute forcing
+    // possible SolutionPath's onto queue
 
     // put it on the queue
+//    puzzleQueue_.push(puzzle);
 
     // spin up one thread and give it access to the queue
+//    auto solved = puzzle.solve(puzzleQueue_);
 
     // Thread(s) begins taking puzzles off the queue.
 
@@ -60,20 +74,20 @@ int Brain::solve(const vector<uint> vector) {
 //     */
 //    if (firstRun_) {
 //        // Run first time
-//        if (!run()) {
-//            cerr << "Attempted to solve bad puzzle" << endl;
+//        if (!puzzle_.solve()) {
+//            cerr << "Attempted to solve bad puzzle_" << endl;
 //            return 1;
 //        }
 //        firstRun_ = false;
 //    }
 //
-//    if (isPuzzleSolved()) {
+//    if (puzzle_.isPuzzleSolved()) {
 //        cout << "Puzzle solved!" << endl;
 //        printSolution();
 //        return 0;
 //    }
 //
-//    // store puzzle state and possible solutions
+//    // store puzzle_ state and possible solutions
 //    SolutionPath firstPath{getSolutionStates(), getPossibleSolutions()};
 //    solutionHashes_.insert(firstPath);
 //    solutionPaths_.push_back(firstPath);
@@ -86,7 +100,7 @@ int Brain::solve(const vector<uint> vector) {
 //        vector<CellValue> possibles = path.possibles;
 //        vector<CellState> puzzleStates = path.states;
 //
-//        // try all possible values on this state of the puzzle
+//        // try all possible values on this state of the puzzle_
 //        for (CellValue ss : possibles) {
 //            setValue(ss.row, ss.col, ss.val);
 //
@@ -127,9 +141,11 @@ int Brain::solve(const vector<uint> vector) {
 //        }
 //    }
 
-    if (isPuzzleSolved()) {
+    if (solved) {
         cout << "Puzzle solved!" << endl;
         printSolution();
+    } else {
+        cout << "Puzzle not solved!" << endl;
     }
     return 0;
 }
@@ -140,182 +156,14 @@ boost::uuids::uuid Brain::getUUID() {
 
 void Brain::reset() {
     brainPorts_.clear();
-
-    connectBrainToPuzzleCells();
-
-    puzzle.reset();
-    firstRun_ = true;
 }
 
-
-
-
-void Brain::connectBrainToPuzzleCells() {
-    for (auto c : puzzle.getPuzzleCells()) {
-        brainPorts_.push_back(c->connect("b"));
-    }
-}
-//
-//
-//puzzle_cell_ptr Brain::getPuzzleCell(const uint row, const uint col) {
-//    puzzle_cell_ptr c = puzzle.getPuzzleCell(row, col);
-//    return c;
-//}
-//
-//
-//global_cell_ptr Brain::getGlobalCell(const uint row, const uint col) {
-//    global_cell_ptr g = puzzle.getGlobalCell(row, col);
-//    return g;
-//}
-//
 
 io_ptr Brain::getBrainPort(const uint row, const uint col) {
     io_ptr p = brainPorts_[row * 9 + col];
     return p;
 }
 
-
-void Brain::printValues() {
-    cout << "PuzzleCell values" << endl;
-    for (uint row = 0; row < 9; row++) {
-        for (uint col = 0; col < 9; col++) {
-            cout << "r:" << row << ",c:" << col << " - ";
-            if (auto cell = puzzle.getPuzzleCell(row, col)) {
-                vector<uint> *values = cell->getPossibleValues();
-                bool skip = true;
-
-                for (auto v : *values) {
-                    if (skip) {
-                        skip = false;
-                        continue;
-                    }
-                    cout << v << " ";
-                }
-            }
-            cout << ":" << " ";
-        }
-        cout << endl;
-    }
-}
-
-void Brain::setValues(const vector<CellState> solution ) {
-    uint row = 0;
-    uint col = 0;
-    for (auto s : solution) {
-        puzzle.setValue(row, col, s.soleValue, s.possibles);
-        col++;
-        if (col == 9) {
-            col = 0;
-            row++;
-        }
-    }
-}
-
-void Brain::setValues(const vector<uint> values) {
-    uint row = 0;
-    uint col = 0;
-    for (auto value : values) {
-        puzzle.setValue(row, col, value);
-        col++;
-        if (col == 9) {
-            col = 0;
-            row++;
-        }
-    }
-}
-
-//
-//void Brain::removeValue(const uint row, const uint col, const uint value)
-//{
-//    auto ioMessage = std::make_shared<IoMessage>(string("rm"), value, std::string("b"), uuid_);
-//    getBrainPort(row, col)->fwdToQueue(ioMessage);
-//}
-//
-//
-//vector<uint> *Brain::getValues(const uint row, const uint col)
-//{
-//    vector<uint> *values;
-//    auto cell = getPuzzleCell(row, col);
-//    values = cell->getPossibleValues();
-//    return values;
-//}
-
-
-void Brain::printSolution() {
-
-    cout << "Run number: " << numRuns_ << endl;
-    cout << "Total number of stalls: " << stalls_ << endl;
-    cout << "Number of stalls left: " << solutionPaths_.size() << endl;
-    cout << "Number of stalls used: " << stalls_used_ << endl;
-    cout << "Number of failures: " << failures_ << endl;
-    cout << "Solution" << endl;
-    vector<std::string> solution;
-    for (uint row = 0; row < 9; row++) {
-        for (uint col = 0; col < 9; col++) {
-
-            if (auto cell = puzzle.getPuzzleCell(row, col)) {
-                uint value = cell->getSoleValue();
-                if (value > 0) {
-                    solution.push_back(to_string(value));
-                } else {
-                    solution.push_back("*");
-                }
-            }
-        }
-    }
-
-    uint idx = 0;
-    for (auto out : solution) {
-        cout << out << " ";
-
-        idx++;
-        if (idx % 3 == 0) {
-            cout << " ";
-        }
-        if (idx % 9 == 0) {
-            cout << endl;
-        }
-        if (idx % 27 == 0) {
-            cout << endl;
-        }
-    }
-}
-
-
-//vector<CellState> Brain::getSolutionStates() {
-//    vector<CellState> solutionState;
-//    for (puzzle_cell_ptr cell : puzzleCells_) {
-//        CellState ss{ cell->getSoleValue(), *cell->getPossibleValues()};
-//        solutionState.push_back(ss);
-//    }
-//    return solutionState;
-//}
-
-
-vector<uint> Brain::getSolution() {
-    return puzzle.getSolution();
-}
-
-
-bool Brain::isPuzzleSolved() {
-    return puzzle.isPuzzleSolved();
-}
-
-//vector<CellValue> Brain::getPossibleSolutions() {
-//    vector<CellValue> possibles;
-//    for (uint idx = 0; idx < 81; idx++) {
-//        puzzle_cell_ptr c = puzzleCells_.at(idx);
-//        if (c->getSoleValue() == 0) {
-//            vector<uint> *values = c->getPossibleValues();
-//            for (uint vidx = 1; vidx < 9; vidx++) {
-//                if (values->at(vidx) == 1) {
-//                    possibles.emplace_back(CellValue{idx / 9, idx % 9, vidx});
-//                }
-//            }
-//        }
-//    }
-//    return possibles;
-//}
 
 bool operator< (const SolutionPath& lhs, const SolutionPath& rhs) {
     int lhsVal = 0, rhsVal = 0;

@@ -91,6 +91,10 @@ public:
         return size;
     }
 
+    bool empty() {
+        return queue_.empty();
+    }
+
     ulong get_num_messages_rcvd()
     {
         boost::mutex::scoped_lock lock(the_mutex);

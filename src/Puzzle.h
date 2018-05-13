@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include <boost/uuid/uuid.hpp>
 #include "common.h"
+#include "ConcurrentQueue.h"
 
 class Puzzle {
 
@@ -17,8 +18,9 @@ private:
 
     std::vector<puzzle_cell_ptr> puzzleCells_;
     std::vector<global_cell_ptr> globalCells_;
-    std::list<SolutionPath> solutionPaths_;
-    std::unordered_set<SolutionPath, StateHasher> solutionHashes_;
+    ConcurrentQueue<SolutionPath> solutionPaths_;
+//    std::unordered_set<SolutionPath, StateHasher> solutionHashes_;
+    std::vector<io_ptr> puzzlePorts_;
     bool firstRun_ = true;
     long numRuns_ = 0;
     long stalls_ = 0;
@@ -32,22 +34,14 @@ private:
     void connectGlobals();
 
     // Initialize the Puzzle Cells to the given solution
-    void setValues(const vector <CellState> solution);
-    void printValues();
+    void setValues(vector<CellState> solution);
 
-    // Print the current calculated solution of the entire puzzle to cout
+    void connectPuzzleToPuzzleCells();
+
+    // Print the current calculated solution of the entire puzzle_ to cout
     // Will print values of 1-9, if that is the Puzzle Cell's sole value,
     // Otherwise, will print *
     void printSolution();
-
-    // Print the number of each Puzzle Cell's received messages in
-    // the format of a Sudoku puzzle grid
-    void printNumMsgsRcvd();
-
-//    // Return true if all the Puzzle Cells contain a sole value
-//    bool isPuzzleSolved();
-
-//    std::vector<uint> getSolution();
 
     std::vector<CellState> getSolutionStates();
 
@@ -57,9 +51,11 @@ public:
 
     Puzzle();
 
+    Puzzle(ConcurrentQueue<SolutionPath> list);
+
     virtual ~Puzzle();
 
-    int solve();
+    int solve(bool useQueue = true);
 
     bool run();
 
@@ -102,6 +98,8 @@ public:
     void reset();
 
     boost::uuids::uuid getUUID();
+
+    io_ptr getPuzzlePort(const uint row, const uint col);
 };
 
 

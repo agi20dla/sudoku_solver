@@ -28,7 +28,7 @@ void Data::init(const string &filename) {
                 puzzle.end()
         );
         if (puzzle.length() != 81) {
-            cerr << "File [" << filename << "] is not a Sudoku Solver puzzle file" << endl;
+            cerr << "File [" << filename << "] is not a Sudoku Solver puzzle_ file" << endl;
             throw bad_puzzle_file();
         } else {
             puzzle_str = puzzle;

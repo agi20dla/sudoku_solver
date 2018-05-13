@@ -10,20 +10,20 @@ are no weights attached to any cell's input or output).
 Hopefully the following discussion of the problem, program, and solution won't get too convoluted.
 
 ## Sudoku
-If you don't know what a Sudoku puzzle is, check out the wikipedia article:
+If you don't know what a Sudoku puzzle_ is, check out the wikipedia article:
 
 https://en.wikipedia.org/wiki/Sudoku
 
-This program logically breaks up the puzzle into three parts:
+This program logically breaks up the puzzle_ into three parts:
 
-1. The overall puzzle, accessible from the Brain, which can also access each individual Cell and Group cell through
+1. The overall puzzle_, accessible from the Brain, which can also access each individual Cell and Group cell through
 special management connections called brain (b) ports (explained later).
 
 2. The 9 groups of 9 cells, which are connected internally through specialized Group cells, via group (g) ports, that
 allow communication between each cell in a group, but not outside of it.
 
 3. The 81 individual cells, which are connected via horizontal (h) and vertical (v) ports that allow communication
-between cells on a horizontal or vertical path in the puzzle
+between cells on a horizontal or vertical path in the puzzle_
 
 Each cell contains a Cell Hub and a Management Hub, which are connected to each other via an internal management (m)
 port.  These hubs are concurrent queues that are used to buffer the messages being passed around.

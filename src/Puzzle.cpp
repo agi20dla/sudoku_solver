@@ -10,6 +10,10 @@
 
 Puzzle::Puzzle() : uuid_(Random::getInstance().getNewUUID()) {}
 
+Puzzle::Puzzle(ConcurrentQueue<SolutionPath> solutionsPaths) {
+    this->solutionPaths_ = solutionsPaths;
+}
+
 Puzzle::~Puzzle() {
 
     globalCells_.clear();
@@ -22,16 +26,16 @@ Puzzle::~Puzzle() {
     puzzleCells_.clear();
 }
 
-int Puzzle::solve() {
+int Puzzle::solve(bool useQueue) {
     /*
- *
- * START THREADING HERE
- *
- */
+     *
+     * START THREADING HERE
+     *
+     */
     if (firstRun_) {
         // Run first time
         if (!run()) {
-            cerr << "Attempted to solve bad puzzle" << endl;
+            cerr << "Attempted to solve bad puzzle_" << endl;
             return 1;
         }
         firstRun_ = false;
@@ -43,20 +47,20 @@ int Puzzle::solve() {
         return 0;
     }
 
-    // store puzzle state and possible solutions
+    // store puzzle_ state and possible solutions
     SolutionPath firstPath{getSolutionStates(), getPossibleSolutions()};
-    solutionHashes_.insert(firstPath);
+//    solutionHashes_.insert(firstPath);
     solutionPaths_.push_back(firstPath);
 
     // brute force a solution
-    while (!isPuzzleSolved() && solutionPaths_.size() > 0) {
+    while (!isPuzzleSolved() && !solutionPaths_.empty()) {
         SolutionPath path = solutionPaths_.front();
         solutionPaths_.pop_front();
         stalls_used_++;
         vector<CellValue> possibles = path.possibles;
         vector<CellState> puzzleStates = path.states;
 
-        // try all possible values on this state of the puzzle
+        // try all possible values on this state of the puzzle_
         for (CellValue ss : possibles) {
             setValue(ss.row, ss.col, ss.val);
 
@@ -97,18 +101,47 @@ int Puzzle::solve() {
         }
     }
 
+    printSolution();
     return 0;
 }
+
+
+vector<CellState> Puzzle::getSolutionStates() {
+    vector<CellState> solutionState;
+    for (puzzle_cell_ptr cell : puzzleCells_) {
+        CellState ss{cell->getSoleValue(), *cell->getPossibleValues()};
+        solutionState.push_back(ss);
+    }
+    return solutionState;
+}
+
+
+vector<CellValue> Puzzle::getPossibleSolutions() {
+    vector<CellValue> possibles;
+    for (uint idx = 0; idx < 81; idx++) {
+        puzzle_cell_ptr c = puzzleCells_.at(idx);
+        if (c->getSoleValue() == 0) {
+            vector<uint> *values = c->getPossibleValues();
+            for (uint vidx = 1; vidx < 9; vidx++) {
+                if (values->at(vidx) == 1) {
+                    possibles.emplace_back(CellValue{idx / 9, idx % 9, vidx});
+                }
+            }
+        }
+    }
+    return possibles;
+}
+
 
 bool Puzzle::run() {
     bool msgsRemaining = true;
 
     while (msgsRemaining) {
         numRuns_++;
-        if (numRuns_ % 500 == 0) {
-            cout << endl;
-            printSolution();
-        }
+//        if (numRuns_ % 500 == 0) {
+//            cout << endl;
+//            printSolution();
+//        }
         // run the globals
         for (auto g : globalCells_) {
             g->run();
@@ -216,26 +249,29 @@ void Puzzle::reset() {
     createPuzzleCells();
     connectPuzzleRows();
     connectPuzzleCols();
+    createGlobalCells();
+    connectGlobals();
 
+    connectPuzzleToPuzzleCells();
     firstRun_ = true;
 }
 
 
 void Puzzle::setValue(const uint row, const uint col, const uint value) {
-    // value may be 0 during initial puzzle setup when reading from
+    // value may be 0 during initial puzzle_ setup when reading from
     // a file
     if (value == 0) {
         return;
     }
     getPuzzleCell(row, col)->setSoleValue(value);
     auto ioMessage = make_shared<IoMessage>(std::string("set"), value, std::string("b"), uuid_);
-//    io_ptr mgtPort = getBrainPort(row, col);
-//    mgtPort->fwdToQueue(ioMessage);
+    io_ptr mgtPort = getPuzzlePort(row, col);
+    mgtPort->fwdToQueue(ioMessage);
 }
 
 
 void Puzzle::setValue(const uint row, const uint col, const uint value, const vector<uint> possibles) {
-    // value may be 0 during initial puzzle setup when reading from
+    // value may be 0 during initial puzzle_ setup when reading from
     // a file
     if (value == 0) {
         return;
@@ -275,7 +311,7 @@ void Puzzle::setValues(const vector<uint> values) {
 
 void Puzzle::removeValue(const uint row, const uint col, const uint value) {
     auto ioMessage = std::make_shared<IoMessage>(string("rm"), value, std::string("b"), uuid_);
-//    getBrainPort(row, col)->fwdToQueue(ioMessage);
+    getPuzzlePort(row, col)->fwdToQueue(ioMessage);
 }
 
 
@@ -286,6 +322,44 @@ vector<uint> *Puzzle::getValues(const uint row, const uint col) {
     return values;
 }
 
+
+vector<uint> Puzzle::getSolution() {
+    vector<uint> solution;
+    uint rowcol = 0;
+    for (puzzle_cell_ptr cell : puzzleCells_) {
+        solution.push_back(cell->getSoleValue());
+        rowcol++;
+    }
+    return solution;
+}
+
+
+bool Puzzle::isPuzzleSolved() {
+    bool solved = true;
+    for (auto c : puzzleCells_) {
+        if (c->getSoleValue() == 0) {
+            solved = false;
+            break;
+        }
+    }
+    return solved;
+}
+
+boost::uuids::uuid Puzzle::getUUID() {
+    return uuid_;
+}
+
+void Puzzle::connectPuzzleToPuzzleCells() {
+    for (auto c : getPuzzleCells()) {
+        puzzlePorts_.push_back(c->connect("b"));
+    }
+
+}
+
+io_ptr Puzzle::getPuzzlePort(const uint row, const uint col) {
+    io_ptr p = puzzlePorts_[row * 9 + col];
+    return p;
+}
 
 void Puzzle::printSolution() {
 
@@ -327,56 +401,3 @@ void Puzzle::printSolution() {
     }
 }
 
-
-vector<CellState> Puzzle::getSolutionStates() {
-    vector<CellState> solutionState;
-    for (puzzle_cell_ptr cell : puzzleCells_) {
-        CellState ss{cell->getSoleValue(), *cell->getPossibleValues()};
-        solutionState.push_back(ss);
-    }
-    return solutionState;
-}
-
-
-vector<uint> Puzzle::getSolution() {
-    vector<uint> solution;
-    uint rowcol = 0;
-    for (puzzle_cell_ptr cell : puzzleCells_) {
-        solution.push_back(cell->getSoleValue());
-        rowcol++;
-    }
-    return solution;
-}
-
-
-bool Puzzle::isPuzzleSolved() {
-    bool solved = true;
-    for (auto c : puzzleCells_) {
-        if (c->getSoleValue() == 0) {
-            solved = false;
-            break;
-        }
-    }
-    return solved;
-}
-
-vector<CellValue> Puzzle::getPossibleSolutions() {
-    vector<CellValue> possibles;
-    for (uint idx = 0; idx < 81; idx++) {
-        puzzle_cell_ptr c = puzzleCells_.at(idx);
-        if (c->getSoleValue() == 0) {
-            vector<uint> *values = c->getPossibleValues();
-            for (uint vidx = 1; vidx < 9; vidx++) {
-                if (values->at(vidx) == 1) {
-                    possibles.emplace_back(CellValue{idx / 9, idx % 9, vidx});
-                }
-            }
-        }
-    }
-    return possibles;
-}
-
-
-boost::uuids::uuid Puzzle::getUUID() {
-    return uuid_;
-}
